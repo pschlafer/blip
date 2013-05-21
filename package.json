@@ -1,0 +1,21 @@
+{
+    "name": "blip",
+    "version": "0.0.0",
+    "private": true,
+    "scripts": {
+    },
+    "dependencies": {
+	"express": "3.2.0"
+    },
+    "devDependencies": {
+	"grunt": "~0.4.0",
+	"grunt-contrib-jshint": "~0.4.3",
+	"grunt-contrib-requirejs": "~0.4.0",
+	"grunt-open": "~0.2.0",
+	"grunt-express": "~0.3.3",
+	"grunt-env": "~0.4.0",
+    },
+    "engines": {
+	"node": ">=0.8.0"
+  }
+}
