@@ -1,0 +1,450 @@
+header {
+		background: #0069A1;
+		width: 100%;
+	}
+	.inner {
+		width: 1130px;
+		margin: auto;
+	}
+	#main {
+		background: #EFF1F3;
+	}
+	#graph {
+		background: white;
+		border-bottom: 15px solid #B7C9D2;
+	}
+	.logo {
+		color: white;
+		float: left;
+	}
+	.user:hover {
+		cursor: progress;
+	}
+	.user {
+		opacity: 0.5;
+		float: right;
+		height: 100%;
+	}
+	.clear {
+		clear: both;
+	}
+
+	#nav {
+		background: #29A8D9;
+	}
+
+	#stats li {
+		float: left;
+		z-index: -1;
+	}
+	#nav li {
+		float: left;
+	}
+	header .container {
+		padding: 7px 0px;
+	}
+	#main .container {
+		background: #EFF1F3;
+		padding: 30px 20px;
+	}
+	#chart svg {
+	}
+	#chartMain {
+    height: 505px;
+    overflow-y: auto;
+	}
+	#chartTop {
+		margin-bottom: -5px;
+		margin-top: 20px;
+	}
+	#chartBottom {
+		margin-top: -5px;
+		margin-bottom: 32px;
+	}
+	#nav ul {
+		margin-left: 48px;
+		color: white;
+		text-transform: capitalize;
+
+	}
+	#nav li {
+		padding: 15px;
+		height: 16px;
+	}
+	.today {
+		font-size: 14px;
+		background: #48B4DE;
+		padding-left: 20px !important;
+		padding-right: 20px !important;
+	}
+	.arrow {
+		background: #63BFE2;
+
+	}
+	.user img {
+		width: 35px;
+	}
+	.user {
+		color: #29A7D9;
+		font-size: 12px;
+	}
+	#username {
+		color: white
+	}
+	body {
+		font-family: 'helvetica'
+	}
+	.user .text {
+		float: left;
+		padding-right: 10px;
+		padding-top: 13px;
+	}
+	.user img {
+		float: left;
+	}
+	.arrow img {
+		width: 15px;
+	}
+	#more {
+		width: 15px;
+		padding: 14px 0 0 10px;
+	}
+	.logo img {
+		width: 56px;
+	}
+	.patient {
+		width: 100%;
+		color: white;
+		background: #29A8D9;
+	}
+	.handel img {
+		width: 15px;
+	}
+	.handel {
+		width: 15px;
+		margin: auto;
+		padding-bottom: 2px;
+	}
+	.currentPatient {
+		position: absolute;
+		width: 0px;
+		height: 0px;
+		top: -10px;
+	}
+	.currentPatient img:hover {
+		cursor: hand; cursor: pointer; 
+	}
+	.currentPatient h1:hover {
+		cursor: hand; cursor: pointer; 
+	}
+	.currentPatient img {
+    width: 70px;
+    left: 135px;
+    position: relative;
+    top: 32px;
+	}
+	.currentPatient h1 {
+		color: white;
+		position: relative;
+		width: 200px;
+		top: -31px;
+		left: 210px;
+		font-size: 20px;
+	}
+
+	.box:hover {
+		cursor: progress;
+	}
+	.box {
+		opacity: 0.5;
+		float: left;
+		padding-top: 20px;
+	}
+	.hba1c {
+		float: left;
+		width: 210px;
+		padding: 25px 10px 0 10px;
+	}
+	.hba1c img {
+		width: 177px;
+		padding-top: 10px;
+	}
+	.info {
+		float: left;
+		width: 309px;
+	font-size: 15px;
+	margin-left: 112px;
+	margin-top: 55px;
+	}
+	#minihistory {
+		padding-bottom: 5px;
+		color:#E3E3E3;
+	}
+	#team li img {
+		width: 50px;
+		height: 50px;
+		padding: 5px;
+	}
+	#team li  {
+		float: left;
+	}
+	#team {
+		float: left;
+	}
+	#devices {
+		float: left;	
+	}
+	h3 {
+		float: left;
+	}
+	.settings {
+		width: 15px;
+		float: left;
+		padding-left: 10px;
+	}
+	#bg {
+		width: 25px;
+	}
+	#pump {
+		width: 20px;
+	}
+	#bounds {
+		background: #3CB2DC;
+		padding: 10px 20px;
+		width: 439px;
+	}
+	</style>
+	<style>
+		.currentPatient1 {
+		position: absolute;
+	}
+	.currentPatient1 img {
+    width: 90px;
+		left: 10px;
+		top: 80px;
+    position: relative;
+	}
+	.currentPatient1 h1 {
+		color: white;
+		position: relative;
+		left: 111px;
+		top: -6px;
+		font-size: 20px;
+	}
+	
+	.holder {
+		display: none;
+		padding-bottom: 20px;
+	}
+	.title {
+		padding-bottom: 10px;
+	}
+	#devices li {
+		
+		
+		font-size: 15px;
+	}
+	#devices {
+		padding-right: 39px;
+	}
+	#devices li {
+							padding: 5px 0;
+						}
+	#next {
+		width: 13px !important;
+height: 18px !important;
+padding-top: 19px !important;
+	}
+	#cover {
+		background: #63BFE2;
+	}
+	#cover:hover {
+		 cursor: hand; cursor: pointer; 
+	}
+	.today {
+		cursor: hand;
+		text-align: center;
+		width: 60px;
+		cursor: pointer;
+	}
+	.arrow {
+		margin:0 1px;
+		cursor: hand;
+		cursor: pointer;
+	}
+	#timelineContainer {
+		width: 1041px;			
+		overflow: auto;
+		overflow-y:hidden;
+
+		margin-left: 48px;
+		margin-top: 13px;
+		margin-bottom: 24px;
+	}
+				#stats {
+					width: 1090px;
+				}
+
+				#range , #blous, #average {
+					opacity: 0.3;
+				}
+
+				#stats li {
+					border: 1px solid #B7C9D2;
+					width: 33%;
+				}
+				#stats li:last-child {
+					width: 366px;
+				}
+				.range {
+					border-left: 0px !important;
+					border-right: 0px !important; 
+				}
+				.infoIcon {
+					float: left;
+				}
+				#stats {
+				}
+				#stats h2 {
+					color: #4E4E4E;
+					text-transform: uppercase;
+					font-weight: bold;
+					font-size: 15px;
+
+				}
+				#week {display: none;}
+				#stats .data {
+					float: left;
+					padding-top: 15px;
+					padding-bottom: 20px;
+					color: #0081AA;
+					font-size: 30px;
+				}
+				.small {
+					font-size: 15px;
+				}
+				.stat {
+					padding: 20px 20px 20px 50px;
+				}
+				.hba1c h3 {
+						float: none;
+				}
+				#hba1c-image {
+					padding-top: 5px;
+					float:left;
+				}
+				#hba1c-stats {
+					padding-top: 5px;
+					float:left;
+				}
+				#bolus-widget, #range-widget {
+					width: 55px !important;
+					padding-top: 3px;
+					padding-right: 15px;
+					
+				}
+				#average-widget {
+					width: 37px !important;
+					padding-top: 3px;
+					padding-right: 15px;
+				}
+				#average-widget svg {
+					position: static !important;
+				}
+				
+				.period li {
+						float: left;
+						color: white;
+						font-weight: 100;
+						font-size: 12px;
+					}
+					#two {
+						font-weight: bold;
+					}
+					.period li:hover {
+						cursor: hand;
+						cursor: pointer;
+					}
+					#timelineAxis {
+				float: left;
+			}
+			#timeline {
+			float: left;
+		}
+		.clear {
+		clear: both;
+	}
+
+#content {
+	display: none;
+}
+#load {
+	margin:0px auto;
+	width:400px;
+	height:10000px;
+
+	top: 0px;
+	display: block;
+	position: absolute;
+	left: 0px;
+	width: 100%;
+	
+	background: white;
+	z-index: 1000;
+}
+
+#logocontainer{
+	margin:150px auto;
+	width:400px;
+	height:1000px;
+}
+
+#timelineDate {
+	position: relative;
+	left: 10px
+	top 10px;
+}
+#load .logo{
+	background: none;
+	width:400px;
+	height:120px;
+	float:left;
+	overflow:hidden;
+	position:relative;
+}
+.hba1c .percent {
+	padding-left: 15px;
+padding-top: 13px;
+font-size: 20px;
+color: white;
+font-weight: bold;
+}
+.hba1c .ago {
+padding-left: 15px;
+padding-top: 5px;
+font-size: 13px;
+color: black;
+}
+#load .ani-bg{
+	position:absolute;
+	top:-400px;
+	width: 100%;
+	left:0;
+}
+#load .frame{
+	position:absolute;
+	top:0;
+	width: 100%;
+	left:0;
+	z-index:1!important;
+}	
+.stop-scrolling {
+  height: 100%;
+  overflow: hidden;
+}
+.stop-scrolling #timelineContainer {
+	overflow: hidden !important;
+}
+.stop-scrolling #chartMain {
+	overflow: hidden !important;
+}
