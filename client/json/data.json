@@ -1,0 +1,195 @@
+// data stream from one device work in progress
+[
+	// events
+	{
+		"event": "suspend","event": "resume","event": "prime","event": "fillc","event": "alarm",
+		"posix": 1357628400000
+	},
+	//settings
+	{
+	   "settings":{
+	      "basal-programs":[
+	         [
+	            {
+	               "value":0.6,
+	               "time":"00:00:00"
+	            },
+	            {
+	               "value":0.55,
+	               "time":"01:00:00"
+	            },
+	            {
+	               "value":0.525,
+	               "time":"02:00:00"
+	            },
+	            {
+	               "value":0.55,
+	               "time":"03:00:00"
+	            },
+	            {
+	               "value":0.6,
+	               "time":"04:00:00"
+	            },
+	            {
+	               "value":0.7,
+	               "time":"05:00:00"
+	            },
+	            {
+	               "value":0.825,
+	               "time":"06:00:00"
+	            },
+	            {
+	               "value":0.75,
+	               "time":"09:00:00"
+	            },
+	            {
+	               "value":0.8,
+	               "time":"15:00:00"
+	            },
+	            {
+	               "value":0.7,
+	               "time":"22:00:00"
+	            },
+	            {
+	               "value":0.6,
+	               "time":"23:00:00"
+	            }
+	         ],
+	         [
+	            {
+	               "value":0,
+	               "time":"00:00:00"
+	            }
+	         ],
+	         [
+	            {
+	               "value":0,
+	               "time":"00:00:00"
+	            }
+	         ],
+	         [
+	            {
+	               "value":0,
+	               "time":"00:00:00"
+	            }
+	         ]
+	      ],
+	      "isf-program":[
+	         {
+	            "value":70,
+	            "time":"00:00:00"
+	         },
+	         {
+	            "value":60,
+	            "time":"05:00:00"
+	         },
+	         {
+	            "value":50,
+	            "time":"14:00:00"
+	         },
+	         {
+	            "value":70,
+	            "time":"22:00:00"
+	         }
+	      ],
+	      "base":{
+	         "occlusion-sensitivity":"High",
+	         "bg-unit":"mg/dl",
+	         "sick-days-BG-limit":"240 mg/dl",
+	         "language":"English",
+	         "max-daily-insulin":"50 U",
+	         "time-format":"12 h",
+	         "max-insulin-2-hours":"20 U",
+	         "bolus-reminder":"Disabled",
+	         "audio-bolus-step":"1.0 U",
+	         "sick-days-bg-interval":"2 h",
+	         "display-timeout":"30",
+	         "audio-bolus-enable":"Disabled",
+	         "advanced-bolus-options":"Enabled",
+	         "sick-days-ketones-interval":"4 h",
+	         "active-basal-program":"1",
+	         "low-cartridge-warning":"20 U",
+	         "max-basal":"1.5 U/h",
+	         "bolus-delivery-speed":"Normal",
+	         "max-bolus":"7.5 U"
+	      },
+	      "bg-targets-program":[
+	         {
+	            "value":110,
+	            "time":"00:00:00"
+	         },
+	         {
+	            "value":100,
+	            "time":"05:00:00"
+	         },
+	         {
+	            "value":110,
+	            "time":"22:00:00"
+	         }
+	      ],
+	      "ic-program":[
+	         {
+	            "value":13,
+	            "time":"00:00:00"
+	         },
+	         {
+	            "value":10,
+	            "time":"06:00:00"
+	         },
+	         {
+	            "value":13,
+	            "time":"10:00:00"
+	         }
+	      ]
+	   },
+	   "posix": 234123412341234
+	},
+	//data basal bolus carbs bolusguide bg cgm
+	{
+	  "basal":"0.525",
+	  "posix":1357610460000
+	},
+	{
+	  "bolus_type":"Normal",
+	  "bolus":"0.75",
+	  "posix":1357628760000
+	},
+	{
+	  "carbs":"45.0",
+	  "posix":1357629600000
+	},
+	{
+	  "notes":"Combination unknown",
+	  "bolus_type":"Combination",
+	  "duration":"30.0",
+	  "bolus":"1.55",
+	  "posix":1358536020000
+	},
+
+	// it would be great not to get duplicate data from quick guide, if we can clean to other data in the 
+	{
+	  "delivered":"2.55",
+	  "post-time":"01/11/2013 20:01",
+	  "calculated":"2.65",
+	  "post-bg":"67",
+	  "type":"ezBG",
+	  "posix":1357924440000
+	},
+	{
+	  "delivered":"1.00",
+	  "post-time":"02/02/2013 13:56",
+	  "calculated":"1.70",
+	  "post-bg":"143",
+	  "dur":"30",
+	  "type":"ezCarb (Combo.)",
+	  "posix":1359810780000
+	},
+	{
+		"bg":"144.0",
+		"posix":1359810780000
+	}
+	{
+		"cbg":"162",
+		"posix":1359810780000
+	}
+]

@@ -1,0 +1,64 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Cool animation, 2 images and a little bit of jQuery demo</title>
+
+<script type="text/javascript" src="/js/lib/jquery.js"></script>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		var speed = 2000;
+		var toggle = true;
+
+		setInterval(function() {
+			console.log('move');
+			$(".ani-bg").animate({
+				marginTop: toggle ? '400px' : '0px'       
+			}, speed );	
+			toggle = !toggle;
+		}, speed*1);
+		
+	});
+</script>
+<style type="text/css">
+body {
+	
+}
+.container{
+	margin:80px auto;
+	width:400px;
+	height:1000px;
+}
+.logo{
+	background: lightgrey;
+	width:400px;
+	height:120px;
+	float:left;
+	overflow:hidden;
+	position:relative;
+}
+.ani-bg{
+	position:absolute;
+	top:-400px;
+	left:0;
+}
+.frame{
+	position:absolute;
+	top:0;
+	left:0;
+	z-index:1!important;
+}
+</style>
+
+</head>
+<body>
+    <div class="container">
+    	<div class="logo">
+        <img src="/img/blip.png" alt="" class="frame" />
+        <img src="/img/ani-bg.png" alt="" class="ani-bg" />
+      </div>
+    </div>
+</body>
+</html>xhtml
