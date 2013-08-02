@@ -8,17 +8,16 @@ var express = require('express')
 	, common = require('common')
 	, app = express()
 	, mongo = require('mongodb')
+	, fbfeed = require('./fb-feed')
 	, BSON = mongo.BSONPure
+	, querystring = require('querystring')
 	, facebookScope = ['user_groups', 'user_birthday', 'user_status', 'user_about_me', 'publish_actions', 'email'];
 	
-//setup express
 app.set('port', process.env.PORT || 8082);
-// from facebook example
 app.use(express.bodyParser());
 app.use(express.cookieParser());
 app.use(express.session({ secret: 'foo bar' }));
 app.use(facebook.middleware({ appId: config['facebook-app-id'], secret: config['facebook-app-secret'] }));
-
 
 // missing messages and threads // and write message and write message in thread
 // push data to device.
@@ -116,37 +115,6 @@ app.get('/group', facebook.loginRequired({scope: facebookScope}), function(reque
 	);
 });
 
-app.get('/group/:id/select', facebook.loginRequired({scope: facebookScope}), function(request, response) {
-	var query;
-
-	common.step([
-		function(next) {
-			request.facebook.api('/me', next);
-		},
-		function(me, next) {
-			query = {userId: me.id, id: request.params.id};
-
-			db.groups.findOne(query, next);
-		},
-		function(group, next) {
-			if(!group) {
-				group = query;
-			}
-
-			group.selected = !group.selected;
-
-			db.groups.save(group, next);
-		},
-		function(d, next) {
-			db.groups.findOne(query, next);
-		},
-		function(d, next) {
-			response.json(d);
-		}],
-		errorResponse(response)
-	);
-});
-
 app.get('/group/:id', facebook.loginRequired({scope: facebookScope}), function(request, response) {
 	var group = {};
 
@@ -189,22 +157,53 @@ app.get('/group/:id', facebook.loginRequired({scope: facebookScope}), function(r
 	);
 });
 
-app.get('/group/:id/messages', facebook.loginRequired({scope: facebookScope}), function(request, response) {
+app.get('/group/:id/select', facebook.loginRequired({scope: facebookScope}), function(request, response) {
+	var query;
+
 	common.step([
 		function(next) {
-			request.facebook.api('/' + request.params.id + '/feed', next);
+			request.facebook.api('/me', next);
 		},
-		function(data, next) {
-			response.json(data);
-		}
-	], function(err) {
-					response.json(500, {
-						error: err
-					});
+		function(me, next) {
+			query = {userId: me.id, id: request.params.id};
+
+			db.groups.findOne(query, next);
+		},
+		function(group, next) {
+			if(!group) {
+				group = query;
 			}
+
+			group.selected = !group.selected;
+
+			db.groups.save(group, next);
+		},
+		function(d, next) {
+			db.groups.findOne(query, next);
+		},
+		function(d, next) {
+			response.json(d);
+		}],
+		errorResponse(response)
 	);
 });
 
+app.get('/group/:id/messages', facebook.loginRequired({scope: facebookScope}), function(request, response) {
+	common.step([
+		function(next) {
+			request.facebook.api('/' + request.params.id + '/feed?' + querystring.stringify(request.query), next);
+		},
+		function(data, next) {
+			response.json(fbfeed.normalize(data));
+		}
+	],
+		errorResponse(response)
+	);
+});
+
+
+// find a good way deal with paging using id's
+// post comments too
 app.get('/device/:id', facebook.loginRequired({scope: facebookScope}), function(request, response) {
 	// todo just get device data for this one person
 	var d_id = new BSON.ObjectID(request.params.id);
@@ -225,7 +224,7 @@ app.get('/device/:id', facebook.loginRequired({scope: facebookScope}), function(
 			if(!_.findWhere(groups.data, {id: device.groupId})) {
 				next({error: 'seems like you dont have access to see this data'});
 			}
-
+			
 			var limit = parseInt(request.query.limit || '100');;
 			var skip = parseInt(request.query.skip || '0');
 			var type = request.query.type;

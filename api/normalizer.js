@@ -1,5 +1,4 @@
 var _ = require('underscore');
-
 var pumpAdherence = require("./electra-json-data/pump-adherence.json");
 var pumpSettings = require("./electra-json-data/pump-settings.json");
 var pumpEvents = require("./electra-json-data/pump-events.json");
