@@ -1,3 +1,385 @@
+#signin {
+  background: #41c55f !important;
+}
+#signin:hover {
+  background: #62f784 !important;
+}
+::-webkit-input-placeholder {
+  /* WebKit browsers */
+
+  color: #63bfe2;
+}
+:-moz-placeholder {
+  /* Mozilla Firefox 4 to 18 */
+
+  color: #63bfe2;
+}
+::-moz-placeholder {
+  /* Mozilla Firefox 19+ */
+
+  color: #63bfe2;
+}
+:-ms-input-placeholder {
+  /* Internet Explorer 10+ */
+
+  color: #63bfe2;
+}
+.circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 60px;
+  float: left;
+}
+input {
+  border: none;
+  padding: 10px;
+  width: 170px;
+  font-size: 15px;
+  margin: 20px 20px 20px 0;
+}
+.done {
+  width: 170px;
+  text-align: center;
+  padding: 9px 0;
+  font-size: 15px;
+}
+.button {
+  border-radius: 3px;
+  background: #0069a1;
+  color: white;
+}
+.button:hover {
+  cursor: pointer;
+  background: #63bfe2;
+}
+#profile-setup-static {
+  float: left;
+}
+#profile-setup-static #fullname {
+  font-size: 20px;
+  padding: 30px 0 10px 0;
+}
+#profile-setup-static #dates {
+  color: lightgray;
+  font-size: 13px;
+}
+#profile-setup-static #tidbits {
+  width: 300px;
+  font-weight: lighter;
+  padding: 10px 0;
+}
+#login-groupTutorial {
+  opacity: 0.3;
+  padding-top: 50px;
+  margin: 20px 0;
+  font-size: 20px;
+  letter-spacing: 2px;
+}
+#login-groupTutorial .done {
+  margin-left: 700px;
+}
+#login-groupTutorial p {
+  font-weight: lighter;
+}
+#login-groupTutorial ol {
+  padding: 60px 0;
+  width: 800px;
+  margin: auto;
+  font-size: 15px;
+}
+#login-groupTutorial li {
+  padding-bottom: 20px;
+}
+#login-groupTutorial li img {
+  padding: 10px 0;
+  width: 700px;
+}
+#profile-setul-group-picker {
+  float: right;
+  width: 350px;
+  padding: 30px;
+}
+#profile-setul-group-picker .button {
+  margin-left: 0px;
+  float: right;
+}
+#profile-setul-group-picker h3 {
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 15px;
+  padding-bottom: 0px;
+}
+#profile-setul-group-picker h3 span {
+  display: inline-block !important;
+  padding-left: 10px;
+  color: lightgray;
+}
+#profile-setul-group-picker p {
+  padding-top: 10px;
+  font-weight: lighter;
+}
+#profile-setul-group-picker #static-team-list {
+  padding-top: 5px;
+  overflow-x: scroll;
+  white-space: nowrap;
+  overflow-y: hidden;
+}
+#profile-setul-group-picker #static-team-list li {
+  display: inline-block;
+}
+#profile-setul-group-picker #static-team-list li img {
+  width: 40px;
+  padding: 5px 2px;
+}
+#profile-setul-group-picker #facebook-groups {
+  background: white;
+  color: #0069a1;
+  margin: 15px 0;
+  height: 110px;
+  overflow-y: scroll;
+}
+#profile-setul-group-picker #facebook-groups li {
+  padding: 15px;
+  border-top: solid lightgray 1px;
+}
+#profile-setul-group-picker #facebook-groups li:hover {
+  background: #0069a1;
+  color: white;
+  cursor: pointer;
+}
+#profile-setup #profile-image {
+  float: left;
+  width: 100px;
+  height: 100px;
+  border-radius: 50px;
+  background: white;
+  color: black;
+  font-size: 10px;
+  text-align: center;
+  margin: 20px;
+}
+#profile-setup textarea {
+  border: none;
+  font-size: 15px;
+  font-weight: lighter;
+  padding: 10px;
+  width: 600px;
+}
+#profile-setup form {
+  float: left;
+}
+#profile-setup .dob-picker {
+  float: left;
+}
+#profile-setup #dob-picker {
+  margin-left: 53px;
+}
+#profile-setup .label {
+  float: left;
+  font-size: 20px;
+  font-weight: lighter;
+  margin: 0 20px 20px 0;
+}
+#profile-setup select {
+  width: 100px;
+  font-size: 20px;
+  margin: 0px 5px;
+  color: #63bfe2;
+  background: white;
+}
+#profile-setup h1 {
+  width: 100%;
+  font-size: 25px;
+  letter-spacing: 2px;
+  font-weight: lighter;
+  padding: 40px 0 20px 0;
+}
+body {
+  position: relative;
+}
+header {
+  position: fixed;
+  left: 0px;
+  bottom: 0px;
+}
+.dz-filename {
+  display: none !important;
+}
+.dz-size {
+  display: none !important;
+}
+.dz-progress {
+  display: none !important;
+}
+.dropImage {
+  border-radius: 50px;
+}
+.login {
+  padding-bottom: 50px;
+}
+#login-usertype {
+  color: #0069a1;
+  width: 1130px;
+  margin: 0 auto;
+  font-weight: lighter;
+  margin-bottom: 70px;
+  line-height: 23px;
+}
+#login-usertype .dashed-line {
+  border-bottom: dashed 1px;
+}
+#login-usertype #usertype {
+  margin: auto;
+}
+#login-usertype #usertype .detail {
+  font-weight: lighter;
+  font-size: 16px;
+}
+#login-usertype #usertype #no {
+  color: #0069a1;
+  background: #f1f1f1;
+}
+#login-usertype #usertype #no:hover {
+  color: #0069a1;
+  background: #f1f1f1;
+  cursor: default;
+}
+#login-usertype #usertype > #team-member:hover {
+  color: white;
+  background: #0069a1;
+  cursor: pointer;
+}
+#login-usertype #usertype #team-member {
+  background: #4da1c6;
+  color: white;
+}
+#login-usertype #usertype #team-member #invites {
+  width: 300px;
+  margin: auto;
+}
+#login-usertype #usertype #team-member #invites > li {
+  padding: 10px 20px;
+}
+#login-usertype #usertype #team-member .title {
+  padding-bottom: 20px;
+}
+#login-usertype #usertype #team-member .circular {
+  width: 60px;
+  height: 60px;
+  border-radius: 30px;
+  -webkit-border-radius: 30px;
+  -moz-border-radius: 30px;
+  float: left;
+}
+#login-usertype #usertype #team-member .ian {
+  background: url(http://localhost:8081/img/nicksmall.jpg) no-repeat;
+}
+#login-usertype #usertype #team-member .howard {
+  background: url(http://localhost:8081/img/howardsmall.jpg) no-repeat;
+}
+#login-usertype #usertype #team-member .name {
+  float: left;
+  padding: 20px;
+}
+#login-usertype #usertype > li {
+  color: white;
+  border-radius: 5px;
+  background: #0069a1;
+  width: 367px;
+  padding: 30px;
+  margin: 15px;
+  font-size: 20px;
+}
+#login-usertype #usertype > li:hover {
+  color: white;
+  background: #63bfe2;
+  cursor: pointer;
+}
+#login-usertype #usertype .error {
+  color: #ec7070;
+  font-size: 16px;
+}
+#login-usertype #choices {
+  margin-left: 116px;
+}
+#login-usertype #head {
+  padding: 80px 0 20px 0;
+  margin-top: 20px;
+}
+#login-usertype #head img {
+  width: 110px;
+  height: 110px;
+  float: left;
+  padding-right: 10px;
+}
+#login-usertype #head #headers {
+  float: left;
+}
+#login-usertype #head h1 {
+  font-size: 35px;
+  letter-spacing: 2px;
+  font-weight: normal;
+  padding-bottom: 13px;
+  margin: 0 auto;
+  padding: 22px 13px 11px;
+  margin-bottom: 5px;
+}
+#login-usertype #head h2 {
+  width: 100%;
+  text-align: center;
+  font-size: 20px;
+  letter-spacing: 2px;
+  margin-left: 10px;
+  font-weight: lighter;
+  padding-bottom: 15px;
+}
+#login-usertype #head .dashed {
+  border-bottom: dashed 1px;
+  height: 1px;
+  width: 100%;
+  margin-left: 15px;
+}
+#login {
+  color: #0069a1;
+}
+#login h1 {
+  font-size: 50px;
+  letter-spacing: 2px;
+  width: 493px;
+  text-align: center;
+  border-bottom: dashed 1px;
+  padding-bottom: 13px;
+  margin: 0 auto;
+  padding: 20px;
+  margin-top: 220px;
+  margin-bottom: 25px;
+}
+#login h2 {
+  width: 100%;
+  text-align: center;
+  font-size: 25px;
+  letter-spacing: 2px;
+}
+#login #action {
+  width: 367px;
+  margin: 60px auto 260px auto;
+}
+#login #action .button {
+  float: left;
+  background: #0069a1;
+  padding: 20px;
+  color: white;
+  width: 130px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: lighter;
+  border-radius: 3px;
+  margin-right: 10px;
+}
+#login #action .button:hover {
+  background: #63bfe2;
+  cursor: pointer;
+}
 .time-picker {
   width: 194px;
   margin: 0 auto;
@@ -22,7 +404,7 @@
   cursor: pointer;
 }
 header {
-  background: #0069A1;
+  background: #0069a1;
   width: 100%;
 }
 .inner {
@@ -62,7 +444,7 @@ header {
   float: left;
 }
 header .container {
-  padding: 7px 0px;
+  padding: 11px 0px 3px 0;
 }
 #main .container {
   background: #EFF1F3;
@@ -95,7 +477,7 @@ header .container {
   padding-right: 20px !important;
 }
 .arrow {
-  background: #63BFE2;
+  background: #63bfe2;
 }
 .user img {
   width: 35px;
@@ -126,7 +508,7 @@ body {
   padding: 14px 0 0 10px;
 }
 .logo img {
-  width: 56px;
+  width: 51px;
 }
 .patient {
   width: 100%;
@@ -268,7 +650,8 @@ h3 {
   padding-top: 19px !important;
 }
 #cover {
-  background: #63BFE2;
+  background: #63bfe2;
+  height: 15px;
 }
 #cover:hover {
   cursor: hand;
@@ -371,9 +754,6 @@ h3 {
 .clear {
   clear: both;
 }
-#content {
-  display: none;
-}
 #load {
   margin: 0px auto;
   width: 400px;
@@ -439,6 +819,40 @@ h3 {
 }
 .stop-scrolling #chartMain {
   overflow: hidden !important;
+}
+#profile-setup-device-picker {
+  padding-top: 50px;
+  margin-left: 118px;
+}
+#profile-setup-device-picker h1 {
+  width: 100%;
+  font-size: 25px;
+  letter-spacing: 2px;
+  font-weight: lighter;
+  padding: 40px 0 20px 20;
+  color: #0069a1;
+}
+#profile-setup-device-picker ul {
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+  margin: 50px 0;
+  width: 100%;
+}
+#profile-setup-device-picker ul > li {
+  color: #0069a1;
+  border-radius: 3px;
+  background: #f1f1f1;
+  width: 800px;
+  padding: 30px;
+  margin: 15px 0;
+  font-size: 20px;
+  font-weight: lighter;
+}
+#profile-setup-device-picker ul > li h2:hover {
+  cursor: pointer;
 }
 .communication {
   float: right;
@@ -533,4 +947,45 @@ h3 {
   height: 694px;
   display: none;
   z-index: 1;
+}
+#profile-setup-device-picker {
+  margin-bottom: 50px;
+}
+#profile-setup-device-picker .device-import {
+  margin-top: 30px;
+  padding: 30px 0 0 0;
+  border-top: dashed white 1px;
+}
+#profile-setup-device-picker p {
+  display: inline-block;
+  font-size: 15px;
+  padding: 10px 0;
+}
+#profile-setup-device-picker h4 {
+  padding-top: 20px;
+  font-weight: normal;
+}
+#profile-setup-device-picker #animas-credentials .button {
+  margin-top: -55px;
+  margin-left: 427px;
+}
+#profile-setup-device-picker #dexcom-drop-file,
+#profile-setup-device-picker #medtronic-drop-file {
+  width: 400px;
+  background: white;
+  border: solid lightblue 1px;
+  border-radius: 4px;
+  text-align: center;
+  padding: 30px;
+  margin: 40px auto;
+}
+#profile-setup-device-picker .go {
+  margin-left: 345px !important;
+  background: #41c55f;
+}
+#profile-setup-device-picker .go:hover {
+  background: green;
+}
+#profile-setup-device-picker .button {
+  margin-left: 460px;
 }

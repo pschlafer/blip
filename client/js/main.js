@@ -11,13 +11,13 @@ var colors = {
   background: ['#DCE4E8','#E3E9EC','#EAEEF0','#F7F8F9','#F7F8F9','#EAEEF0','#E3E9EC','#DCE4E8']
 };
 
-$('body').addClass('stop-scrolling');
+//$('body').addClass('stop-scrolling');
 
 
 $(window).bind("load", function() {
   var speed = 10;
 
-  $('body').addClass('stop-scrolling');
+  //$('body').addClass('stop-scrolling');
 
   var toggle = true;
   $('#content').show();

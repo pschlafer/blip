@@ -19,56 +19,6 @@ app.use(express.cookieParser());
 app.use(express.session({ secret: 'foo bar' }));
 app.use(facebook.middleware({ appId: config['facebook-app-id'], secret: config['facebook-app-secret'] }));
 
-// missing messages and threads // and write message and write message in thread
-// push data to device.
-// startTime endTime
-//routes
-
-/*
-get groups
-
-/groups 
-
-[{
-	name:'',
-	id:''	
-}]
-
-/group/id
-{
-	name:
-	id:
-	
-	patient: {
-	
-	},
-	team: {
-		
-	},
-	devices: {
-	
-	}
-}
-
-/group/id/select
-
-toggle selected groups
-
-// later
-
-/group/id/messages/
-
-{
-	
-}
-
-/group/id/messages/thread/id
-
-{
-	
-}
-*/
-
 var errorResponse = function(response) {
 	return function(error) {
 		response.json(500, {
@@ -77,7 +27,7 @@ var errorResponse = function(response) {
 	}
 };
 
-app.get('/group', facebook.loginRequired({scope: facebookScope}), function(request, response) {
+app.get('/v1/group', facebook.loginRequired({scope: facebookScope}), function(request, response) {
 	common.step([
 		function(next) {
 			request.facebook.api('/me', next);
@@ -115,7 +65,7 @@ app.get('/group', facebook.loginRequired({scope: facebookScope}), function(reque
 	);
 });
 
-app.get('/group/:id', facebook.loginRequired({scope: facebookScope}), function(request, response) {
+app.get('/v1/group/:id', facebook.loginRequired({scope: facebookScope}), function(request, response) {
 	var group = {};
 
 	common.step([
@@ -157,7 +107,7 @@ app.get('/group/:id', facebook.loginRequired({scope: facebookScope}), function(r
 	);
 });
 
-app.get('/group/:id/select', facebook.loginRequired({scope: facebookScope}), function(request, response) {
+app.get('/v1/group/:id/select', facebook.loginRequired({scope: facebookScope}), function(request, response) {
 	var query;
 
 	common.step([
@@ -188,7 +138,170 @@ app.get('/group/:id/select', facebook.loginRequired({scope: facebookScope}), fun
 	);
 });
 
-app.get('/group/:id/messages', facebook.loginRequired({scope: facebookScope}), function(request, response) {
+// all devices
+app.get('/v1/device', function() {
+});
+
+// new device data /**/
+app.post('/v1/device', function(request, response) {
+	common.step([
+		function(next) {
+			if(!request.files.data) {
+				next({error: 'data file missing'});
+			}
+			request.facebook.api('/me', next);
+		},
+		function(me, next) {
+			db.groups.save({type: request.body.type}, next.parallel('entry'));
+			fs.readFile(request.files.data.path, 'utf8', next.parallel('text'));	
+		},
+		function(datum, next) {
+			db.deviceData.save(deviceParser(datum.text, datum.entry), next);
+		},								
+		function() {
+			response.json({deviceDate.id, deviceData});
+		}],
+		errorResponse(response)
+	);
+		function(group, next) {
+			if(!group) {
+				group = query;
+			}
+
+			group.selected = !group.selected;
+
+			db.groups.save(group, next);
+		},
+		function(d, next) {
+			db.groups.findOne(query, next);
+		},
+		function(d, next) {
+			response.json(d);
+		}],
+		
+	);
+});
+
+app.post('/v1/group/:id/data', function(request, response) {
+
+});
+  common.step([
+		function(next) {
+			if(!request.files.data) {
+				next({error: 'data file missing'});
+			}
+
+			request.facebook.api('/me', next);
+		},
+		function(me, next) {
+			db.device.find({id: request.params.id}, next.parallel('entry'));
+			fs.readFile(request.files.data.path, 'utf8', next.parallel('text'));	
+		},
+		function(datum, next) {
+			db.device.save(deviceParser(datum.entry. datum.text));
+		},
+		function() {
+			response.json({})
+		},
+		
+
+		function(group, next) {
+			if(!group) {
+				group = query;
+			}
+
+			group.selected = !group.selected;
+
+			db.groups.save(group, next);
+		},
+		function(d, next) {
+			db.groups.findOne(query, next);
+		},
+		function(d, next) {
+			response.json(d);
+		}],
+		errorResponse(response)
+	);
+  response.end();
+});*/
+
+// new device
+/*app.post('/device', function(request, response) {
+  
+  response.writeHead(200, {'Content-Type': 'text/html'});
+  response.write('body: ' + JSON.stringify(request.body));
+  response.write('files: ' + JSON.stringify(request.files));
+
+  common.step([
+		function(next) {
+			if(!request.files.data) {
+				next({error: 'data file missing'});
+			}
+
+			request.facebook.api('/me', next);
+		},
+		function(me, next) {
+			db.device.find({id: request.params.id}, next.parallel('entry'));
+			fs.readFile(request.files.data.path, 'utf8', next.parallel('text'));	
+		},
+		function(datum, next) {
+			db.device.save(deviceParser(datum.entry. datum.text));
+		},
+		function() {
+			response.json({})
+		},
+		
+
+		function(group, next) {
+			if(!group) {
+				group = query;
+			}
+
+			group.selected = !group.selected;
+
+			db.groups.save(group, next);
+		},
+		function(d, next) {
+			db.groups.findOne(query, next);
+		},
+		function(d, next) {
+			response.json(d);
+		}],
+		errorResponse(response)
+	);
+  response.end();
+});*/
+
+// new data for existing device
+app.post('/v1/device/:id', function(request, response) {
+  var body = '';
+  
+  request.on('data', function (data) {
+      body += data;
+      console.log("Partial body: " + body);
+  });
+
+  request.on('end', function () {
+      console.log("Body: " + body);
+  });
+
+  response.writeHead(200, {'Content-Type': 'text/html'});
+  response.end('post received');
+});
+
+
+app.post('/v1/device/:id/delete', function(request, response) {
+  // delete the device
+});
+
+// add post for /messages/post /messages/id/comment/post https://graph.facebook.com/[ POST_FBID ]/comments/?access_token=[ ACCESS_TOKEN ]&message=[ MESSAGE]
+
+app.get('/v1/comment/:id/post', facebook.loginRequired({scope: facebookScope}), function(request, response) { 
+	https://graph.facebook.com/[ POST_FBID ]/comments/?access_token=[ ACCESS_TOKEN ]&message=[ MESSAGE]
+	request.facebook.api('/' + request.params.id + '/feed?' + querystring.stringify(request.query), next);
+});
+
+app.get('/v1/group/:id/messages', facebook.loginRequired({scope: facebookScope}), function(request, response) {
 	common.step([
 		function(next) {
 			request.facebook.api('/' + request.params.id + '/feed?' + querystring.stringify(request.query), next);
@@ -201,10 +314,8 @@ app.get('/group/:id/messages', facebook.loginRequired({scope: facebookScope}), f
 	);
 });
 
-
 // find a good way deal with paging using id's
-// post comments too
-app.get('/device/:id', facebook.loginRequired({scope: facebookScope}), function(request, response) {
+app.get('/v1/device/:id', facebook.loginRequired({scope: facebookScope}), function(request, response) {
 	// todo just get device data for this one person
 	var d_id = new BSON.ObjectID(request.params.id);
 	var device;
