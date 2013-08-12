@@ -5,6 +5,8 @@ blip
 
 ## Dependencies
 
+You need node and npm.
+
     npm install express
     npm install ejs-locals
     npm install less-middleware
@@ -12,7 +14,10 @@ blip
     
 ## Running it
 
-    http://localhost:8081
+    > node app.js
+    Blip server listening on port 8081
+
+Now open http://localhost:8081 and you should see the login screen.
     
 
     
