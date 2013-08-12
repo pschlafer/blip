@@ -1,0 +1,66 @@
+#profile-setup {
+  color: #0069a1;
+}
+#profile-setup #profile-setup-form-container {
+  width: 770px;
+  margin: 50px auto;
+}
+#profile-setup #profileImage {
+  float: left;
+  width: 100px;
+  height: 100px;
+  border-radius: 50px;
+  background: lightgray;
+  color: black;
+  font-size: 10px;
+  text-align: center;
+  margin: 20px;
+}
+#profile-setup h2 {
+  width: 100%;
+  text-align: center;
+  font-size: 25px;
+  letter-spacing: 2px;
+  padding-top: 165px;
+  font-weight: lighter;
+}
+#profile-setup textarea {
+  border: solid 1px lightgray;
+  font-size: 15px;
+  font-weight: lighter;
+  padding: 10px;
+  width: 600px;
+}
+#profile-setup form {
+  float: left;
+}
+#profile-setup .dob-picker {
+  float: left;
+}
+#profile-setup #dob-picker {
+  margin-left: 53px;
+}
+#profile-setup .done {
+  margin-left: 453px;
+  margin-top: 10px;
+}
+#profile-setup .label {
+  float: left;
+  font-size: 20px;
+  font-weight: lighter;
+  margin: 0 20px 20px 0;
+}
+#profile-setup select {
+  width: 100px;
+  font-size: 20px;
+  margin: 0px 5px;
+  color: #63bfe2;
+  background: white;
+}
+#profile-setup h1 {
+  width: 100%;
+  font-size: 25px;
+  letter-spacing: 2px;
+  font-weight: lighter;
+  padding: 40px 0 20px 0;
+}

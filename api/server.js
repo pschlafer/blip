@@ -2,39 +2,64 @@ var config = require('./package.json').config.dev;
 var express = require('express')
 	, http = require('http')
 	, mongojs = require('mongojs')	
-	, db = mongojs(config['mongodb-connection-string'], ['deviceData','groups','device'])
-	, facebook = require('facebook-node-sdk')
+	, db = mongojs(config['mongodb-connection-string'], ['deviceData','groups','device', 'users'])
+	, Facebook = require('facebook-node-sdk')
 	, _ = require('underscore')
 	, common = require('common')
 	, app = express()
 	, mongo = require('mongodb')
 	, fbfeed = require('./fb-feed')
 	, BSON = mongo.BSONPure
-	, querystring = require('querystring')
+	, querystring = require('querystring') 
 	, facebookScope = ['user_groups', 'user_birthday', 'user_status', 'user_about_me', 'publish_actions', 'email'];
-	
+var facebook = new Facebook({ appId: '555596811143941', secret: 'f56ec344bf61fd7bd961577cef1bb073' });
+var fbWare = require('./fb-ware')(facebook);
+
 app.set('port', process.env.PORT || 8082);
 app.use(express.bodyParser());
 app.use(express.cookieParser());
 app.use(express.session({ secret: 'foo bar' }));
-app.use(facebook.middleware({ appId: config['facebook-app-id'], secret: config['facebook-app-secret'] }));
 
-var errorResponse = function(response) {
-	return function(error) {
-		response.json(500, {
-			error: error
-		});	
-	}
-};
+// join a user
+app.post('/v1/join', fbWare.me(), function(request, response) {
+	var user = request.body;
 
-app.get('/v1/group', facebook.loginRequired({scope: facebookScope}), function(request, response) {
+	user.id = request.fb.me.id;
+
+	user.picture = request.files.picture;
+
+	db.users.save(user, function(error) {
+		if (error) {
+			errorResponse(response)(error);
+		}
+
+		response.json(user);
+	});
+});
+
+app.get('/v1/user/facebook', fbWare.me(), function(request, response) {
+
+	request.fb.me.picture = 'https://graph.facebook.com/' + request.fb.me.id + '/picture';
+	
+	response.jsonp(request.fb.me);
+});
+
+// is a user
+app.get('/v1/user', fbWare.me(), function(request, response) {
+	db.users.find({id: request.fb.me.id}, function(error, user) {
+		if (error) {
+			errorResponse(response)(error);
+		}
+
+		response.jsonp(user);
+	});
+});
+
+app.get('/v1/groups', fbWare.me(), function(request, response) {
 	common.step([
 		function(next) {
-			request.facebook.api('/me', next);
-		},
-		function(me, next) {
 			request.facebook.api('/me/groups', next.parallel());
-			db.groups.find({userId: me.id}, next.parallel());
+			db.groups.find({userId: request.fb.me.id}, next.parallel());
 		},
 		function(groups) {
 			var data = groups[0].data.map(function(group) {
@@ -44,28 +69,43 @@ app.get('/v1/group', facebook.loginRequired({scope: facebookScope}), function(re
 					group.selected = dbGroup.selected;
 				}
 				
+				//todo: add picture to group when posting to the api
 				var group = {
 					name: group.name,
 					id: group.id,
+					administrator: group.administrator,
 					selected: !!group.selected
 				};
 
-				if ((request.query.selected || '').toLowerCase() === 'true') {
-					if (group.selected) {
-						return group;
+				if ((request.query.administrator || '').toLowerCase() === 'true') {
+					if (group && !group.administrator) {
+						group = null;
 					}
-					return;
 				}
+
+				if ((request.query.selected || '').toLowerCase() === 'true') {
+					if (group && !group.selected) {
+						return null;
+					}
+				}
+
+				if ((request.query.selected || '').toLowerCase() === 'false') {
+					if (group && group.selected) {
+						return null;
+					}
+				}
+
 				return group;
 			});
 
-			response.json(_.compact(data));
+			console.log('response', JSON.stringify(_.compact(data)));
+			response.jsonp(_.compact(data));
 		}],
 		errorResponse(response)
 	);
 });
 
-app.get('/v1/group/:id', facebook.loginRequired({scope: facebookScope}), function(request, response) {
+app.get('/v1/groups/:id', fbWare.me(), function(request, response) {
 	var group = {};
 
 	common.step([
@@ -101,21 +141,18 @@ app.get('/v1/group/:id', facebook.loginRequired({scope: facebookScope}), functio
 				group.devices = entry.devices || [];
 			}
 
-			response.json(group);
+			response.jsonp(group);
 		}],
 		errorResponse(response)
 	);
 });
 
-app.get('/v1/group/:id/select', facebook.loginRequired({scope: facebookScope}), function(request, response) {
+app.get('/v1/group/:id/select', fbWare.me(), function(request, response) {
 	var query;
 
 	common.step([
 		function(next) {
-			request.facebook.api('/me', next);
-		},
-		function(me, next) {
-			query = {userId: me.id, id: request.params.id};
+			query = {userId: request.fb.me.id, id: request.params.id};
 
 			db.groups.findOne(query, next);
 		},
@@ -142,7 +179,8 @@ app.get('/v1/group/:id/select', facebook.loginRequired({scope: facebookScope}), 
 app.get('/v1/device', function() {
 });
 
-// new device data /**/
+// new device data 
+/*
 app.post('/v1/device', function(request, response) {
 	common.step([
 		function(next) {
@@ -183,8 +221,6 @@ app.post('/v1/device', function(request, response) {
 });
 
 app.post('/v1/group/:id/data', function(request, response) {
-
-});
   common.step([
 		function(next) {
 			if(!request.files.data) {
@@ -223,10 +259,10 @@ app.post('/v1/group/:id/data', function(request, response) {
 		errorResponse(response)
 	);
   response.end();
-});*/
+});
 
 // new device
-/*app.post('/device', function(request, response) {
+app.post('/device', function(request, response) {
   
   response.writeHead(200, {'Content-Type': 'text/html'});
   response.write('body: ' + JSON.stringify(request.body));
@@ -270,7 +306,7 @@ app.post('/v1/group/:id/data', function(request, response) {
 		errorResponse(response)
 	);
   response.end();
-});*/
+});
 
 // new data for existing device
 app.post('/v1/device/:id', function(request, response) {
@@ -365,6 +401,12 @@ app.get('/v1/device/:id', facebook.loginRequired({scope: facebookScope}), functi
 	],
 	errorResponse(response));
 });
+*/
+var errorResponse = function(response) {
+	return function(error) {
+		response.json(500, {error: error});	
+	}
+};
 
 //serve 
 http.createServer(app).listen(app.get('port'), function(){

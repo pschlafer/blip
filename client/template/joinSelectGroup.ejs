@@ -1,0 +1,8 @@
+<div id='choose-facebook-group' style='display:none'>
+	<h2>Choose a Facebook group to add to <%= user.name %>'s blip team</h2>
+	<ul>
+		<% _.each(groups, function(group) { %> 
+			<li id='<%= group.id %>'><%= group.name %></li>
+		<% }); %>
+	</ul>
+</div>

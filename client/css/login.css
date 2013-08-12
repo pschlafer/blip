@@ -1,0 +1,42 @@
+#login {
+  color: white;
+  opacity: 0.9;
+}
+#login h1 {
+  font-size: 50px;
+  letter-spacing: 2px;
+  width: 493px;
+  text-align: center;
+  border-bottom: dashed 1px;
+  padding-bottom: 13px;
+  margin: 0 auto;
+  padding: 20px;
+  padding-top: 240px;
+  margin-bottom: 25px;
+}
+#login h2 {
+  width: 100%;
+  text-align: center;
+  font-size: 25px;
+  letter-spacing: 2px;
+}
+#login #action {
+  width: 367px;
+  margin: 60px auto 260px auto;
+}
+#login #action .button {
+  float: left;
+  background: #0069a1;
+  padding: 20px;
+  color: white;
+  width: 130px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: lighter;
+  border-radius: 3px;
+  margin-right: 10px;
+}
+#login #action .button:hover {
+  background: #63bfe2;
+  cursor: pointer;
+}

@@ -1,0 +1,95 @@
+<div id='profile-setup'  style='display:none'>
+	<h2>Set up the profile for the person you are standing in for</h2>
+	<div id='profile-setup-form-container'>
+		<div id='profileImage'><div id='dropin-pic'>drop in picture</div></div>
+		<form action="" id='profile-setup-form' method="get">
+		    <input type="text" id='first_name' name="first_name" placeholder='First Name'/><input type="text" id='last_name' name="last_name" placeholder='Last Name'/>
+		     <div id='dob'>
+		     		<div class='label'>When was he/she born?</div>
+		     		<script>
+		     			$(function() {
+		     				for(var i = 0; i <= 110; i++) {
+		     					var year = 1900 + new Date().getYear() - 110 + i;
+
+		     					 $('#dob-year')
+					        	.append($("<option></option>")
+					        	.attr("value", year)
+					        	.text(year)); 
+		     				}
+		     				for(var i = 1; i <= 31; i++) {
+		     					 $('#dob-day')
+					        	.append($("<option></option>")
+					        	.attr("value", i)
+					        	.text(i)); 
+		     				}
+		     				
+		     				$.each(['January','February','March','April','May','June','July','August','September','October','November','December'], function(key, value) {
+		     					$('#dob-month')
+					        	.append($("<option></option>")
+					        	.attr("value", value)
+					        	.text(value)); 
+		     				});
+
+		     			});
+
+		     		</script>
+		     		<div class='dob-picker' id='dob-picker'>
+			     		<select id='dob-month'>
+			     			<option value='choose'>Month</option>
+							</select>
+							<select id='dob-day'>
+								<option value='choose'>Day</option>
+							</select>
+			     		<select id='dob-year'>
+			     			<option value='choose'>Year</option>
+							</select>
+						</div>
+						<div class='clear'></div>
+		     </div>
+		     <div id='dod'>
+		     		<div class='label'>When was he/she diagnosed?</div>
+		     		<script>
+		     			$(function() {
+		     				for(var i = 0; i <= 110; i++) {
+		     					var year = 1900 + new Date().getYear() - 110 + i;
+
+		     					 $('#dod-year')
+					        	.append($("<option></option>")
+					        	.attr("value", year)
+					        	.text(year)); 
+		     				}
+		     				for(var i = 1; i <= 31; i++) {
+		     					 $('#dod-day')
+					        	.append($("<option></option>")
+					        	.attr("value", i)
+					        	.text(i)); 
+		     				}
+		     				
+		     				$.each(['January','February','March','April','May','June','July','August','September','October','November','December'], function(key, value) {
+		     					$('#dod-month')
+					        	.append($("<option></option>")
+					        	.attr("value", value)
+					        	.text(value)); 
+		     				});
+
+		     			});
+
+		     		</script>
+		     		<div class='dob-picker'>
+			     		<select id='dod-month'>
+			     			<option value='choose'>Month</option>
+							</select>
+			     		<select id='dod-year'>
+			     			<option value='choose'>Year</option>
+							</select>
+						</div>
+						<div class='clear'></div>
+		     </div>
+		     <textarea name="info" id="profile_textarea" cols="40" rows="4" placeholder='A little bit of info about this person.'></textarea>
+		     <br>
+		     <div class='button done'>Done</div>
+				<!--<input type="submit" onclick='staticProfile()' class='button' value="Done"/>-->
+		</form>
+	</div>
+	<div class='clear'></div>
+</div>

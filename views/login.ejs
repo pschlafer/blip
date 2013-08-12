@@ -37,6 +37,7 @@
 	<link href="/css/main.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
+	<div id='overlay'></div>
 	<div class='login' id='login'>
 		<h1>Welcome to the club</h1>
 		<h2>Upload, connect, visualize and learn from type 1 diabetes data.</h2>
@@ -48,13 +49,9 @@
 	</div>
 	<div class='login' id='login-usertype' style='display:none'>
 		<div id='head'>
-			<img src='/img/ian.jpg' class='circle'>
-			<div id='headers'>
-				<h1>Hi Ian</h1>
-				<h2>We need a little bit of info about yourself to set things up correctly</h2>
-				<div class='dashed'></div>
-			</div>
-			<div class='clear'></div>
+			<!--<img src='/img/ian.jpg' class='circle'>-->
+			<h1> Hi Ian</h1>
+			<h2>We need a little bit of info about you to set things up correctly</h2>
 		</div>
 		<div id='choices'>
 			<ul id='usertype'>
@@ -63,8 +60,6 @@
 				<li id='no'>
 					Im a team member
 					<br><span class='detail'>eg. Dr.’s, Nurses, uncles, siblings, friends</span><br><br>
-					
-
 					<p class='error'>Looks like you haven’t been invited to any teams. If you want to be, youll need your patient to add you in their facebook group.</p>
 				</li>
 				<li id='team-member' style='display:none'>
@@ -101,151 +96,179 @@
 			</ul>
 		</div>
 	</div>
+	<div id='profile-setup'  style='display:none'>
+		<h2>Set up the profile for the person you are standing in for</h2>
+		<div id='profile-setup-form-container'>
+			<div id='profileImage'><div id='dropin-pic'>drop in picture</div></div>
+			<form action="" id='profile-setup-form' method="get">
+			    <input type="text" id='first_name' name="first_name" placeholder='First Name'/><input type="text" id='last_name' name="last_name" placeholder='Last Name'/>
+			     <div id='dob'>
+			     		<div class='label'>When was he/she born?</div>
+			     		<script>
+			     			$(function() {
+			     				for(var i = 0; i <= 110; i++) {
+			     					var year = 1900 + new Date().getYear() - 110 + i;
+
+			     					 $('#dob-year')
+						        	.append($("<option></option>")
+						        	.attr("value", year)
+						        	.text(year)); 
+			     				}
+			     				for(var i = 1; i <= 31; i++) {
+			     					 $('#dob-day')
+						        	.append($("<option></option>")
+						        	.attr("value", i)
+						        	.text(i)); 
+			     				}
+			     				
+			     				$.each(['January','February','March','April','May','June','July','August','September','October','November','December'], function(key, value) {
+			     					$('#dob-month')
+						        	.append($("<option></option>")
+						        	.attr("value", value)
+						        	.text(value)); 
+			     				});
+
+			     			});
+
+			     		</script>
+			     		<div class='dob-picker' id='dob-picker'>
+				     		<select id='dob-month'>
+				     			<option value='choose'>Month</option>
+								</select>
+								<select id='dob-day'>
+									<option value='choose'>Day</option>
+								</select>
+				     		<select id='dob-year'>
+				     			<option value='choose'>Year</option>
+								</select>
+							</div>
+							<div class='clear'></div>
+			     </div>
+			     <div id='dod'>
+			     		<div class='label'>When was he/she diagnosed?</div>
+			     		<script>
+			     			$(function() {
+			     				for(var i = 0; i <= 110; i++) {
+			     					var year = 1900 + new Date().getYear() - 110 + i;
+
+			     					 $('#dod-year')
+						        	.append($("<option></option>")
+						        	.attr("value", year)
+						        	.text(year)); 
+			     				}
+			     				for(var i = 1; i <= 31; i++) {
+			     					 $('#dod-day')
+						        	.append($("<option></option>")
+						        	.attr("value", i)
+						        	.text(i)); 
+			     				}
+			     				
+			     				$.each(['January','February','March','April','May','June','July','August','September','October','November','December'], function(key, value) {
+			     					$('#dod-month')
+						        	.append($("<option></option>")
+						        	.attr("value", value)
+						        	.text(value)); 
+			     				});
+
+			     			});
+
+			     		</script>
+			     		<div class='dob-picker'>
+				     		<select id='dod-month'>
+				     			<option value='choose'>Month</option>
+								</select>
+				     		<select id='dod-year'>
+				     			<option value='choose'>Year</option>
+								</select>
+							</div>
+							<div class='clear'></div>
+			     </div>
+			     <textarea name="info" id="info" cols="40" rows="4" placeholder='A little bit of info about this person.'></textarea>
+			     <br>
+			     <div class='button done' onclick='staticProfile()'>Done</div>
+					<!--<input type="submit" onclick='staticProfile()' class='button' value="Done"/>-->
+			</form>
+		</div>
+		<div class='clear'></div>
+	</div>
+	<div id='login-groupTutorial' style='display:none'>
+		<h2>Set up a private group in Facebook to invite people to Electra's team</h2>
+		<div id='facebook-group-tutorial-image'>
+			<img src='/img/facebook_tutorial.png'>
+		</div>
+		
+		<div class='button done' onclick='chooseTeam()'>Done</div>
+	</div>
+	<div id='choose-facebook-group' style='display:none'>
+		<h2>Choose a Facebook group to add to Electra's blip team</h2>
+		<ul>
+			<li>Electra White <span>(8)</span></li>
+			<li>Electra White <span>(8)</span></li>
+			<li>Electra White <span>(8)</span></li>
+			<li>Electra White <span>(8)</span></li>
+		</ul>
+	</div>
+	<div id='profile-setup-device-picker' style='display:none'>
+		<h1>Last step! Lets upload the data from Electra's devices.</h1>
+		<ul>
+			<li id='upload-animas'>
+				<h2>Animas pump</h2>
+				<div class='device-import' style='display:none'>
+					<h3>We pull in your device data from Diasend.</h3>
+					<p>To do that we need your Diasend username and password. If you need to upload your data into Diasend first, you can do it from here.</p>
+					<div id='animas-credentials'>
+						<h4>Diasend Credentials</h4>
+						<input type="text" id='diasend_username' name="diasend_username" placeholder='username'/>
+						<input type="text" id='diasend_password' name="diasend_password" placeholder='password'/>
+						<div class='button done sync'>Sync</div>	
+					</div>
+				</div>
+			</li>
+			<li id='upload-dexcom'>
+				<h2>Dexcom sensor</h2>
+				<div class='device-import' style='display:none'>
+					<h3>Export your data from Dexcom Studio as a CSV file and upload it here.</h3>
+					<p>If you need help with getting your data into Dexcom Studio go here.</p>
+					<div id='dexcom-drop-file'>Drop file here</div>
+					<div class='button done'>Done</div>	
+				</div>
+			</li>
+			<li id='upload-medtronic'>
+				<h2>Medtronic pump (and sensor)</h2>
+				<div class='device-import' style='display:none'>
+					<h3>Export your data from Carelink as a CSV file and upload it here.</h3>
+					<p>If you need help with getting your data into Carelink go here.</p>
+					<div id='medtronic-drop-file'>Drop file here</div>
+					<div class='button done'>Done</div>	
+				</div>
+			</li>
+		</ul>
+		<div class='button done go'>Lets see the data!</div>	
+	</div>
 	<div id='content'>
 		<header>	
 			<div class='inner'>
-				<div class='currentPatient'>
-					<!--<img src='/img/electra.png'>
-					<h1>Electra White</h1>-->
+				<div id='currentPatient'>
+					<h1>Electra White</h1>	
 				</div>
 				<div class='container'>
 					<h1 class='logo'><img src='/img/logo.png'></h1>
-					<div class='user'>
-						<!--<div class='text'>Logged in as <span id='username'>Tamara White</span></div><img src='/img/tamar.jpg'><img id='more' src='/img/more.png'><div class='clear'></div>-->
+					<div class='user' style='display:none'>
+						<div class='text'>Logged in as <span id='username'>Ian Jorgensen</span></div><img src='/img/ian.jpg'><div class='clear'></div>
 					</div>
 					<div class='clear'></div>
 				</div>
 			</div>
 			<div class='patient'>
-				<style>
-				#line {
-					width: 100%
-					height: 1px;
-					border: dashed white 1px;
-					position: relative;
-					top: 160px;
-					display: none;
-				}
-				</style>
-				<div id='line'></div>
-				<div class='inner'>
-					<div id='profile-setup'  style='display:none'>
-						<h1>Set up the profile for the person you are standing in for.</h1>
-						<div id='profile-image'></div>
-
-						<form action="" id='profile-setup-form' method="get">
-						    <input type="text" id='first_name' name="first_name" placeholder='First Name'/><input type="text" id='last_name' name="last_name" placeholder='Last Name'/>
-						     <div id='dob'>
-						     		<div class='label'>When was he/she born?</div>
-						     		<script>
-						     			$(function() {
-						     				for(var i = 0; i <= 110; i++) {
-						     					var year = 1900 + new Date().getYear() - 110 + i;
-
-						     					 $('#dob-year')
-									        	.append($("<option></option>")
-									        	.attr("value", year)
-									        	.text(year)); 
-						     				}
-						     				for(var i = 1; i <= 31; i++) {
-						     					 $('#dob-day')
-									        	.append($("<option></option>")
-									        	.attr("value", i)
-									        	.text(i)); 
-						     				}
-						     				
-						     				$.each(['January','February','March','April','May','June','July','August','September','October','November','December'], function(key, value) {
-						     					$('#dob-month')
-									        	.append($("<option></option>")
-									        	.attr("value", value)
-									        	.text(value)); 
-						     				});
-
-						     			});
-
-						     		</script>
-						     		<div class='dob-picker' id='dob-picker'>
-							     		<select id='dob-month'>
-							     			<option value='choose'>Month</option>
-											</select>
-											<select id='dob-day'>
-												<option value='choose'>Day</option>
-											</select>
-							     		<select id='dob-year'>
-							     			<option value='choose'>Year</option>
-											</select>
-										</div>
-										<div class='clear'></div>
-						     </div>
-						     <div id='dod'>
-						     		<div class='label'>When was he/she diagnosed?</div>
-						     		<script>
-						     			$(function() {
-						     				for(var i = 0; i <= 110; i++) {
-						     					var year = 1900 + new Date().getYear() - 110 + i;
-
-						     					 $('#dod-year')
-									        	.append($("<option></option>")
-									        	.attr("value", year)
-									        	.text(year)); 
-						     				}
-						     				for(var i = 1; i <= 31; i++) {
-						     					 $('#dod-day')
-									        	.append($("<option></option>")
-									        	.attr("value", i)
-									        	.text(i)); 
-						     				}
-						     				
-						     				$.each(['January','February','March','April','May','June','July','August','September','October','November','December'], function(key, value) {
-						     					$('#dod-month')
-									        	.append($("<option></option>")
-									        	.attr("value", value)
-									        	.text(value)); 
-						     				});
-
-						     			});
-
-						     		</script>
-						     		<div class='dob-picker'>
-							     		<select id='dod-month'>
-							     			<option value='choose'>Month</option>
-											</select>
-											<select id='dod-day'>
-												<option value='choose'>Day</option>
-											</select>
-							     		<select id='dod-year'>
-							     			<option value='choose'>Year</option>
-											</select>
-										</div>
-										<div class='clear'></div>
-						     </div>
-						     <textarea name="info" id="info" cols="40" rows="4" placeholder='A little bit of info about this person.'></textarea>
-						     <br>
-						     <div class='button done' onclick='staticProfile()'>Done</div>
-								<!--<input type="submit" onclick='staticProfile()' class='button' value="Done"/>-->
-						</form>
-						<script>
-
-						//staticProfile(); chooseTeam(); chooseDevice();
-						</script>
-						<style>
-						</style>
-						<div id='profile-setup-static' style='display:none'>
-							<div id='fullname'>John Rose</div>
-							<div id='dates'>13 years old. Diagnosed 3 years ago.</div>
-							<div id='tidbits'>Johns favorite thing to look at is his stuffed elephant. Just started to drink apple juice.</div>
+				<div class='inner' id='header-profile'>
+					<div class='holder'>
+						<div class='info'>
+							<div id='minihistory'>13 years old. Diagnosed 3 years ago.</div>
+							<p>Electra loves to travel and to draw on her sketch book. Her favorite colors are orange and blue.</p>
 						</div>
 						<div id='profile-setul-group-picker' style='display:none'>
 							<h3>Team <span></span></h3><br>
-							<p>Choose a group to add to John’s blip team</p>
-							<ul id='facebook-groups'>
-								<li>Electra White</li>
-								<li>Kone One Denmark</li>
-								<li>CIID_2012</li>
-								<li>QSCPH</li>
-								<li>Vedbaek Surfklub</li>
-							</ul>
-							<ul id='static-team-list' style='display:none'>
+							<ul id='static-team-list'>
 								<li>
 									<img src='/img/tamar.jpg'>
 								</li>
@@ -274,63 +297,12 @@
 						</div>
 						<div class='clear'></div>
 					</div>
-					<div id='login-groupTutorial' style='display:none'>
-						<p>In order to set up Electra's team you will need to set up a private group in Facebook and invite the people you wish to be in Electra's group</p>
-						<ol>
-							<li>
-								1. Log onto Facebook and create a private group.
-								<img src='/img/choose.png'>
-							</li>
-							<li>
-								2. Invite the people you wish to be in the group.
-								<img src='/img/group.png' style='width:600px'>
-							</li>
-						</ol>
-						<div class='button done' onclick='chooseTeam()'>Done</div>
-					</div>
-				</div>
 				<div id='cover' style='display:none'><div class='handel'><!--<img src='/img/handel.png'>--></div></div>
 			</div>
 		</header>
-				<div class='inner' id='main'>
-					<div id='profile-setup-device-picker' style='display:none'>
-						<h1>Last step! Lets upload the data from Electra's devices.</h1>
-						<ul>
-							<li id='upload-animas'>
-								<h2>Animas pump</h2>
-								<div class='device-import' style='display:none'>
-									<h3>We pull in your device data from Diasend.</h3>
-									<p>To do that we need your Diasend username and password. If you need to upload your data into Diasend first, you can do it from here.</p>
-									<div id='animas-credentials'>
-										<h4>Diasend Credentials</h4>
-										<input type="text" id='diasend_username' name="diasend_username" placeholder='username'/>
-										<input type="text" id='diasend_password' name="diasend_password" placeholder='password'/>
-										<div class='button done sync'>Sync</div>	
-									</div>
-								</div>
-							</li>
-							<li id='upload-dexcom'>
-								<h2>Dexcom sensor</h2>
-								<div class='device-import' style='display:none'>
-									<h3>Export your data from Dexcom Studio as a CSV file and upload it here.</h3>
-									<p>If you need help with getting your data into Dexcom Studio go here.</p>
-									<div id='dexcom-drop-file'>Drop file here</div>
-									<div class='button done'>Done</div>	
-								</div>
-							</li>
-							<li id='upload-medtronic'>
-								<h2>Medtronic pump (and sensor)</h2>
-								<div class='device-import' style='display:none'>
-									<h3>Export your data from Carelink as a CSV file and upload it here.</h3>
-									<p>If you need help with getting your data into Carelink go here.</p>
-									<div id='medtronic-drop-file'>Drop file here</div>
-									<div class='button done'>Done</div>	
-								</div>
-							</li>
-						</ul>
-						<div class='button done go'>Lets see the data!</div>	
-					</div>
-				</div>
+		<div class='inner' id='main'>
+		</div>
 	</div>
+</div>
 </body>
 </html>

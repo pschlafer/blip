@@ -1,0 +1,60 @@
+header {
+  background: #0069a1;
+  width: 100%;
+  position: fixed;
+  left: 0px;
+  bottom: 0px;
+}
+header #top-header {
+  padding: 11px 0px 3px 0;
+}
+header #top-header #logo {
+  width: 51px;
+  float: left;
+}
+#current_patient {
+  display: none;
+  position: absolute;
+  width: 0px;
+  height: 0px;
+  top: -10px;
+}
+#current_patient img:hover {
+  cursor: hand;
+  cursor: pointer;
+}
+#current_patient h1:hover {
+  cursor: hand;
+  cursor: pointer;
+}
+#current_patient img {
+  width: 70px;
+  left: 135px;
+  position: relative;
+  top: 32px;
+}
+#current_patient h1 {
+  color: white;
+  position: relative;
+  width: 200px;
+  top: -31px;
+  left: 210px;
+  font-size: 20px;
+}
+#content-header {
+  width: 100%;
+  color: white;
+  background: #29A8D9;
+  padding-bottom: 20px;
+}
+#content-header #patient-profile-info {
+  float: left;
+  width: 310px;
+  font-size: 15px;
+  margin-left: 112px;
+  margin-top: 55px;
+}
+#content-header #minihistory {
+  padding-bottom: 5px;
+  color: #E3E3E3;
+}

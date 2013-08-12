@@ -1,86 +1,99 @@
-
 $(function() {
-	$('#loginButton').click(function() {
-		console.log('hi');
-		$('#login').fadeOut();
-		$('#login-usertype').fadeIn(1150);
-
-		$('#surrogate').click(showProfileInput);
-
-	});
-	
-	
+	$('#loginButton').click(showSelectUserType);
 	$('#facebook-groups > li').click(chooseDevice);
-
-		$("div#profile-image").dropzone({ 
+  
+	$("div#profileImage").dropzone({ 
 		url: "/file/post",
 		uploadMultiple: false,
 		previewTemplate: '<div id="dz-preview-template" class="dz-preview dz-file-preview"><div class="dz-details"><div class="dz-filename"><span data-dz-name></span></div><div class="dz-size" data-dz-size></div><img class="dropImage" data-dz-thumbnail /></div><div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress></span></div></div>',
-	 });
+		init: function() {
+    	this.on("addedfile", function(file) {
+    		var images = $('.dz-preview');
 
+    		$('#dropin-pic').remove();
+
+    		if(images.length > 1) {
+    			images[0].remove();	
+    		}
+    	});
+  	}
+	});
 });
 
-var showProfileInput = function() {
-	$('#login-usertype').hide();
-	window.scrollTo(0,0);
-	
-	$('#login-groupTutorial').show();
-	$('body').addClass('stop-scrolling');
-	$('#profile-setup').show();
+var showSelectUserType = function() {
+	$('#login').fadeOut(function() {
+		$('#login-usertype').fadeIn();	
+		$('header .user').fadeIn();
+	});
+	$('#surrogate').click(showProfileInput);
+	$('#overlay').css('background', 'white');
+};
 
-	$('header').css('position','relative');
-}
+var showProfileInput = function() {
+	$('#login-usertype').fadeOut(function() {
+		$('#profile-setup').fadeIn();
+	});
+	
+	$('#overlay').css('background', 'white');
+};
 
 var staticProfile = function() {
+	$('.dropImage').prependTo('.currentPatient');
 	
-	if($('#first_name').val() && $('#last_name').val())
-	$('#fullname').html($('#first_name').val() + ' ' + $('#last_name').val());
-	if($('#info').val())
-	$('#tidbits').html($('#info').val());
+	if($('#first_name').val() && $('#last_name').val()) {
+		$('.currentPatient h1').html($('#first_name').val() + ' ' + $('#last_name').val());
+	}
 
-	$('#profile-setup-form').hide();
-	$('#profile-setup-static').show();
+	if($('#info').val()) {
+		$('.holder .info p').html($('#info').val());
+	}
 
-	$('#profile-setup #profile-image').css({margin: '20px 20px 20px 0'})
-	$('#profile-setup h1').hide();
-	$('#login-groupTutorial').css({opacity: 1});
+	$('.currentPatient h1').css({
+		'left': '113px',
+		'top': '0px'
+	});	
 
-	$('body').removeClass('stop-scrolling');
-	$('#line').show();
-}
+	$('.currentPatient img').css({
+		'display': 'inline-block',
+		'width': '80px',
+		'left': '20px',
+		'top': '80px'
+	});
+
+	$('#profile-setup').fadeOut(function() {
+		$('.holder').slideDown();
+		$('.currentPatient').fadeIn();
+		$('#login-groupTutorial').fadeIn();	
+	});
+};
 
 var chooseTeam = function() {
-	$('#main').css({background: 'white'});
-	$('#line').hide();
-	$('#login-groupTutorial').hide();
-	$('#profile-setul-group-picker').show();
-	$('body').addClass('stop-scrolling');
-	$('#profile-setup-device-picker').show();
-	$('#profile-setup-device-picker').css({opacity: 0.2});
-	window.scrollTo(0,0);
-}
+	$('#login-groupTutorial').fadeOut(function() {
+		$('#choose-facebook-group').fadeIn();	
+	});
+	$('#choose-facebook-group ul > li').click(chooseDevice);
+};
 
 var chooseDevice = function() {
-
+	$('#choose-facebook-group').fadeOut(function() {
+		$('#profile-setup-device-picker').fadeIn();
+		$('#profile-setul-group-picker').fadeIn();
+		$('#profile-setul-group-picker h3 span').html(8);
+	});
+	
 	$('.go').click(function() {
 		window.location = "http://localhost:8081/data";
 	});
-	$('#profile-setup-device-picker').css({opacity: 1});
-	$('body').removeClass('stop-scrolling');
-	$('#static-team-list').show();
-	$('#facebook-groups').hide();
-	$('#profile-setul-group-picker p').hide();
-	$('#profile-setul-group-picker h3 span').html(8);
 
 	$('#upload-animas h2').click(function() {
-		$('#upload-animas .device-import').toggle();
+		$('#upload-animas .device-import').slideToggle();
 	});
 
 	$('#upload-dexcom h2').click(function() {
-		$('#upload-dexcom .device-import').toggle();
+		$('#upload-dexcom .device-import').slideToggle();
 	});
 
 	$('#upload-medtronic h2').click(function() {
-		$('#upload-medtronic .device-import').toggle();
+		$('#upload-medtronic .device-import').slideToggle();
 	});
-}
+};
