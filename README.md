@@ -1,24 +1,36 @@
 blip
 ====
 
-# How to run blip
+Is a one page javascript app the runs on a simple node web server. That pulls data cross domain from the blip (Tidepool) api.
+
+# How to run blip Web server
+
+Run web server on root folder.
 
 ## Dependencies
 
 You need node and npm.
 
-    npm install express
-    npm install ejs-locals
-    npm install less-middleware
-    npm install facebook-node-sdk
+    > npm install .
     
 ## Running it
 
-    > node app.js
+    > npm start
     Blip server listening on port 8081
 
-Now open http://localhost:8081 and you should see the login screen.
+# How to run blip API server
+
+Run web server on /api folder.
+
+## Dependencies
+
+You need node and npm.
+
+    > npm install .
     
-Ian says:
-To run the api go to /api folder run npm install and npm start it runs on 8082. Then start the blip server on the root doing npm install and npm start. It runs on port 8081.
-    
+## Running it
+
+    > npm start
+    Blip API server listening on port 8082
+
+Now open http://localhost:8081 and you should see the login screen and should be able to authenticate with facebook. To logout from Facebook to try again open the console and type FB.logout();
