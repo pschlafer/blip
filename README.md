@@ -20,7 +20,7 @@ You need node and npm.
 
 # How to run blip API server
 
-Run web server on /api folder.
+It's in the api subdirectory.
 
 ## Dependencies
 
