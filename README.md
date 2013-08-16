@@ -18,19 +18,7 @@ You need node and npm.
     > npm start
     Blip server listening on port 8081
 
-# How to run blip API server
-
-It's in the api subdirectory.
-
-## Dependencies
-
-You need node and npm.
-
-    > npm install .
-    
-## Running it
-
-    > npm start
-    Blip API server listening on port 8082
+You also need to run the blip API server. It's in the blip-data-api repository. See the README there.
 
 Now open http://localhost:8081 and you should see the login screen and should be able to authenticate with facebook. To logout from Facebook to try again open the console and type FB.logout();
+
