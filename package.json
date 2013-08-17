@@ -13,6 +13,14 @@
     "less-middleware": "*",
     "facebook-node-sdk": "*"
   },
+  "config": {
+    "dev" : {
+      "api_endpoint": "localhost:8082"
+    },
+    "prod" : {
+      "api_endpoint": "blipapi.jit.su"
+    }
+  },
   "subdomain": "bliptidepool",
   "engines": {
     "node": "0.8.x"
