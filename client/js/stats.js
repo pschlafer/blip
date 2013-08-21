@@ -1,16 +1,16 @@
-var stats = function(bg, cgm, insulin) {
+var stats = function(bg, cgm, bolusData, basalData) {
 
 	var today = startOfDay(new Date()).getTime();
 	var bgTicks = _.pluck(bg, 'ticks');
 	var cgmTicks = _.pluck(cgm, 'ticks');
 	
-	bolusData = _.filter(insulin, function(e){ return !!e.bolus; });
+	//bolusData = _.filter(insulin, function(e){ return !!e.bolus; });
 	bolusData = _.uniq(bolusData, true, function(e) {
 		return e.ticks;
 	});
 	bolusTicks = _.pluck(bolusData, 'ticks');
 
-	var basalData = _.filter(insulin, function(e){ return !!e.basal; });
+	//var basalData = _.filter(insulin, function(e){ return !!e.basal; });
 	basalData = _.uniq(basalData, true, function(e) {
 		return e.ticks;
 	});

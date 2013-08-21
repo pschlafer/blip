@@ -1,0 +1,61 @@
+<div id='content' class='data-holder'>
+	<div class='inner' id='main'>
+		<div class='container'>
+			<div id='graph'>
+				<div id='nav'>
+					<ul class='time-picker'>
+						<li class='arrow arrowup'><img id='up' img src='/img/up.png'></li> 
+						<li class='today'>today</li>
+						<li class='arrow arrowdown'><img id='down' img src='/img/down.png'></li>
+					</ul>
+					<div class='clear'></div>
+				</div>
+
+				<div id='chart'>
+					<div id='chartTop'></div>
+					<div id='chartMain'></div>
+					<div id='chartBottom'></div>
+				</div>
+				
+				<div id='timelineHolder' style='display:none'>
+					<div id='timelineAxis'></div>
+					<div id='timelineContainer'>
+						<div id='timeline'></div>
+					</div>
+
+					<div class='clear'></div>
+					
+					
+				</div>
+
+				<div id='stats'>
+					<ul>
+						<li class='bolusli' id='insulin-stat'>
+							<div class='stat'>
+								<div class='infoIcon' id='bolus-widget'></div>
+								<h2>Bolus: Basal</h2>
+								<div id='insulinData' class='data'>48% : 52% <span class='small'>0.8 u/kilo</span></div>
+							</div>
+
+						</li>
+						<li class='range' id='range-stat'>
+							<div class='stat'>
+								<div class='infoIcon' id='range-widget'></div>
+								<h2>Time in range</h2>
+								<div id='rangeData' class='data'>%</div>
+							</div>
+						</li>
+						<li id='bg-stat'>
+							<div class='stat'>
+								<div class='infoIcon' id='average-widget'></div>
+								<h2>Average Bg</h2>
+								<div class='data' id='averageData'></div>
+							</div>
+						</li>
+					</ul>
+					<div class='clear'></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

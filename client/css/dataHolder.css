@@ -1,0 +1,440 @@
+.data-holder {
+  display: none;
+}
+.data-holder header {
+  background: #0069A1;
+  width: 100%;
+}
+.data-holder .inner {
+  width: 1130px;
+  margin: auto;
+}
+.data-holder #main {
+  background: #EFF1F3;
+}
+.data-holder #graph {
+  background: white;
+  border-bottom: 15px solid #B7C9D2;
+}
+.data-holder .logo {
+  color: white;
+  float: left;
+}
+.data-holder .user:hover {
+  cursor: progress;
+}
+.data-holder .user {
+  opacity: 0.5;
+  float: right;
+  height: 100%;
+}
+.data-holder .clear {
+  clear: both;
+}
+.data-holder #nav {
+  background: #29A8D9;
+}
+.data-holder #nav .tab {
+  float: left;
+}
+.data-holder #nav .time-picker {
+  margin: auto;
+  width: 194px;
+}
+.data-holder #stats li {
+  float: left;
+  z-index: -1;
+}
+.data-holder #nav li {
+  float: left;
+}
+.data-holder header .container {
+  padding: 7px 0px;
+}
+.data-holder #main .container {
+  background: #EFF1F3;
+  padding: 30px 20px;
+}
+.data-holder #chartMain {
+  height: 505px;
+  overflow-y: auto;
+}
+.data-holder #chartTop {
+  margin-bottom: -5px;
+  margin-top: 20px;
+}
+.data-holder #chartBottom {
+  margin-top: -5px;
+  margin-bottom: 32px;
+}
+.data-holder #nav ul {
+  margin-left: 48px;
+  color: white;
+  text-transform: capitalize;
+}
+.data-holder #nav li {
+  padding: 15px;
+  height: 16px;
+}
+.data-holder .today {
+  font-size: 14px;
+  background: #48B4DE;
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+}
+.data-holder .arrow {
+  background: #63BFE2;
+}
+.data-holder .user img {
+  width: 35px;
+}
+.data-holder .user {
+  color: #29A7D9;
+  font-size: 12px;
+}
+.data-holder #username {
+  color: #ffffff;
+}
+.data-holder body {
+  font-family: 'helvetica';
+}
+.data-holder .user .text {
+  float: left;
+  padding-right: 10px;
+  padding-top: 13px;
+}
+.data-holder .user img {
+  float: left;
+}
+.data-holder .arrow img {
+  width: 15px;
+}
+.data-holder #more {
+  width: 15px;
+  padding: 14px 0 0 10px;
+}
+.data-holder .logo img {
+  width: 56px;
+}
+.data-holder .patient {
+  width: 100%;
+  color: white;
+  background: #29A8D9;
+}
+.data-holder .handel img {
+  width: 15px;
+}
+.data-holder .handel {
+  width: 15px;
+  margin: auto;
+  padding-bottom: 2px;
+}
+.data-holder .currentPatient {
+  position: absolute;
+  width: 0px;
+  height: 0px;
+  top: -10px;
+}
+.data-holder .currentPatient img:hover {
+  cursor: hand;
+  cursor: pointer;
+}
+.data-holder .currentPatient h1:hover {
+  cursor: hand;
+  cursor: pointer;
+}
+.data-holder .currentPatient img {
+  width: 70px;
+  left: 135px;
+  position: relative;
+  top: 32px;
+}
+.data-holder .currentPatient h1 {
+  color: white;
+  position: relative;
+  width: 200px;
+  top: -31px;
+  left: 210px;
+  font-size: 20px;
+}
+.data-holder .box:hover {
+  cursor: progress;
+}
+.data-holder .box {
+  opacity: 0.5;
+  float: left;
+  padding-top: 20px;
+}
+.data-holder .hba1c {
+  float: left;
+  width: 210px;
+  padding: 25px 10px 0 10px;
+}
+.data-holder .hba1c img {
+  width: 177px;
+  padding-top: 10px;
+}
+.data-holder .info {
+  float: left;
+  width: 309px;
+  font-size: 15px;
+  margin-left: 112px;
+  margin-top: 55px;
+}
+.data-holder #minihistory {
+  padding-bottom: 5px;
+  color: #E3E3E3;
+}
+.data-holder #team li img {
+  width: 50px;
+  height: 50px;
+  padding: 5px;
+}
+.data-holder #team li {
+  float: left;
+}
+.data-holder #team {
+  float: left;
+}
+.data-holder #devices {
+  float: left;
+}
+.data-holder h3 {
+  float: left;
+}
+.data-holder .settings {
+  width: 15px;
+  float: left;
+  padding-left: 10px;
+}
+.data-holder #bg {
+  width: 25px;
+}
+.data-holder #pump {
+  width: 20px;
+}
+.data-holder #bounds {
+  background: #3CB2DC;
+  padding: 10px 20px;
+  width: 439px;
+}
+.data-holder .currentPatient1 {
+  position: absolute;
+}
+.data-holder .currentPatient1 img {
+  width: 90px;
+  left: 10px;
+  top: 80px;
+  position: relative;
+}
+.data-holder .currentPatient1 h1 {
+  color: white;
+  position: relative;
+  left: 111px;
+  top: -6px;
+  font-size: 20px;
+}
+.data-holder .holder {
+  display: none;
+  padding-bottom: 20px;
+}
+.data-holder .title {
+  padding-bottom: 10px;
+}
+.data-holder #devices li {
+  font-size: 15px;
+}
+.data-holder #devices {
+  padding-right: 39px;
+}
+.data-holder #devices li {
+  padding: 5px 0;
+}
+.data-holder #next {
+  width: 13px !important;
+  height: 18px !important;
+  padding-top: 19px !important;
+}
+.data-holder #cover {
+  background: #63BFE2;
+}
+.data-holder #cover:hover {
+  cursor: hand;
+  cursor: pointer;
+}
+.data-holder .today {
+  cursor: hand;
+  text-align: center;
+  width: 60px;
+  cursor: pointer;
+}
+.data-holder .arrow {
+  margin: 0px 1px;
+  cursor: hand;
+  cursor: pointer;
+}
+.data-holder #timelineContainer {
+  width: 1041px;
+  overflow: auto;
+  overflow-y: hidden;
+  margin-left: 48px;
+  margin-top: 13px;
+  margin-bottom: 24px;
+}
+.data-holder #stats {
+  width: 1090px;
+}
+.data-holder #range,
+.data-holder #blous,
+.data-holder #average {
+  opacity: 0.3;
+}
+.data-holder #stats li {
+  border: 1px solid #B7C9D2;
+  width: 33%;
+}
+.data-holder #stats li:last-child {
+  width: 366px;
+}
+.data-holder .range {
+  border-left: 0px !important;
+  border-right: 0px !important;
+}
+.data-holder .infoIcon {
+  float: left;
+}
+.data-holder #stats h2 {
+  color: #4E4E4E;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 15px;
+}
+.data-holder #week {
+  display: none;
+}
+.data-holder #stats .data {
+  float: left;
+  padding-top: 15px;
+  padding-bottom: 20px;
+  color: #0081AA;
+  font-size: 30px;
+}
+.data-holder .small {
+  font-size: 15px;
+}
+.data-holder .stat {
+  padding: 20px 20px 20px 50px;
+}
+.data-holder .hba1c h3 {
+  float: none;
+}
+.data-holder #hba1c-image {
+  padding-top: 5px;
+  float: left;
+}
+.data-holder #hba1c-stats {
+  padding-top: 5px;
+  float: left;
+}
+.data-holder #bolus-widget,
+.data-holder #range-widget {
+  width: 55px !important;
+  padding-top: 3px;
+  padding-right: 15px;
+}
+.data-holder #average-widget {
+  width: 37px !important;
+  padding-top: 3px;
+  padding-right: 15px;
+}
+.data-holder #average-widget svg {
+  position: static !important;
+}
+.data-holder .period li {
+  float: left;
+  color: white;
+  font-weight: 100;
+  font-size: 12px;
+}
+.data-holder #two {
+  font-weight: bold;
+}
+.data-holder .period li:hover {
+  cursor: hand;
+  cursor: pointer;
+}
+.data-holder #timelineAxis {
+  float: left;
+}
+.data-holder #timeline {
+  float: left;
+}
+.data-holder .clear {
+  clear: both;
+}
+.data-holder #load {
+  margin: 0px auto;
+  width: 400px;
+  height: 10000px;
+  top: 0px;
+  display: block;
+  position: absolute;
+  left: 0px;
+  width: 100%;
+  background: white;
+  z-index: 1000;
+}
+.data-holder #logocontainer {
+  margin: 150px auto;
+  width: 400px;
+  height: 1000px;
+}
+.data-holder #timelineDate {
+  position: relative;
+  left: 10px
+		top 10px;
+}
+.data-holder #load .logo {
+  background: none;
+  width: 400px;
+  height: 120px;
+  float: left;
+  overflow: hidden;
+  position: relative;
+}
+.data-holder .hba1c .percent {
+  padding-left: 15px;
+  padding-top: 13px;
+  font-size: 20px;
+  color: white;
+  font-weight: bold;
+}
+.data-holder .hba1c .ago {
+  padding-left: 15px;
+  padding-top: 5px;
+  font-size: 13px;
+  color: black;
+}
+.data-holder #load .ani-bg {
+  position: absolute;
+  top: -400px;
+  width: 100%;
+  left: 0;
+}
+.data-holder #load .frame {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  left: 0;
+  z-index: 1!important;
+}
+.data-holder .stop-scrolling {
+  height: 100%;
+  overflow: hidden;
+}
+.data-holder .stop-scrolling #timelineContainer {
+  overflow: hidden !important;
+}
+.data-holder .stop-scrolling #chartMain {
+  overflow: hidden !important;
+}

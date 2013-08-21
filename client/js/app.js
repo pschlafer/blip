@@ -1,6 +1,225 @@
+var loginin = false;
 $(function() {
   data = {};
   view = {
+    dataHolder: new (Backbone.View.extend({
+      initialize: function() {
+        var self = this;
+        $.ajax({ url: "/template/dataHolder.ejs" }).done(function(content) {
+          self.content = content;
+        });
+      },
+      datum: function(header, user) {
+        $.getJSON('http://localhost:8082/v1/device?limit=100000&callback=?', function(datum) {
+          console.log('hi', datum);
+          view.dataHolder.render(datum);
+
+          if(header) {
+
+            view.header.render(user);
+            $('header').css('position','relative');
+          }
+        });
+      },
+      render: function(datum) {
+        $('#top').hide();
+        $('header').hide();
+        $('#bottom').show();
+        this.$el.html(_.template(this.content));
+        
+        $('#data-tab').click(function() {$(document).trigger('show-overview')});
+        $('#overlay').css('background','rgba(255, 255, 255, 1');
+        
+        $('header').fadeIn();
+        $('.data-holder').fadeIn();
+
+        $('header').css('position','relative');
+
+        $(document).on('show-detail', function() {
+          $('#chart').hide();
+          $('#timelineHolder').show();
+          $('.message-element').show();
+        });
+
+        $(document).on('show-overview', function() {
+          isOverview = true;
+          $('.tab li').css('font-weight', '100');
+          $('#data-tab').css('font-weight', 'bold');
+          $('.message-element').hide();
+          $('#chart').show();
+          $('#timelineHolder').hide();
+
+          increment = 14;
+        });
+
+        $('.today').click(function() {
+          if(!isOverview) {
+            timeline.scroll('today');
+          } else {
+            day.scroll('today');
+          }
+        });
+
+        $('.arrowup').click(function() {
+          if(!isOverview) {
+            timeline.scroll(1);
+          } else {
+            day.scroll(14);
+          }
+        });
+
+        $('.arrowdown').click(function() {
+          if(!isOverview) {
+            timeline.scroll(-1);
+          } else {
+            day.scroll(-14);
+          }
+        });     
+
+        //bg.map(addDate);
+        //cgm.map(addDate);
+        //pumpInsulin.map(addDate);
+        
+        
+
+        
+        
+        bgs = _.filter(datum, function(entry){ return entry.type  === 'bg'; }).reverse();
+        bgs.map(addDate);
+
+        cgms = _.filter(datum, function(entry){ return entry.type  === 'cbg'; }).reverse();
+        cgms.map(addDate);
+
+        boluss = _.filter(datum, function(entry){ return entry.type  === 'bolus'; }).reverse();
+        boluss.map(addDate);
+
+        basals = _.filter(datum, function(entry){ return entry.type  === 'basal'; }).reverse();
+        basals.map(addDate);
+
+        carbs = _.filter(datum, function(entry){ return entry.type  === 'carbs'; }).reverse();
+        carbs.map(addDate);
+
+        day = drawDay();
+        day.draw(bgs);
+        day.scroll(bgs[bgs.length-1].date);
+
+        timeline = drawTimeline();
+        timeline.draw(bgs, cgms, boluss, basals, carbs);
+
+        var stat = stats(bgs, cgms, boluss, basals);
+        var aw = averageWidget('average-widget', 0, [50,180]);
+
+        var values = [20, 80],
+        labels = ['', ''],
+        colors = ['white', '#009AA3'],
+        bcolors = ['white', '#009AA3'];
+
+        var rangePie = Raphael("range-widget", 54, 54).pieChart(27, 27, 25, values, labels, colors, bcolors, "#B6C6CF");
+
+        $('#chartMain').scroll(function() {
+          var average = stat.average(day.scrollTicks()-(14*oneDay), day.scrollTicks());
+
+          if(average) {
+            $('#averageData').text(average);
+            aw.update(parseInt(average));
+            $('#bg-stat').css('opacity', 1);
+          } else {
+            $('#bg-stat').css('opacity', 0.3);
+          }
+          
+          var range = stat.range(day.scrollTicks()-(14*oneDay), day.scrollTicks());
+          
+          if(range) {
+            $('#rangeData').text(range  + '%');
+            var values = [100-range, range];
+            if(range == 100) {
+              values = [1, 99];
+            }
+            var labels = ['', ''],
+            colors = ['white', '#84C5D9'],
+            bcolors = ['white', '#84C5D9'];
+
+            $("#range-widget").children().remove()
+            var rangePie = Raphael("range-widget", 54, 54).pieChart(27, 27, 25, values, labels, colors, bcolors, "#B6C6CF");
+
+
+            $('#range-stat').css('opacity', 1);
+          } else {
+            $('#range-stat').css('opacity', 0.3);
+          }
+
+          var insulinStats = stat.insulinRatio(day.scrollTicks()-(14*oneDay), day.scrollTicks());
+
+          if(insulinStats && insulinStats.basalPercent > 0) {
+            $('#insulinData').text(insulinStats.bolusPercent + '%:' + insulinStats.basalPercent + '%');
+
+            var values = [insulinStats.bolusPercent, insulinStats.basalPercent],
+            labels = [insulinStats.bolus, insulinStats.basal],
+            colors = ['white', '#009AA3'],
+            bcolors = ['#009AA3', '#87F4EF'];
+
+            $("#bolus-widget").children().remove()
+            var rangePie = Raphael("bolus-widget", 54, 54).pieChart(27, 27, 25, values, labels, colors, bcolors, "#B6C6CF");
+
+            $('#insulin-stat').css('opacity', 1);
+          } else {
+            $('#insulin-stat').css('opacity', 0.3);
+          }
+        });
+
+        $('#timelineContainer').scroll(function() {
+        var average = stat.average(timeline.scrollTicks(), timeline.scrollTicks()+oneDay);
+
+        if(average) {
+          $('#averageData').text(average);
+          aw.update(parseInt(average));
+          $('#bg-stat').css('opacity', 1);
+        } else {
+          $('#bg-stat').css('opacity', 0.3);
+        }
+
+        var range = stat.range(timeline.scrollTicks(), timeline.scrollTicks()+oneDay);
+        $('#rangeData').text();
+
+        if(range) {
+          $('#rangeData').text(range  + '%');
+          var values = [100-range, range];
+          if(range == 100) {
+            values = [1, 99];
+          }
+          var labels = ['', ''],
+          colors = ['white', '#84C5D9'],
+          bcolors = ['white', '#84C5D9'];
+
+          $("#range-widget").children().remove()
+          var rangePie = Raphael("range-widget", 54, 54).pieChart(27, 27, 25, values, labels, colors, bcolors, "#B6C6CF");
+
+          $('#range-stat').css('opacity', 1);
+        } else {
+          $('#range-stat').css('opacity', 0.3);
+        }
+
+        var insulinStats = stat.insulinRatio(timeline.scrollTicks(), timeline.scrollTicks()+oneDay);
+
+        if(insulinStats && insulinStats.basalPercent > 0) {
+          $('#insulinData').text(insulinStats.bolusPercent + '%:' + insulinStats.basalPercent + '%');
+          
+          var values = [insulinStats.bolusPercent, insulinStats.basalPercent],
+          labels = [insulinStats.bolus, insulinStats.basal],
+          colors = ['white', '#009AA3'],
+          bcolors = ['#009AA3', '#87F4EF'];
+
+          
+          $("#bolus-widget").children().remove()
+          var rangePie = Raphael("bolus-widget", 54, 54).pieChart(27, 27, 25, values, labels, colors, bcolors, "#B6C6CF");
+
+          $('#insulin-stat').css('opacity', 1);
+        } else {
+          $('#insulin-stat').css('opacity', 0.3);
+        }
+        });
+      }
+    }))({el: $("#bottom")}),
     login: new (Backbone.View.extend({
       initialize: function() {
         var self = this;
@@ -9,8 +228,12 @@ $(function() {
         });
       },
       render: function(username) {
+        $('#bottom').hide();
+        $('#top').show();
         console.log('hi',this.$el);
         $('#overlay').css('background','rgba(255, 255, 255, 0');
+        $('header').css('position','fixed');
+
         this.$el.html(_.template(this.content));
         $('#login').fadeIn();
         view.header.render();
@@ -20,11 +243,37 @@ $(function() {
         $('#login').fadeOut(callback);
       },
       events: { 
-        "click #loginButton": "join"
+        "click #loginButton": "join",
+        "click #signin": "signin"
+      },
+      signin: function() {
+        FB.login(function(response) {
+          if (response.authResponse) {
+            accessToken = response.authResponse.accessToken;
+            
+            $.getJSON('http://localhost:8082/v1/user/facebook?accessToken=' + accessToken + '&callback=?', function(user) {
+              view.joinType.render(user);
+              view.dataHolder.datum();
+            });
+          }
+        }, {scope: 'user_groups,user_birthday,user_status,user_about_me,publish_actions,email'});
       },
       join: function(event){ 
-        console.log('login click');
-        window.location.hash = 'join';
+        loginin = true;
+        if(typeof FB == 'undefined') 
+          return;
+
+        FB.login(function(response) {
+          if (response.authResponse) {
+            accessToken = response.authResponse.accessToken;
+            // todo: also check blip groups this user already has access to            
+            $.getJSON('http://localhost:8082/v1/user/facebook?accessToken=' + accessToken + '&callback=?', function(user) {
+              view.joinType.render(user);
+            });
+          } else {
+            window.location.hash = '';
+          }
+        }, {scope: 'user_groups,user_birthday,user_status,user_about_me,publish_actions,email'});
       }
     }))({el: $("#top")}),
     header: new (Backbone.View.extend({
@@ -35,7 +284,7 @@ $(function() {
         });
       },
       render: function(user) {
-        console.log('render header');
+        $('header').css('position','fixed');
         this.$el.show();
         this.$el.html(_.template(this.content, {user: user}));
       },
@@ -54,39 +303,46 @@ $(function() {
         });
       },
       render: function(user) {
+        $('#top').show();
+        $('#bottom').hide();
         var self = this;
+        
         this.user = user;
+        
+        $('header').css('position','fixed');
         $('#overlay').css('background','rgba(255, 255, 255, 1');
-          view.login.fadeOut(function() {
-            self.$el.html(_.template(self.content, user));
-            
-            
-            view.header.render(self.user);
+        
+        view.login.fadeOut(function() {
+          self.$el.html(_.template(self.content, user));
+          
+          
+          view.header.render(self.user);
 
-            $('header').show();
-            $('header .user').fadeIn();
-            $('#login-usertype').fadeIn();
-          });
-        },
-        fadeOut: function(callback) {
-          $('#login-usertype').fadeOut(callback);
-        },
-        events: { 
-          "click #surrogate": "surrogate",
-          "click #t1d": "t1d"
-        },
-        t1d: function() { 
-          data.signup = {type: 'patient', user: this.user};
-          view.joinData.render(this.user);
-        },
-        surrogate: function() {
-          data.signup = {type: 'surrogate', user: this.user};
-          view.joinData.render();
-        },
-        team: function() {
-          // todo: setup user and load interface
-        }
-      }))({el: $("#top")}),
+          $('header').show();
+          $('header .user').fadeIn();
+          $('#login-usertype').fadeIn();
+        });
+      },
+      fadeOut: function(callback) {
+        $('#login-usertype').fadeOut(callback);
+      },
+      events: { 
+        "click #surrogate": "surrogate",
+        "click #t1d": "t1d"
+      },
+      t1d: function() { 
+        data.signup = {type: 'patient', user: this.user};
+        view.joinData.render(this.user);
+      },
+      surrogate: function() {
+        data.signup = {type: 'surrogate', user: this.user};
+        data.user = this.user;
+        view.joinData.render();
+      },
+      team: function() {
+        // todo: setup user and load interface
+      }
+    }))({el: $("#top")}),
     joinData: new (Backbone.View.extend({
       initialize: function() {
         var self = this;
@@ -95,10 +351,13 @@ $(function() {
         });
       },
       render: function(user) {
+        $('#top').show();
+        $('#bottom').hide();
         this.user = user;
 
         var self = this;
 
+        $('header').css('position','fixed');
         view.joinType.fadeOut(function() {
           console.log('joinData: ', {user: user});
           self.$el.html(_.template(self.content, {user: user}));
@@ -124,6 +383,8 @@ $(function() {
           };
 
           if(user) {
+            $('#profileImage').show();
+            $('#form_picture_file').hide();
             $('#first_name').val(user.first_name);  
             $('#last_name').val(user.last_name);
 
@@ -206,8 +467,11 @@ $(function() {
         }
         
         if (data.signup.type == 'surrogate') {
+
           profile.user = data.user;
           profile.patient = patient;
+
+          console.log('profile surrogate', profile);
         }
 
         $('#form-data').val(JSON.stringify(profile));
@@ -262,7 +526,7 @@ $(function() {
             'display': 'inline-block',
             'width': '80px',
             'left': '20px',
-            'top': '80px'
+            'top': '65px'
           });
 
           $('#profile-setup').fadeOut(function() {
@@ -282,8 +546,10 @@ $(function() {
         });
       },
       render: function(data) {
+        $('#top').show();
+        $('#bottom').hide();
         var self = this;
-
+        $('header').css('position','fixed');
         view.joinData.fadeOut(function() {
           self.$el.html(_.template(self.content, data));
           $('#login-groupTutorial').fadeIn();
@@ -298,7 +564,7 @@ $(function() {
       done: function() {
         this.fadeOut();
 
-        $.getJSON('http://localhost:8082/v1/groups?selected=false&administrator=true&accessToken=' + accessToken + '&callback=?', function(groups) {
+        $.getJSON('http://localhost:8082/v1/groups?administrator=true&accessToken=' + accessToken + '&callback=?', function(groups) {
           console.log(groups);
           view.joinSelectGroup.render(groups);    
         });
@@ -313,6 +579,9 @@ $(function() {
         });
       },
       render: function(groups) {
+        $('#top').show();
+        $('#bottom').hide();
+        $('header').css('position','fixed');
         this.$el.html(_.template(this.content, {groups: groups, user: data.profile}));
       
         $('#choose-facebook-group').fadeIn();
@@ -346,8 +615,21 @@ $(function() {
         });
       },
       render: function(groups) {
+        $('#top').show();
+        $('#bottom').hide();
+        $('header').css('position','fixed');
         this.$el.html(_.template(this.content, data.profile));
+        this.$el.find('.go').addClass('disabed');
         $('#profile-setup-device-picker').fadeIn();
+
+        Dropzone.options.medtronicCsvDropzone = {
+            paramName: "file", // The name that will be used to transfer the file
+            maxFilesize: 2, // MB
+            url: "/file/post",
+            uploadMultiple: false,
+            previewTemplate: '<div id="dz-preview-template" class="dz-preview dz-file-preview"><div class="dz-details"><div class="dz-filename"><span data-dz-name></span></div><div class="dz-size" data-dz-size></div><img class="dropImage" data-dz-thumbnail /></div><div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress></span></div></div>',
+            init: function() {}
+          };
       },
       fadeOut: function(callback) {
         $('#profile-setup-device-picker').slideDown(callback);
@@ -356,10 +638,14 @@ $(function() {
         'click #upload-animas h2': 'aminas',
         'click #upload-dexcom h2': 'dexcom',
         'click #upload-medtronic h2': 'medtronic',
+        'click #upload-medtronic .done': 'medtronicDone',
         'click .go': 'go'
       },
       go: function () {
-        window.location = "http://localhost:8081/data";
+        view.dataHolder.datum();
+      },
+      medtronicDone: function () {
+        this.$el.find('.go').removeClass('disabed');
       },
       aminas: function() {
         $('#upload-animas .device-import').slideToggle();
@@ -372,33 +658,4 @@ $(function() {
       }
     }))({el: $("#top")})
   };
-
-  new (Backbone.Router.extend({
-    routes: {
-      '': 'home',
-      'join': 'join'
-    },
-    home: function() {
-      console.log('home')
-      //view.splash.render();
-    },
-    join: function() {
-      if(typeof FB == 'undefined') 
-        return;
-
-      FB.login(function(response) {
-        if (response.authResponse) {
-          accessToken = response.authResponse.accessToken;
-          // todo: also check blip groups this user already has access to            
-          $.getJSON('http://localhost:8082/v1/user/facebook?accessToken=' + accessToken + '&callback=?', function(user) {
-            view.joinType.render(user);
-          });
-        } else {
-          window.location.hash = '';
-        }
-      }, {scope: 'user_groups,user_birthday,user_status,user_about_me,publish_actions,email'});
-    }
-  }));
-
-  Backbone.history.start();
 });

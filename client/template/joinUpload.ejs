@@ -1,7 +1,7 @@
 <div id='profile-setup-device-picker' style='display:none'>
 	<h1>Last step! Lets upload the data from <%= patient.first_name %>'s devices.</h1>
 	<ul>
-		<li id='upload-animas'>
+		<!--<li id='upload-animas'>
 			<h2>Animas pump</h2>
 			<div class='device-import' style='display:none'>
 				<h3>We pull in your device data from Diasend.</h3>
@@ -22,13 +22,16 @@
 				<div id='dexcom-drop-file'>Drop file here</div>
 				<div class='button done'>Done</div>	
 			</div>
-		</li>
+		</li>-->
 		<li id='upload-medtronic'>
 			<h2>Medtronic pump (and sensor)</h2>
 			<div class='device-import' style='display:none'>
 				<h3>Export your data from Carelink as a CSV file and upload it here.</h3>
 				<p>If you need help with getting your data into Carelink go here.</p>
-				<div id='medtronic-drop-file'>Drop file here</div>
+				<form enctype="multipart/form-data" class="dropzone" id="medtronic-csv-dropzone">
+		     	<input type="file" name="file" />
+		   	</form>
+				<!--<div id='medtronic-drop-file'>Drop file here</div>-->
 				<div class='button done'>Done</div>	
 			</div>
 		</li>

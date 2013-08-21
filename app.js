@@ -19,9 +19,6 @@ app.use(express.cookieParser());
 app.use(express.session({ secret: 'foo bar' }));
 
 //routes
-app.get('/data', function(request, response) {
-	response.render('main.ejs');	
-});
 
 app.get('/fb', function(request, response) {
 	// me/groups
@@ -36,6 +33,10 @@ app.get('/fb', function(request, response) {
 
 app.get('/data', function(request, response) {
 	response.render('data.ejs');
+});
+
+app.get('/login', function(request, response) {
+	response.render('login.ejs');
 });
 
 app.get('/', function(request, response) {

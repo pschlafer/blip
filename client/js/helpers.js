@@ -11,8 +11,11 @@ var parseTime = function(time) {
 };
 
 var addDate = function(reading) {
-	reading.date = parseTime(reading.time);
-	reading.ticks = reading.date.getTime();
+	//reading.date = parseTime(reading.time);
+	//reading.ticks = reading.unixTime;.getTime();
+
+	reading.date = parseTime(reading.unixTimeUTC);
+	reading.ticks = reading.unixTimeUTC;
 
 	return reading;
 };
@@ -205,7 +208,7 @@ var shape = function(reading, x, y, svgContainer) {
   });
 
   $('#' + reading.ticks).tipsy({gravity: 'w', title: function() {
-  	return (reading.bg + ' @ ' + moment(parseTime(reading.time)).format("hA ddd Do"));
+  	return (reading.bg + ' @ ' + moment(reading.date).format("hA ddd Do"));
   }});
  
   point.on('click',function() {  	

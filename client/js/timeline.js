@@ -42,13 +42,12 @@ var drawTimeline = function() {
 
 	var addDate = function(reading) {reading.date = parseTime(reading.time); return reading;};
 
-	bg.map(addDate);
-	cgm.map(addDate);
-	pumpInsulin.map(addDate);
+	//bg.map(addDate);
+	//cgm.map(addDate);
+	//pumpInsulin.map(addDate);
 
   function convertDateToUTC(date) { return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds()); }
 	
-
 	var dayId = function(time) {
 		return time.getDate() + '-' + time.getMonth() + '-' + time.getYear();
 	};
@@ -65,7 +64,6 @@ var drawTimeline = function() {
 
 		return days;
 	};
-
 
 	var shape = function(reading, x, y, svgContainer) {
 		var blue = '#41A5C5';
@@ -238,9 +236,9 @@ var drawTimeline = function() {
 
     $('#' + reading.ticks).tipsy({gravity: 'w', title: function() {
     	if(reading.cbg) {
-    		return (reading.cbg + ' @ ' + moment(parseTime(reading.time)).format("h:mm a"));	
+    		return (reading.cbg + ' @ ' + moment(reading.date).format("h:mm a"));	
     	}
-  		return (reading.bg + ' @ ' + moment(parseTime(reading.time)).format("h:mm a"));
+  		return (reading.bg + ' @ ' + moment(reading.date).format("h:mm a"));
   	}});
 	};
 
@@ -286,7 +284,7 @@ var drawTimeline = function() {
 	var daypx = 980;
 	var oneDay = 1000*60*60*24;
 	var timepx = daypx/oneDay;
-	var firstDay = startOfDay(bg[0].date);
+	var firstDay = new Date('Tue Jan 08 2013 00:00:00 GMT+0100 (CET)');//startOfDay(bg[0].date);
 
 	var scroll = function(date, time) {
 		var move = 0;
@@ -323,8 +321,7 @@ var drawTimeline = function() {
 		}
 	};
 
-	var draw = function(bg, cgm, pumpSettings, pumpInsulin) {
-    
+	var draw = function(bg, cgm, boluss, basals, carbss) {
     var days = deltaDays(bg[0].date, new Date());
     var width = days * daypx;
     var max = 350;
@@ -346,7 +343,6 @@ var drawTimeline = function() {
 
     var svgContainer = d3.select("#timeline").append("svg").attr("width", width).attr("height", totalHeight);
     var svgYAxis = d3.select("#timelineAxis").append("svg").attr("width", 45).attr("height", totalHeight);
-
 
 		//<text x="200" y="100" transform="rotate(180 200,100)">Hello!</text>
 		
@@ -510,6 +506,14 @@ var drawTimeline = function() {
 			return (date.getTime() - firstDay.getTime() - offset) * daypx/oneDay;	
 		};
 
+		var getXTick = function(date, offset) {
+			if(!offset) {
+				offset = 0;
+			}
+
+			return (date - firstDay.getTime() - offset) * daypx/oneDay;	
+		};
+
 		var getY = function(value, height) {
 			var y = value * ((height - padding)/max);
 
@@ -555,7 +559,7 @@ var drawTimeline = function() {
 					d.width = 5;
 
 					if (d.bolus) {
-						d.id = new Date(time).getTime() + '-bolus';
+						d.id = d.ticks + '-bolus';
 						d.title = d.bolus + 'u'; 
 						d.fill = colors.bolus;
 						d.tall = d.bolus * (height.activity/2)/bolusMax;
@@ -563,6 +567,7 @@ var drawTimeline = function() {
 					}
 
 					if (d.carbs) {
+						d.id = d.ticks + '-carbs';
 						d.y = 0;
 						d.tall = d.carbs * (height.activity/2)/carbMax;
 						d.fill = colors.carbs;
@@ -573,7 +578,7 @@ var drawTimeline = function() {
 						d.width = (parseInt(d.dur) * 60 * 1000)/(oneDay/daypx);
 					}
 
-					d.title += ' @ ' + moment(parseTime(new Date(d.time))).format("h:mm a");
+					d.title += ' @ ' + moment(d.date).format("h:mm a");
           d.y += height.xOffset +  height.bg + height.spacing;
 
 					return d;
@@ -583,14 +588,14 @@ var drawTimeline = function() {
 			}(data);
 
 			data = _.groupBy(data, function(d) {
-				return d.time;
+				return d.ticks;
 			});
 
-			for(var time in data) {
-				var x = getX(parseTime(time));
+			for(var tick in data) {
+				var x = getXTick(tick);
 
-				var bolus = _.findWhere(data[time], {bolus: true});
-				var carbs = _.findWhere(data[time], {carbs: true});
+				var bolus = _.findWhere(data[tick], {bolus: true});
+				var carbs = _.findWhere(data[tick], {carbs: true});
 
 				var path = function() {
 					if(!bolus || !carbs) {
@@ -612,9 +617,9 @@ var drawTimeline = function() {
 					}
 				}();
 
-				for(var i in data[time]) {
+				for(var i in data[tick]) {
 
-					var entry = data[time][i];
+					var entry = data[tick][i];
 					var shape = svgContainer.append("rect")
 	          .attr("x", x)
 	          .attr('id', entry.id)
@@ -659,76 +664,20 @@ var drawTimeline = function() {
 			if(event.clientY < 220) {
 				tip.hide();
 			}
-
-  		computeBasal({x: event.clientX, y: event.pageY - this.offsetTop}, $('#timelineContainer').scrollLeft(), event);
+  	//	computeBasal({x: event.clientX, y: event.pageY - this.offsetTop}, $('#timelineContainer').scrollLeft(), event);
 		});
 
-		var computeBasal = function(point, offset, event) {			
-
-			var actual = function() {
-				for(var i in basalPoints) {
-					if(basalPoints[i].x > (point.x + offset - 205)) {
-						if(i > 1) {
-							return {basal: basalPoints[i-1].basal, y: basalPoints[i].y};
-						}
-					}
-				}
-			}();
-
-			var settings = function() {
-				for(var i in basalSettingPoints) {
-					if(basalSettingPoints[i].x > (point.x + offset - 205)) {
-						if(i > 1) {
-							return {basal: basalSettingPoints[i-1].basal, y: basalSettingPoints[i].y};
-						}
-					}
-				}
-			}();
-
-			var basal = function() {
-				var b = {};
-
-				if(settings.basal != actual.basal) {
-					b.message = 'Temp Basal ' + actual.basal;
-					b.temp = true;
-				} else {
-					b.message = 'Basal ' + actual.basal;
-				}
-
-				if(settings.y < actual.y) {
-					b.y = actual.y;
-				} else {
-					b.y = settings.y;
-				}
-
-				return b;
-			}();
-
-			if(point.y >= basal.y - 5 && point.y < 530) {
-				var offset = $('#timelineContainer').offset();
-				
-				if(basal.temp) {
-					tip.show(event.pageY - 35, event.pageX - 63, basal.message);	
-				} else {
-					tip.show(event.pageY - 35, event.pageX - 43, basal.message);	
-				}
-				
-			} else {
-				tip.hide();
-			}
-		};
-		
-		var drawActualBasal = function(data) {
-			var basals = _.filter(data, function(p){ 
+		var drawActualBasal = function(basals) {
+			/*var basals = _.filter(data, function(p){ 
 				return !!p.basal;
-			});
+			});*/
 
 			var points = [];
 			
 			for(var i in basals) {
 				var basal = basals[i];
 				var p = {
-					x: getX(parseTime(basal.time)),
+					x: getX(basal.date),
 					y: (height.basal - (basal.basal * height.basal/basalMax)) +height.xOffset +  height.bg + height.spacing*2 + height.activity,
 					basal: basal.basal
 				};
@@ -756,49 +705,6 @@ var drawTimeline = function() {
 			drawPath(points,svgContainer, {'stroke-width': 0, 'fill': '#C4EFEE', 'fill-opacity': '0.4'});
 		};
 
-		var drawSettingBasal = function(settings) {
-			var coords = [];
-			var basalProgram = pumpSettings[0].settings['basal-programs'][0];
-
-			for(var i in basalProgram) {
-				var basal = basalProgram[i];
-				
-				var c = {
-					x: millisecondDistance(basal.time) * daypx/oneDay,
-					y: height.basal - (basal.value * height.basal/basalMax) +height.xOffset +  height.bg + height.spacing*2 + height.activity,
-					basal: basal.value
-				};
-				coords.push(c);
-			}
-
-			if(millisecondDistance(basalProgram[basalProgram.length-1].time) != oneDay) {
-				coords.push({
-					x: daypx,
-					y: coords[coords.length-1].y,
-					basal: coords[coords.length-1].basal
-				});	
-			}
-
-			var basalPath = [];
-
-			basalPath = basalPath.concat(coords);
-
-			for(var i=0; i<(days-1); i++) {
-				coords = coords.map(function(c) {
-					return {
-						x: c.x + daypx,
-						y: c.y,
-						basal: c.basal
-					}
-				});
-			
-				basalPath = basalPath.concat(coords);
-			}
-			basalSettingPoints = basalPath;
-
-			drawPath(basalPath,svgContainer, {'stroke':'#0998A1','stroke-width': 2, 'fill': 'none', 'fill-opacity': '1'});
-		};
-		
 		var drawDayLabels = function() {
 			var day = (new Date());
 			day.setTime(firstDay.getTime());
@@ -820,53 +726,6 @@ var drawTimeline = function() {
 			}
 		};
 
-		var drawEvents = function(events) {
-			events = _.uniq(pumpEvents, function(e) {return e.event + "" + e.ticks});
-
-			for(var i in events) {
-				var _event = events[i];
-				var left = (_event.ticks  - firstDay.getTime()) * timepx + 40;
-				var y = height.xOffset + height.bg + height.spacing*2 + height.activity + 30;
-				var text = 'event';
-				var show = false;
-
-				switch(_event.event){
-					case "suspend":
-					text = 'Suspend';
-					y = y - 10;
-					break;
-					case "resume":
-					text = 'Resume';
-					y = y - 20;
-					break;
-					case "prime":
-					text = 'Prime';
-					show = true;
-					break;
-					case "fillc":
-					text = 'Fill Canula';
-					y = y - 12;
-					show = true;
-					break;
-					case "alarm":
-					text = 'Alarm';
-					y = y - 50;
-					break;
-				}
-				if(show) {
-					svgContainer.append('text')
-					.attr('x', left)
-					.attr('y', y)
-					.attr('fill', '#2582A8')
-					.attr('font-family','sans-serif')
-					.attr('text-anchor','start')
-					.attr('font-size', 11)
-					.text(text);	
-				}
-				
-			}
-		};
-
 		var drawInsulinRatioTimeline = function(pumpInsulin) {
 			var day = (new Date());
 			day.setTime(firstDay.getTime());
@@ -883,31 +742,14 @@ var drawTimeline = function() {
 			}
 		};
 
-		var drawAdherence = function(adherance) {
-			
-			for(var i in adherance) {
-				
-				var left = (adherance[i].ticks - firstDay.getTime()) * timepx;
-
-				var rectangle = svgContainer.append("rect")
-           	.attr("x", left - 1)
-            .attr("y", height.activity - (parseFloat(adherance[i].calculated) * (height.activity/2)/bolusMax) + height.xOffset +  height.bg + height.spacing - 4)
-            .attr('fill', 'orange')
-            .attr("width", 7)
-            .attr("height", 4);
-			}
-		};	
-
 		//drawDayLabels();
-		drawEvents(pumpEvents);
-		drawActualBasal(pumpInsulin);
-		drawBolus(pumpInsulin);
-		drawSettingBasal(pumpSettings);
-		drawPortions();
-		drawAdherence(pumpAdherence);
-		drawCommentBubble(svgContainer, 100, height.xOffset + height.bg + height.spacing + height.activity/2  - 20);
+		drawActualBasal(basals);
+		drawBolus(boluss.concat(carbss));
+		//drawBolus(carbss);
+		//drawPortions();
+		//drawCommentBubble(svgContainer, 100, height.xOffset + height.bg + height.spacing + height.activity/2  - 20);
 
-		scroll();
+		//scroll();
 	};
 	return {
 		scroll: scroll,

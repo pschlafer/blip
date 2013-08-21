@@ -1,6 +1,4 @@
 var drawDay = function() {
-	var firstDay = startOfDay(bg[0].date);
-
 	var dimensions = {
   	day: 36,
   	width: 1090,
@@ -166,12 +164,11 @@ var drawDay = function() {
 	  		});
     	}
     };
-    
 
-    var drawData = function() {
+    var drawData = function(bg) {
     	bg.map(function(reading) {
-	    	reading.x = dimensions.yaxis + dimensions.leftEdge + dayMilliseconds(reading.date) * timepx;
-	    	reading.y = deltaDays(reading.date, new Date()) * dimensions.day + 14;
+	    	reading.x = parseInt(dimensions.yaxis + dimensions.leftEdge + dayMilliseconds(reading.date) * timepx);
+	    	reading.y = parseInt(deltaDays(reading.date, new Date()) * dimensions.day + 14);
 	    	return reading;
 	    });
 			
@@ -181,7 +178,7 @@ var drawDay = function() {
     };
     drawBackground();
     //drawEvents(pumpEvents);
-    drawData();
+    drawData(bg);
 	};
 	return {
 		draw: draw,
