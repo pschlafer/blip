@@ -13,6 +13,7 @@ app.set('views', __dirname + '/views');
 app.use(express.favicon());
 app.use(less({ src: __dirname + '/client' }));
 // from facebook example
+app.use(express.bodyParser({ keepExtensions: true, uploadDir: './client/img/profile' }));
 app.use(express.bodyParser());
 app.use(express.cookieParser());
 app.use(express.session({ secret: 'foo bar' }));

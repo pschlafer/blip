@@ -1,5 +1,10 @@
 <div id='login-groupTutorial' style='display:none'>
-	<h2>Set up a private group in Facebook to invite people to <%=name %>'s team</h2>
+	<% if (typeof(user) != 'undefined') { %>
+	<h2>Set up a private group in Facebook to invite people to your team</h2>
+	<% } else { %>
+	<h2>Set up a private group in Facebook to invite people to <%= patient.first_name %>'s team</h2>
+	<% } %>
+	
 	<div id='facebook-group-tutorial-image'>
 		<img src='/img/facebook_tutorial.png'>
 	</div>

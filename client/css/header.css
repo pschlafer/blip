@@ -12,6 +12,17 @@ header #top-header #logo {
   width: 51px;
   float: left;
 }
+header #logout {
+  float: right;
+}
+header #logout img {
+  width: 20px;
+  padding-left: 10px;
+  padding-top: 5px;
+}
+header #logout img:hover {
+  cursor: pointer;
+}
 #current_patient {
   display: none;
   position: absolute;
@@ -32,6 +43,7 @@ header #top-header #logo {
   left: 135px;
   position: relative;
   top: 32px;
+  border-radius: 35px;
 }
 #current_patient h1 {
   color: white;

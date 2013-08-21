@@ -23,6 +23,12 @@ window.fbAsyncInit = function() {
     console.log(response);
     // Here we specify what we do with the response anytime this event occurs. 
     if (response.status === 'connected') {
+      accessToken = response.authResponse.accessToken;
+      // todo: also check blip groups this user already has access to            
+      $.getJSON('http://localhost:8082/v1/user/facebook?accessToken=' + accessToken + '&callback=?', function(user) {
+        view.header.render(user);
+        console.log(user);
+      });
       // The response object is returned with a status field that lets the app know the current
       // login status of the person. In this case, we're handling the situation where they 
       // have logged in to the app.

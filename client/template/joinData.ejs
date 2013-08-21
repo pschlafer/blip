@@ -1,11 +1,33 @@
 <div id='profile-setup'  style='display:none'>
-	<h2>Set up the profile for the person you are standing in for</h2>
+	<h2>
+		<% if(typeof(user) != 'undefined') { %>
+			Set up your profile
+		<% } else { %>
+			Set up the profile for the person you are standing in for
+		<% } %>		
+	</h2>
 	<div id='profile-setup-form-container'>
-		<div id='profileImage'><div id='dropin-pic'>drop in picture</div></div>
-		<form action="" id='profile-setup-form' method="get">
-		    <input type="text" id='first_name' name="first_name" placeholder='First Name'/><input type="text" id='last_name' name="last_name" placeholder='Last Name'/>
+		<div id='profileImage' style='display:none'>
+			<% if(typeof(user) != 'undefined') { %>
+			<img id='facebook-big-image' src='<%= user.picture %>?width=100&height=100'>
+			<% } else { %>
+			<div id='dropin-pic'>drop in picture</div>
+			<% } %>
+		</div>
+		
+		<form enctype="multipart/form-data" id="my-awesome-dropzone">
+		    <input type="text" id='first_name' name="first_name" placeholder='First name*'/><input type="text" id='last_name' name="last_name" placeholder='Last name*'/>
+
+		     <input type="file" name="file" />
+		     <input type="text" name="data" id='form-data' style='display:none'/>
 		     <div id='dob'>
-		     		<div class='label'>When was he/she born?</div>
+		     		<div class='label'>
+		     			<% if(typeof(user) != 'undefined') { %>
+								When were you born?*
+							<% } else { %>
+								When was he/she born?*
+							<% } %>		
+		     		</div>
 		     		<script>
 		     			$(function() {
 		     				for(var i = 0; i <= 110; i++) {
@@ -26,7 +48,7 @@
 		     				$.each(['January','February','March','April','May','June','July','August','September','October','November','December'], function(key, value) {
 		     					$('#dob-month')
 					        	.append($("<option></option>")
-					        	.attr("value", value)
+					        	.attr("value", key)
 					        	.text(value)); 
 		     				});
 
@@ -47,7 +69,13 @@
 						<div class='clear'></div>
 		     </div>
 		     <div id='dod'>
-		     		<div class='label'>When was he/she diagnosed?</div>
+		     		<div class='label'>
+		     			<% if(typeof(user) != 'undefined') { %>
+								When were you diagnosed?*
+							<% } else { %>
+								When was he/she diagnosed?*
+							<% } %>
+		     		</div>
 		     		<script>
 		     			$(function() {
 		     				for(var i = 0; i <= 110; i++) {
@@ -68,12 +96,10 @@
 		     				$.each(['January','February','March','April','May','June','July','August','September','October','November','December'], function(key, value) {
 		     					$('#dod-month')
 					        	.append($("<option></option>")
-					        	.attr("value", value)
+					        	.attr("value", key)
 					        	.text(value)); 
 		     				});
-
 		     			});
-
 		     		</script>
 		     		<div class='dob-picker'>
 			     		<select id='dod-month'>
@@ -85,9 +111,13 @@
 						</div>
 						<div class='clear'></div>
 		     </div>
-		     <textarea name="info" id="profile_textarea" cols="40" rows="4" placeholder='A little bit of info about this person.'></textarea>
+		     <% if(typeof(user) != 'undefined') { %>
+		     <textarea name="info" id="profile_textarea" cols="40" rows="4" placeholder='A little bit of info about yourself.'></textarea>
+				<% } else { %>
+				<textarea name="info" id="profile_textarea" cols="40" rows="4" placeholder='A little bit of info about this person.'></textarea>
+				<% } %>
 		     <br>
-		     <div class='button done'>Done</div>
+		     <div class='button done disabed'>Done</div>
 				<!--<input type="submit" onclick='staticProfile()' class='button' value="Done"/>-->
 		</form>
 	</div>

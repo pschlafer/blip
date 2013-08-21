@@ -16,6 +16,9 @@
   text-align: center;
   margin: 20px;
 }
+#profile-setup #profileImage > img {
+  border-radius: 50px;
+}
 #profile-setup h2 {
   width: 100%;
   text-align: center;
@@ -34,11 +37,14 @@
 #profile-setup form {
   float: left;
 }
+#profile-setup #dod > .label {
+  margin-right: 16px;
+}
 #profile-setup .dob-picker {
   float: left;
 }
 #profile-setup #dob-picker {
-  margin-left: 53px;
+  margin-left: 49px;
 }
 #profile-setup .done {
   margin-left: 453px;
