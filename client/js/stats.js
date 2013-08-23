@@ -46,7 +46,7 @@ var stats = function(bg, cgm, bolusData, basalData) {
 
 		
 		for(var i = bounds.start; i < bounds.end; i++) {
-			sum += parseInt(bg[i].bg);
+			sum += parseInt(bg[i].value);
 			count++;
 		}
 
@@ -78,7 +78,11 @@ var stats = function(bg, cgm, bolusData, basalData) {
 		var milliHour = 3600000;
 
 		for(var i = bounds.start - 1; i < bounds.end; i++) {
-			var milliBasal = parseFloat(basalData[i].basal)/milliHour;
+			if(!basalData[i]) {
+				continue;
+			}
+			
+			var milliBasal = parseFloat(basalData[i].value)/milliHour;
 
 			var begin = start;
 
@@ -176,7 +180,7 @@ var stats = function(bg, cgm, bolusData, basalData) {
 
 
 		for(var i = bounds.start; i < bounds.end; i++) {
-			if( parseInt(cgm[i].cbg) > 80 && parseInt(cgm[i].cbg) < 180) {
+			if( parseInt(cgm[i].value) > 80 && parseInt(cgm[i].value) < 180) {
 				good++;
 			}
 			count++;

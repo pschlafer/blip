@@ -1,6 +1,6 @@
 window.fbAsyncInit = function() {
   FB.init({
-    appId      : '555596811143941', // App ID
+    appId      : $('#facebook_app_id').attr('content'), // App ID
     channelUrl : '//localhost:8081', // Channel File
     status     : true, // check login status
     cookie     : true, // enable cookies to allow the server to access the session
@@ -14,9 +14,25 @@ window.fbAsyncInit = function() {
   FB.getLoginStatus(function(response) {
     if (response.status === 'connected') {
       accessToken = response.authResponse.accessToken;
+
+      view.login.isUser(function(error, user) {
+        if(error) {
+          console.error(error);
+          return;
+        }
+
+        if(user) {
+          view.home.start();
+        } else {
+          view.login.render();
+        }
+      });
     } else {
       view.login.render();
     }
+
+    var router = new Router();
+    Backbone.history.start();
   });
 
   FB.Event.subscribe('auth.authResponseChange', function(response) {
@@ -24,15 +40,6 @@ window.fbAsyncInit = function() {
     // Here we specify what we do with the response anytime this event occurs. 
     if (response.status === 'connected') {
       accessToken = response.authResponse.accessToken;
-      // todo: also check blip groups this user already has access to            
-      $.getJSON('http://localhost:8082/v1/user/facebook?accessToken=' + accessToken + '&callback=?', function(user) {
-        
-        if(!loginin) {
-          view.dataHolder.datum(true, user);  
-        } else {
-          view.header.render(user);
-        }
-      });
       // The response object is returned with a status field that lets the app know the current
       // login status of the person. In this case, we're handling the situation where they 
       // have logged in to the app.

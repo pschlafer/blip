@@ -46,8 +46,6 @@ var getDays = function(bg) {
 
 var shape = function(reading, x, y, svgContainer) {
 	var blue = '#41A5C5';
-	
-	reading.value = reading.bg || reading.cbg;
 
 	if(reading.value == 'Low') {
 		reading.value = 0;
@@ -111,7 +109,8 @@ var shape = function(reading, x, y, svgContainer) {
 	var id = dayId(time) + '-' + dayMinutes(time);
 	var point;
 
-	if(reading.bg) switch(shape) {
+	//if(reading.type == 'cbg') 
+	switch(shape) {
 		case 'ring':
 		point = svgContainer.append("circle")
 			.attr("cx", x)
@@ -188,7 +187,7 @@ var shape = function(reading, x, y, svgContainer) {
 		break;
 	}
 
-	if(reading.cbg) {
+	if(reading.type == 'cbg') {
 		point = svgContainer.append("circle")
 			.attr("cx", x)
 			.attr("cy", y)
@@ -208,7 +207,7 @@ var shape = function(reading, x, y, svgContainer) {
   });
 
   $('#' + reading.ticks).tipsy({gravity: 'w', title: function() {
-  	return (reading.bg + ' @ ' + moment(reading.date).format("hA ddd Do"));
+  	return (reading.value + ' @ ' + moment(reading.date).format("hA ddd Do"));
   }});
  
   point.on('click',function() {  	

@@ -118,7 +118,7 @@ var drawDay = function() {
 			}
 		};
 		drawYAxis(svg);
-
+		
 		var drawBackground = function() {
     	rectangle(svg, {
   			x: dimensions.yaxis + dimensions.segmentWidth * 8,

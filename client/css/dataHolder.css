@@ -282,7 +282,7 @@
   margin-bottom: 24px;
 }
 .data-holder #stats {
-  width: 1090px;
+  width: 1100px;
 }
 .data-holder #range,
 .data-holder #blous,
@@ -290,11 +290,7 @@
   opacity: 0.3;
 }
 .data-holder #stats li {
-  border: 1px solid #B7C9D2;
   width: 33%;
-}
-.data-holder #stats li:last-child {
-  width: 366px;
 }
 .data-holder .range {
   border-left: 0px !important;

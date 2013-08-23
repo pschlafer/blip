@@ -40,7 +40,7 @@ var drawTimeline = function() {
 		return d;
 	};
 
-	var addDate = function(reading) {reading.date = parseTime(reading.time); return reading;};
+	//var addDate = function(reading) {reading.date = parseTime(reading.time); return reading;};
 
 	//bg.map(addDate);
 	//cgm.map(addDate);
@@ -59,7 +59,7 @@ var drawTimeline = function() {
 	var getDays = function(bg) {
 		var days = _.groupBy(bg, function(reading){ 
 
-			return dayId(parseTime(reading.time));
+			return dayId(reading.date);
 		});
 
 		return days;
@@ -68,8 +68,6 @@ var drawTimeline = function() {
 	var shape = function(reading, x, y, svgContainer) {
 		var blue = '#41A5C5';
 		
-		reading.value = reading.bg || reading.cbg;
-
 		if(reading.value == 'Low') {
 			reading.value = 0;
 		}
@@ -128,88 +126,89 @@ var drawTimeline = function() {
 			}
 		}
 
-		var time = parseTime(reading.time);
-		var id = dayId(time) + '-' + dayMinutes(time);
+		var id = dayId(reading.date) + '-' + dayMinutes(reading.date);
 		var point;
 
-		if(reading.bg) switch(shape) {
-			case 'ring':
-			point = svgContainer.append("circle")
-				.attr("cx", x)
-				.attr("cy", y)
-				.attr("r", 5.5)
-				.attr('id', id)
-				.attr('stroke', color)
-				.attr('stroke-width', '2')
-				.attr('fill-opacity', 0)
-        .attr('fill', 'white');
-			break;
-			case 'up':
-			var p = (6+x) + ',' + (0+y-5.5)  + ' ' + (11+x) + ',' + (11+y-5.5) + ' ' + (0+x) + ',' + (11+y-5.5) + ' ';
-			
-      point = svgContainer.append("polygon")
-  			.attr('points', p)
-  			.attr('id', id)
-  			.attr('stroke', color)
-				.attr('stroke-width', '2')
-        .attr('fill', color);
-			break;
-			case 'upring':
-			var p = (6+x) + ',' + (0+y-5.5)  + ' ' + (11+x) + ',' + (11+y-5.5) + ' ' + (0+x) + ',' + (11+y-5.5) + ' ';
-			
-      point = svgContainer.append("polygon")
-  			.attr('points', p)
-  			.attr('id', id)
-  			.attr('stroke', color)
-				.attr('stroke-width', '2')
-				.attr('fill-opacity', 0)
-        .attr('fill', 'white');
-			break;
-			case 'down':
-			var p = (x) + ',' + (y-5.5) + ' ' + (11+x) + ',' + (0+y-5.5) + ' ' + (6+x) + ',' + (11+y-5.5);
-			
-      point = svgContainer.append("polygon")
-  			.attr('points', p)
-  			.attr('stroke', color)
-  			.attr('id', id)
-				.attr('stroke-width', '2')
-        .attr('fill', color);
-			break;
-			case 'downring':
-			var p = (x) + ',' + (y-5.5) + ' ' + (11+x) + ',' + (0+y-5.5) + ' ' + (6+x) + ',' + (11+y-5.5);
-			
-			
-      point = svgContainer.append("polygon")
-  			.attr('points', p)
-  			.attr('id', id)
-  			.attr('stroke', color)
-				.attr('stroke-width', '2')
-        .attr('fill', 'white')
-        .attr('fill-opacity', 0);
-			break;
-			case 'circle':
-			point = svgContainer.append("circle")
-				.attr("cx", x)
-				.attr("cy", y)
-				.attr("r", 5)
-				.attr('id', id)
-				.attr('stroke', color)
-				.attr('stroke-width', '2')
-        .attr('fill', color);
-			break;
-			default:
-			point = svgContainer.append("circle")
-				.attr("cx", x)
-				.attr("cy", y)
-				.attr("r", 5)
-				.attr('id', id)
-				.attr('stroke', color)
-				.attr('stroke-width', '2')
-        .attr('fill', 'white');
-			break;
+		if(reading.type == 'smbg') {
+			switch(shape) {
+				case 'ring':
+				point = svgContainer.append("circle")
+					.attr("cx", x)
+					.attr("cy", y)
+					.attr("r", 5.5)
+					.attr('id', id)
+					.attr('stroke', color)
+					.attr('stroke-width', '2')
+					.attr('fill-opacity', 0)
+	        .attr('fill', 'white');
+				break;
+				case 'up':
+				var p = (6+x) + ',' + (0+y-5.5)  + ' ' + (11+x) + ',' + (11+y-5.5) + ' ' + (0+x) + ',' + (11+y-5.5) + ' ';
+				
+	      point = svgContainer.append("polygon")
+	  			.attr('points', p)
+	  			.attr('id', id)
+	  			.attr('stroke', color)
+					.attr('stroke-width', '2')
+	        .attr('fill', color);
+				break;
+				case 'upring':
+				var p = (6+x) + ',' + (0+y-5.5)  + ' ' + (11+x) + ',' + (11+y-5.5) + ' ' + (0+x) + ',' + (11+y-5.5) + ' ';
+				
+	      point = svgContainer.append("polygon")
+	  			.attr('points', p)
+	  			.attr('id', id)
+	  			.attr('stroke', color)
+					.attr('stroke-width', '2')
+					.attr('fill-opacity', 0)
+	        .attr('fill', 'white');
+				break;
+				case 'down':
+				var p = (x) + ',' + (y-5.5) + ' ' + (11+x) + ',' + (0+y-5.5) + ' ' + (6+x) + ',' + (11+y-5.5);
+				
+	      point = svgContainer.append("polygon")
+	  			.attr('points', p)
+	  			.attr('stroke', color)
+	  			.attr('id', id)
+					.attr('stroke-width', '2')
+	        .attr('fill', color);
+				break;
+				case 'downring':
+				var p = (x) + ',' + (y-5.5) + ' ' + (11+x) + ',' + (0+y-5.5) + ' ' + (6+x) + ',' + (11+y-5.5);
+				
+	      point = svgContainer.append("polygon")
+	  			.attr('points', p)
+	  			.attr('id', id)
+	  			.attr('stroke', color)
+					.attr('stroke-width', '2')
+	        .attr('fill', 'white')
+	        .attr('fill-opacity', 0);
+				break;
+				case 'circle':
+				point = svgContainer.append("circle")
+					.attr("cx", x)
+					.attr("cy", y)
+					.attr("r", 5)
+					.attr('id', id)
+					.attr('stroke', color)
+					.attr('stroke-width', '2')
+	        .attr('fill', color);
+				break;
+				default:
+				point = svgContainer.append("circle")
+					.attr("cx", x)
+					.attr("cy", y)
+					.attr("r", 5)
+					.attr('id', id)
+					.attr('stroke', color)
+					.attr('stroke-width', '2')
+	        .attr('fill', 'white');
+				break;
+			}
 		}
+		//console.log(reading.type);
 
-		if(reading.cbg) {
+		if(reading.type == 'cbg') {
 			point = svgContainer.append("circle")
 				.attr("cx", x)
 				.attr("cy", y)
@@ -217,6 +216,8 @@ var drawTimeline = function() {
 				.attr('fill-opacity', 1)
         .attr('fill', color);
 		}
+		//console.log('r 2');
+
 		point.attr('class','ppoint');
 		point.attr('id',reading.ticks);
 		
@@ -235,10 +236,10 @@ var drawTimeline = function() {
     });
 
     $('#' + reading.ticks).tipsy({gravity: 'w', title: function() {
-    	if(reading.cbg) {
-    		return (reading.cbg + ' @ ' + moment(reading.date).format("h:mm a"));	
+    	if(reading.type = 'cbg') {
+    		return (reading.value + ' @ ' + moment(reading.date).format("h:mm a"));	
     	}
-  		return (reading.bg + ' @ ' + moment(reading.date).format("h:mm a"));
+  		return (reading.value + ' @ ' + moment(reading.date).format("h:mm a"));
   	}});
 	};
 
@@ -284,11 +285,10 @@ var drawTimeline = function() {
 	var daypx = 980;
 	var oneDay = 1000*60*60*24;
 	var timepx = daypx/oneDay;
-	var firstDay = new Date('Tue Jan 08 2013 00:00:00 GMT+0100 (CET)');//startOfDay(bg[0].date);
 
 	var scroll = function(date, time) {
 		var move = 0;
-		var ticks = firstDay.getTime() + ($('#timelineContainer').scrollLeft()/timepx);
+		var ticks = firstDay + ($('#timelineContainer').scrollLeft()/timepx);
 		var today = new Date();
 		
 		if(!date) {
@@ -313,7 +313,7 @@ var drawTimeline = function() {
 		}
 
 		
-		var left = ((date.getTime()  - firstDay.getTime()) * timepx) - 1080/2 + move;
+		var left = ((date.getTime()  - firstDay) * timepx) - 1080/2 + move;
 		if(time === 0) {
 			$('#timelineContainer').animate({ scrollLeft: left + "px" }, 0);
 		} else {
@@ -322,7 +322,8 @@ var drawTimeline = function() {
 	};
 
 	var draw = function(bg, cgm, boluss, basals, carbss) {
-    var days = deltaDays(bg[0].date, new Date());
+		//var firstDay = new Date('Tue Jan 08 2013 00:00:00 GMT+0100 (CET)');//startOfDay(bg[0].date);
+    var days = deltaDays(new Date(firstDay), new Date());
     var width = days * daypx;
     var max = 350;
 		var padding = 10;
@@ -402,7 +403,7 @@ var drawTimeline = function() {
     	var segment = (oneDay/8) * daypx/oneDay;
     	var x = 0;
     	var day = (new Date());
-			day.setTime(firstDay.getTime());
+			day.setTime(firstDay);
 
     	for(var i=0; i<days; i++) {
     		day.setHours(day.getHours() + 24);
@@ -503,7 +504,7 @@ var drawTimeline = function() {
 				offset = 0;
 			}
 
-			return (date.getTime() - firstDay.getTime() - offset) * daypx/oneDay;	
+			return (date.getTime() - firstDay - offset) * daypx/oneDay;	
 		};
 
 		var getXTick = function(date, offset) {
@@ -511,7 +512,7 @@ var drawTimeline = function() {
 				offset = 0;
 			}
 
-			return (date - firstDay.getTime() - offset) * daypx/oneDay;	
+			return (date - firstDay - offset) * daypx/oneDay;	
 		};
 
 		var getY = function(value, height) {
@@ -533,19 +534,24 @@ var drawTimeline = function() {
 		// plot cgm
 		for(var i  in cgm) {
 			var reading = cgm[i];	
-			shape(reading, getX(reading.date), getY(reading.cbg, height.bg) + height.xOffset, svgContainer);
+			shape(reading, getX(reading.date), getY(reading.value, height.bg) + height.xOffset, svgContainer);
 		}
 
 		// plot bg
 		for(var i  in bg) {	
 			var reading = bg[i];	
-			shape(reading, getX(reading.date), getY(reading.bg, height.bg) + height.xOffset, svgContainer);
+			shape(reading, getX(reading.date), getY(reading.value, height.bg) + height.xOffset, svgContainer);
 		}
 
 		var bolusMax = 10;
 		var carbMax = 100;
 
 		var drawBolus = function(data) {
+			var bolusColors = {
+				bolus: '#0998A1',
+				carbs: '#CF73E0'
+			};
+			
 			var data = function(data) {
 				var data = _.filter(data, function(p){ 
 					return !!p.bolus || !!p.carbs;
@@ -561,7 +567,7 @@ var drawTimeline = function() {
 					if (d.bolus) {
 						d.id = d.ticks + '-bolus';
 						d.title = d.bolus + 'u'; 
-						d.fill = colors.bolus;
+						d.fill = bolusColors.bolus;
 						d.tall = d.bolus * (height.activity/2)/bolusMax;
 						d.y = height.activity - d.tall;
 					}
@@ -570,7 +576,7 @@ var drawTimeline = function() {
 						d.id = d.ticks + '-carbs';
 						d.y = 0;
 						d.tall = d.carbs * (height.activity/2)/carbMax;
-						d.fill = colors.carbs;
+						d.fill = bolusColors.carbs;
 						d.title = d.carbs + 'g';
 					}
 					
@@ -687,7 +693,9 @@ var drawTimeline = function() {
 
 			basalPoints = points;
 
-			drawPath(points,svgContainer, {'stroke':'#0998A1','stroke-dasharray': [5,5],'stroke-width': 1, 'fill': 'none', 'fill-opacity': '0.4'});
+			//	{'stroke':'#0998A1','stroke-dasharray': [5,5],'stroke-width': 1, 'fill': 'none', 'fill-opacity': '0.4'}		drawPath(basalPath,svgContainer, {'stroke':'#0998A1','stroke-width': 2, 'fill': 'none', 'fill-opacity': '1'});
+
+			drawPath(points,svgContainer, {'stroke':'#0998A1','stroke-width': 2, 'fill': 'none', 'fill-opacity': '0.1'});
 
 
 			points.push({
@@ -705,48 +713,8 @@ var drawTimeline = function() {
 			drawPath(points,svgContainer, {'stroke-width': 0, 'fill': '#C4EFEE', 'fill-opacity': '0.4'});
 		};
 
-		var drawDayLabels = function() {
-			var day = (new Date());
-			day.setTime(firstDay.getTime());
-
-			
-			for(var i=0; i < days; i++) {
-				day.setHours(day.getHours() + 24);
-
-				var left = (day.getTime()  - firstDay.getTime()) * timepx + 40;
-
-				svgContainer.append('text')
-					.attr('x', left)
-					.attr('y', 45)
-					.attr('fill', '#4AA9D8')
-					.attr('font-family','sans-serif')
-					.attr('text-anchor','start')
-					.attr('font-size', 13)
-					.text(moment(day).format("ddd MMM Do"));
-			}
-		};
-
-		var drawInsulinRatioTimeline = function(pumpInsulin) {
-			var day = (new Date());
-			day.setTime(firstDay.getTime());
-
-			for(var i=0; i < days; i++) {
-				var ratio = stats.insulinRatio(day.getTime(), day.getTime() + oneDay);
-				
-				day.setHours(day.getHours() + 24);
-
-				var x = (day.getTime()  - firstDay.getTime()) * timepx + daypx;
-				var y = height.xOffset + height.bg + height.spacing*2 + height.activity + height.basal/2;
-
-				var rangePie = svgContainer.pieChart(left, y, 25, values, labels, colors, bcolors, "#B6C6CF");
-			}
-		};
-
-		//drawDayLabels();
 		drawActualBasal(basals);
 		drawBolus(boluss.concat(carbss));
-		//drawBolus(carbss);
-		//drawPortions();
 		//drawCommentBubble(svgContainer, 100, height.xOffset + height.bg + height.spacing + height.activity/2  - 20);
 
 		//scroll();
@@ -755,7 +723,7 @@ var drawTimeline = function() {
 		scroll: scroll,
 		draw: draw,
 		scrollTicks: function() {
-			return firstDay.getTime() + ($('#timelineContainer').scrollLeft()/timepx);
+			return firstDay + ($('#timelineContainer').scrollLeft()/timepx);
 		}
 	};
 };

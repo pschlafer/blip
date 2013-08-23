@@ -397,14 +397,19 @@ header {
 #nav {
   background: #29A8D9;
 }
+#stats ul {
+  width: 1100px;
+  margin-left: 60px;
+}
 #stats li {
   float: left;
+  width: 33%;
   z-index: -1;
 }
 #nav li {
   float: left;
 }
-#main .container {
+#main .chartContainer {
   background: #EFF1F3;
   padding: 30px 20px;
 }
@@ -601,20 +606,10 @@ h3 {
   margin-top: 13px;
   margin-bottom: 24px;
 }
-#stats {
-  width: 1090px;
-}
 #range,
 #blous,
 #average {
   opacity: 0.3;
-}
-#stats li {
-  border: 1px solid #B7C9D2;
-  width: 33%;
-}
-#stats li:last-child {
-  width: 366px;
 }
 .range {
   border-left: 0px !important;

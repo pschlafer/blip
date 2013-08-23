@@ -9,13 +9,19 @@ $(function() {
           self.content = content;
         });
       },
-      datum: function(header, user) {
-        $.getJSON('http://localhost:8082/v1/device?limit=100000&callback=?', function(datum) {
-          console.log('hi', datum);
+      datum: function(groupId, user) {
+        $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/' + groupId + '/device?limit=100000&callback=?', function(datum) {
+          
+          firstDay = datum[datum.length-1].unixTime;
+
+          console.log('firstDay',firstDay);
+
+          thisdata = datum;
+          console.log('got data!', datum, datum.length);
+
           view.dataHolder.render(datum);
 
-          if(header) {
-
+          if(user) {
             view.header.render(user);
             $('header').css('position','relative');
           }
@@ -80,11 +86,7 @@ $(function() {
         //cgm.map(addDate);
         //pumpInsulin.map(addDate);
         
-        
-
-        
-        
-        bgs = _.filter(datum, function(entry){ return entry.type  === 'bg'; }).reverse();
+        bgs = _.filter(datum, function(entry){ return entry.type  === 'smbg'; }).reverse();
         bgs.map(addDate);
 
         cgms = _.filter(datum, function(entry){ return entry.type  === 'cbg'; }).reverse();
@@ -105,7 +107,7 @@ $(function() {
 
         timeline = drawTimeline();
         timeline.draw(bgs, cgms, boluss, basals, carbs);
-
+        
         var stat = stats(bgs, cgms, boluss, basals);
         var aw = averageWidget('average-widget', 0, [50,180]);
 
@@ -220,6 +222,22 @@ $(function() {
         });
       }
     }))({el: $("#bottom")}),
+    home: {
+      start: function() {
+        // get the users groups admin
+        // if 1 change url to that group id.
+        // if > 1 render dashboard todo: build dashboard
+        // make something catch that url.
+
+        $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/groups?administrator=true&selected=true&accessToken=' + accessToken + '&callback=?', function(groups) {
+          if(groups.length) {
+            window.location.hash = 'group/' + groups[0].id;  
+          } else {
+            alert('looks like you dont have access to any group');
+          }
+        });
+      }
+    },
     login: new (Backbone.View.extend({
       initialize: function() {
         var self = this;
@@ -246,20 +264,34 @@ $(function() {
         "click #loginButton": "join",
         "click #signin": "signin"
       },
+      isUser: function(callback) {
+        $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/user?accessToken=' + accessToken + '&callback=?', function(user) {
+          callback(null, user);
+        });
+      },
       signin: function() {
         FB.login(function(response) {
           if (response.authResponse) {
             accessToken = response.authResponse.accessToken;
             
-            $.getJSON('http://localhost:8082/v1/user/facebook?accessToken=' + accessToken + '&callback=?', function(user) {
-              view.joinType.render(user);
-              view.dataHolder.datum();
+            $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/user/facebook?accessToken=' + accessToken + '&callback=?', function(fbUser) {
+              view.login.isUser(function(error, user) {
+                if(error) {
+                  console.error(error);
+                  return;
+                }
+
+                if(user) {
+                  view.home.start();
+                } else {
+                  view.joinType.render(fbUser);
+                }
+              });
             });
           }
         }, {scope: 'user_groups,user_birthday,user_status,user_about_me,publish_actions,email'});
       },
       join: function(event){ 
-        loginin = true;
         if(typeof FB == 'undefined') 
           return;
 
@@ -267,8 +299,19 @@ $(function() {
           if (response.authResponse) {
             accessToken = response.authResponse.accessToken;
             // todo: also check blip groups this user already has access to            
-            $.getJSON('http://localhost:8082/v1/user/facebook?accessToken=' + accessToken + '&callback=?', function(user) {
-              view.joinType.render(user);
+            $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/user/facebook?accessToken=' + accessToken + '&callback=?', function(fbUser) {
+              view.login.isUser(function(error, user) {
+                if(error) {
+                  console.error(error);
+                  return;
+                }
+
+                if(user) {
+                  view.home.start();
+                } else {
+                  view.joinType.render(fbUser);
+                }
+              });
             });
           } else {
             window.location.hash = '';
@@ -363,7 +406,7 @@ $(function() {
           self.$el.html(_.template(self.content, {user: user}));
           self.$el.find('input').bind('input propertychange', self.isValid);
 
-          Dropzone.options.myAwesomeDropzone = {
+          /*Dropzone.options.myAwesomeDropzone = {
             paramName: "file", // The name that will be used to transfer the file
             maxFilesize: 2, // MB
             url: "/file/post",
@@ -380,7 +423,7 @@ $(function() {
                 }
               });
             }
-          };
+          };*/
 
           if(user) {
             $('#profileImage').show();
@@ -408,7 +451,6 @@ $(function() {
         "change select": "isValid"
       },
       isValid: function() {
-        console.log('checking');
         if (view.joinData.validate()) {
           view.joinData.$el.find('.done').removeClass('disabed');
         } else {
@@ -467,18 +509,15 @@ $(function() {
         }
         
         if (data.signup.type == 'surrogate') {
-
           profile.user = data.user;
           profile.patient = patient;
-
-          console.log('profile surrogate', profile);
         }
 
         $('#form-data').val(JSON.stringify(profile));
 
         // post data and then display it.
         $.ajax({
-          url: 'http://localhost:8082/v1/user/join?accessToken=' + accessToken,
+          url: 'http://'+$('#api_endpoint').attr('content')+'/v1/user/join?accessToken=' + accessToken,
           type: 'POST',
           crossDomain: true,
           xhr: function() {
@@ -490,12 +529,16 @@ $(function() {
 
             return myXhr;
           },
-          beforeSend: function(){console.log('beforeSend')},
+          beforeSend: function(){ 
+            console.log('beforeSend')
+          },
           success: function(data){
             console.log(data.patient);
             userSignedUp(data);
           },
-          error: function(){console.log('error')},
+          error: function(){ 
+            console.error('error posting new user')
+          },
           data: new FormData($('form')[0]),
           cache: false,
           contentType: false,
@@ -564,7 +607,7 @@ $(function() {
       done: function() {
         this.fadeOut();
 
-        $.getJSON('http://localhost:8082/v1/groups?administrator=true&accessToken=' + accessToken + '&callback=?', function(groups) {
+        $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/groups?administrator=true&accessToken=' + accessToken + '&callback=?', function(groups) {
           console.log(groups);
           view.joinSelectGroup.render(groups);    
         });
@@ -593,20 +636,36 @@ $(function() {
       select: function(event) { 
         $('#choose-facebook-group').fadeOut();
 
-        var id = $(this).attr('id');
-        
-        $.getJSON('http://localhost:8082/v1/groups/'+ id + '/select?accessToken=' + accessToken + '&callback=?', function() {
-          $.getJSON('http://localhost:8082/v1/groups/'+ id + '?accessToken=' + accessToken + '&callback=?', function(group) {
+        var groupId = $(this).attr('id');
+
+        $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/groups/'+ groupId + '/select?accessToken=' + accessToken + '&callback=?', function() {
+          $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/groups/'+ groupId + '?accessToken=' + accessToken + '&callback=?', function(group) {
             var lis = _.template("<% _.each(group.team, function(member) {%> <li><img src='<%=member.picture %>'></li><%});%>", {group: group});
 
             $('#static-team-list').html(lis);
             $('#profile-setul-group-picker').fadeIn();
 
-            view.joinUpload.render();
+            view.joinUpload.render(groupId);
           });
         });
       }
     }))({el: $("#top")}),
+    groups: new (Backbone.View.extend({
+      initialize: function() {
+        var self = this;
+        $.ajax({ url: "/template/groups.ejs" }).done(function(content) {
+          self.content = content;
+        });
+      },
+      render: function(groupId) {
+        $('#top').hide();
+        $('header').hide();
+        $('#bottom').show();
+        console.log(groupId,this.content);
+        $('#overlay').css('background','rgba(255, 255, 255, 1');
+        this.$el.html('<h1>Loading Data...</h1>');
+      }
+    }))({el: $("#bottom")}),
     joinUpload: new (Backbone.View.extend({
       initialize: function() {
         var self = this;
@@ -614,22 +673,14 @@ $(function() {
           self.content = content;
         });
       },
-      render: function(groups) {
+      render: function(groupId) {
+        this.groupId = groupId;
         $('#top').show();
         $('#bottom').hide();
         $('header').css('position','fixed');
         this.$el.html(_.template(this.content, data.profile));
         this.$el.find('.go').addClass('disabed');
         $('#profile-setup-device-picker').fadeIn();
-
-        Dropzone.options.medtronicCsvDropzone = {
-            paramName: "file", // The name that will be used to transfer the file
-            maxFilesize: 2, // MB
-            url: "/file/post",
-            uploadMultiple: false,
-            previewTemplate: '<div id="dz-preview-template" class="dz-preview dz-file-preview"><div class="dz-details"><div class="dz-filename"><span data-dz-name></span></div><div class="dz-size" data-dz-size></div><img class="dropImage" data-dz-thumbnail /></div><div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress></span></div></div>',
-            init: function() {}
-          };
       },
       fadeOut: function(callback) {
         $('#profile-setup-device-picker').slideDown(callback);
@@ -642,10 +693,35 @@ $(function() {
         'click .go': 'go'
       },
       go: function () {
-        view.dataHolder.datum();
+        window.location.hash = 'group/' + view.joinUpload.groupId;
       },
       medtronicDone: function () {
-        this.$el.find('.go').removeClass('disabed');
+        $.ajax({
+          url: 'http://'+$('#api_endpoint').attr('content')+'/v1/' + view.joinUpload.groupId + '/device/medtronic',
+          type: 'POST',
+          crossDomain: true,
+          xhr: function() {
+            var myXhr = $.ajaxSettings.xhr();
+
+            if(myXhr.upload){
+              myXhr.upload.addEventListener('progress',function() {console.log('progress')}, false); // For handling the progress of the upload
+            }
+
+            return myXhr;
+          },
+          beforeSend: function(){console.log('beforeSend')},
+          success: function(data){
+            console.log(data);
+            view.joinUpload.$el.find('.go').removeClass('disabed');
+          },
+          error: function(){
+            console.log('error')
+          },
+          data: new FormData($('form')[0]),
+          cache: false,
+          contentType: false,
+          processData: false
+        });
       },
       aminas: function() {
         $('#upload-animas .device-import').slideToggle();
@@ -658,4 +734,19 @@ $(function() {
       }
     }))({el: $("#top")})
   };
+});
+
+var Router = Backbone.Router.extend({
+  routes: {
+    'group/:id' : 'group'
+  },
+  group: function(id) {
+    console.log(id);
+    view.groups.render(id);
+    
+    view.login.isUser(function(err, user) {
+      view.dataHolder.datum(id, user.patient);
+    });
+  }
+
 });

@@ -1,3 +1,6 @@
+var package = require('./package.json');
+var config = process.env.PORT ? package.config.prod : package.config.dev;
+
 var express = require('express')
 	, http = require('http')
 	, engine = require('ejs-locals')
@@ -31,16 +34,8 @@ app.get('/fb', function(request, response) {
 	});
 });
 
-app.get('/data', function(request, response) {
-	response.render('data.ejs');
-});
-
-app.get('/login', function(request, response) {
-	response.render('login.ejs');
-});
-
 app.get('/', function(request, response) {
-	response.render('index.ejs');
+	response.render('index.ejs', config);
 });
 
 app.use(express.static(__dirname + '/client'));

@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "0.0.1-15",
+  "version": "0.0.1-17",
   "private": true,
   "scripts": {
     "start": "node app.js"
@@ -14,14 +14,18 @@
     "facebook-node-sdk": "*"
   },
   "config": {
-    "dev" : {
-      "api_endpoint": "localhost:8082"
+    "prod": {
+      "api_endpoint": "blipapitidepoolorg.jit.su",
+      "facebook_app_id": "555596811143941",
+      "facebook_app_secret": "f56ec344bf61fd7bd961577cef1bb073"
     },
-    "prod" : {
-      "api_endpoint": "blipapi.jit.su"
+    "dev": {
+      "api_endpoint": "localhost:8082",
+      "facebook_app_id": "430195453762263",
+      "facebook_app_secret": "91e68cf0be9fa30ab45c74e73ed15b04"
     }
   },
-  "subdomain": "bliptidepool",
+  "subdomain": "bliptidepoolorg",
   "engines": {
     "node": "0.8.x"
   }
