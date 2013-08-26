@@ -1,0 +1,15 @@
+<div id='dashboard'>
+	<ul>
+		<% for (var i in groups) {
+			var group = groups[i];
+			%>
+			<a href='#group/<%= group.id %>'><li>
+				<img src='<%= group.patient.picture %>'>
+				<div class='name'><%= group.patient.first_name + ' ' + group.patient.last_name %></div>
+				<div class='age'><%= group.patient.age.age %></div>
+				<div class='clear'></div>
+				<div class='diagnosed'>Diagnosed <%= group.patient.age.diagnosed %></div>
+			</li></a>
+		<% } %>
+	</ul>
+</div>

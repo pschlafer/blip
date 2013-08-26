@@ -1,11 +1,35 @@
 @import "var.less";
 
+/* 
+animation styles
+*/
+header {
+	#current_patient, #dashboard-icon, #logout, .user, #content-header, #profile-setul-group-picker, #handel-header {
+		display: block;
+	}
+}
+ 
 header {
 	background: @darkblue;
 	width: 100%;
 	position: fixed;
 	left: 0px;
 	bottom: 0px;
+
+	#handel-header {
+		background: @lightblue;
+	}
+	#handel-header:hover {
+		cursor: pointer;
+	}
+	.handel img {
+		width: 15px;
+	}
+	.handel {
+		width: 15px;
+		margin: auto;
+		padding-bottom: 2px;
+	}
 
 	#top-header {
 		padding: 11px 0px 3px 0;
@@ -16,12 +40,31 @@ header {
 		}
 	}	
 
+	#dashboard-icon {
+		a {
+			padding-left: 20px;
+		}
+		float: right;
+		
+		img {
+			width: 16px;
+			
+			padding-top: 8px;
+			padding-bottom: 8px;
+		}
+
+		img:hover {
+			cursor: pointer;
+		}
+	}
 	#logout {
 		float: right;
+		
 		img {
 			width: 20px;
-			padding-left: 10px;
+			margin-left: 20px;
 			padding-top: 5px;
+			padding-bottom: 10px;
 		}
 
 		img:hover {
@@ -31,7 +74,6 @@ header {
 }
 
 #current_patient {
-	display: none;
 	position: absolute;
 	width: 0px;
 	height: 0px;
@@ -43,6 +85,7 @@ header {
 	h1:hover {
 		cursor: hand; cursor: pointer; 
 	}
+
 	img {
     width: 70px;
     left: 135px;
@@ -54,8 +97,8 @@ header {
 		color: white;
 		position: relative;
 		width: 200px;
-		top: -31px;
-		left: 210px;
+		top: -35px;
+		left: 215px;
 		font-size: 20px;
 	}
 }

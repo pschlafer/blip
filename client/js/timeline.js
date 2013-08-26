@@ -6,7 +6,15 @@ var drawTimeline = function() {
 		return Math.ceil((end.getTime() - start.getTime()) / (1000*60*60*24));
 	};
 
-  var drawCommentBubble = function(svg, x, y) {
+	var getXTick = function(date, offset) {
+		if(!offset) {
+			offset = 0;
+		}
+
+		return (date - firstDay - offset) * daypx/oneDay;	
+	};
+
+  var drawCommentBubble = function(svg, ticks, x, y) {
 
   	console.log(y);
 
@@ -20,7 +28,21 @@ var drawTimeline = function() {
   	var bubble = svg.append('path')
   		.attr('d','m' + x + ',' + y + 'l33.31223,0l0,18.07899l-12.17443,0l-10.6362,6.69367l-2.17431,-6.69367l-8.32806,0l0,-18.07899l0.00077,0z')
   		.attr('stroke-width', '0')
-  		.attr('fill', '#6a6b6b');
+  		.attr('fill', '#6a6b6b')
+  		.attr('id', ticks);
+
+  	bubble.on("mouseover", function() {
+			$(this).css('opacity',.2);
+			//moment(parseTime(reading.time)).format("hA ddd Do"));
+			//console.log((reading.bg + ' @ ' + moment(parseTime(reading.time)).format("hA ddd Do")));
+		});
+    bubble.on("mouseout", function() {
+    	$(this).css('opacity',1);
+    });
+
+    bubble.on('click',function() {
+    	view.messages.scrollTo($(this).attr('id'));
+    });
 
   	for(var i in [0,10,20]) {
   		var dot = svg.append("circle")
@@ -231,8 +253,8 @@ var drawTimeline = function() {
     });
 
     point.on('click',function() {
-    	day.scroll(reading.date);
     	$(document).trigger('show-overview');
+    	day.scroll(reading.date);
     });
 
     $('#' + reading.ticks).tipsy({gravity: 'w', title: function() {
@@ -321,19 +343,22 @@ var drawTimeline = function() {
 		}
 	};
 
+	var height = {
+   	bg: 190,
+   	xOffset: 25,
+   	spacing: 10,
+   	activity: 180,
+ 		basal: 113
+  };
+
+  var svgContainer;
+
 	var draw = function(bg, cgm, boluss, basals, carbss) {
 		//var firstDay = new Date('Tue Jan 08 2013 00:00:00 GMT+0100 (CET)');//startOfDay(bg[0].date);
     var days = deltaDays(new Date(firstDay), new Date());
     var width = days * daypx;
     var max = 350;
 		var padding = 10;
-    var height = {
-     	bg: 190,
-     	xOffset: 25,
-     	spacing: 10,
-     	activity: 180,
-   		basal: 113
-    };
 
     var totalHeight = height.xOffset*2 + height.bg + height.spacing*2 + height.activity + height.basal;
     var basalMax = 2;
@@ -342,7 +367,7 @@ var drawTimeline = function() {
     var slots = ['12 AM','3 AM','6 AM','9 AM', '12 PM', '3 PM', '6 PM' ,'9 PM'];
     var colors = ['#DCE4E8','#E3E9EC','#EAEEF0','#F7F8F9','#F7F8F9','#EAEEF0','#E3E9EC','#DCE4E8'];
 
-    var svgContainer = d3.select("#timeline").append("svg").attr("width", width).attr("height", totalHeight);
+    svgContainer = d3.select("#timeline").append("svg").attr("width", width).attr("height", totalHeight);
     var svgYAxis = d3.select("#timelineAxis").append("svg").attr("width", 45).attr("height", totalHeight);
 
 		//<text x="200" y="100" transform="rotate(180 200,100)">Hello!</text>
@@ -505,14 +530,6 @@ var drawTimeline = function() {
 			}
 
 			return (date.getTime() - firstDay - offset) * daypx/oneDay;	
-		};
-
-		var getXTick = function(date, offset) {
-			if(!offset) {
-				offset = 0;
-			}
-
-			return (date - firstDay - offset) * daypx/oneDay;	
 		};
 
 		var getY = function(value, height) {
@@ -715,13 +732,20 @@ var drawTimeline = function() {
 
 		drawActualBasal(basals);
 		drawBolus(boluss.concat(carbss));
-		//drawCommentBubble(svgContainer, 100, height.xOffset + height.bg + height.spacing + height.activity/2  - 20);
-
 		//scroll();
 	};
+
+	var drawComment = function(ticks) {
+		drawCommentBubble(svgContainer, ticks, getXTick(ticks), height.xOffset + height.bg + height.spacing + height.activity/2  - 20);
+	}
 	return {
 		scroll: scroll,
+		scrollTo: function(ticks) {
+			var left = (ticks - firstDay) * timepx;
+			$('#timelineContainer').animate({ scrollLeft: left + "px" }, 0);
+		},
 		draw: draw,
+		drawComment: drawComment,
 		scrollTicks: function() {
 			return firstDay + ($('#timelineContainer').scrollLeft()/timepx);
 		}

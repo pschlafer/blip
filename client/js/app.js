@@ -1,6 +1,176 @@
 var loginin = false;
 $(function() {
   data = {};
+
+  callit = function() {
+          console.log('call it');
+        }
+  viewClass = {
+    Upload: Backbone.View.extend({
+      initialize: function() {
+      },
+      render: function(groupId, tab) {
+        var self = this;
+        $.ajax({ url: "/template/joinUpload.ejs" }).done(function(template) {
+          self.groupId = groupId;
+
+          if(tab) {
+            $('#top').hide();
+            $('#bottom').show();
+          } else {
+            $('#bottom').hide();  
+            $('#top').show();
+          }
+          
+          var html = _.template(template, tab ? {} : data.profile);
+          
+          self.$el.html(html);  
+          self.$el.find('.go').addClass('disabed');
+
+          $('#profile-setup-device-picker').fadeIn();
+
+          console.log('el',self.$el);
+
+          self.$el.find('#upload-animas h2').click(self.aminas);
+          self.$el.find('#upload-medtronic h2').click(self.medtronic);
+          self.$el.find('#upload-dexcom h2').click(self.dexcom);
+          self.$el.find('input[type=file]').change(self.ready);
+
+          if(tab) {
+            self.$el.find('.go').click(self.upload(groupId, tab));          
+          } else {
+            self.$el.find('.go').click(self.upload(groupId));
+          }
+        });
+      },
+      fadeOut: function(callback) {
+        $('#profile-setup-device-picker').slideDown(callback);
+      },
+      ready: function () {
+        $('#uploadButton').removeClass('disabed');
+      },
+      upload: function (groupId, tab) {
+        return function() {
+          $.ajax({
+            url: 'http://'+$('#api_endpoint').attr('content')+'/v1/' + groupId + '/device/upload',
+            type: 'POST',
+            crossDomain: true,
+            xhr: function() {
+              var myXhr = $.ajaxSettings.xhr();
+
+              if(myXhr.upload){
+                myXhr.upload.addEventListener('progress',function() {console.log('progress')}, false); // For handling the progress of the upload
+              }
+
+              return myXhr;
+            },
+            beforeSend: function(){console.log('beforeSend')},
+            success: function(data) {
+              console.log('success');
+
+              if(tab) {
+                view.dataHolder.dataTab();
+                var upload = new viewClass.Upload({el: $("#upload_tab_content")});        
+                upload.render(groupId, true);
+                loadData(groupId);
+              } else {
+                window.location.hash = 'group/' + groupId;
+              }
+            },
+            error: function(error){
+              console.log('Error uploading files', error);
+              var upload = new viewClass.Upload({el: $("#upload_tab_content")});        
+              upload.render(this.groupId, true);
+            },
+            data: new FormData($('form')[0]),
+            cache: false,
+            contentType: false,
+            processData: false
+          });
+        }
+      },
+      aminas: function() {
+        console.log('toggle');
+        $('#upload-animas .device-import').slideToggle();
+      },
+      dexcom: function() {
+        $('#upload-dexcom .device-import').slideToggle();
+      },
+      medtronic: function() {
+        $('#upload-medtronic .device-import').slideToggle();
+      }
+    }),
+    Messages: Backbone.View.extend({
+      initialize: function() {
+      },
+      render: function(messages) {
+        var self = this;
+        $.ajax({ url: "/template/messages.ejs" }).done(function(template) {
+          console.log('messages', messages);
+
+          var html = _.template(template, {messages: messages || []});
+          
+          for(var i in messages) {
+            timeline.drawComment(messages[i].createdTime.unixTime);
+          }
+
+          self.$el.html(html);  
+
+          $(".thread >li").click(function() {
+            timeline.scrollTo($(this).attr('id'));
+          });
+
+        });
+      },
+      load: function(groupId) {
+        var self = this;
+        this.get(groupId, function(error, messages) {
+          self.render(messages);
+        });
+      },
+      get: function(groupId, callback) {
+        $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/group/'+ groupId +  '/messages?accessToken=' + accessToken + '&callback=?', function(messages) {
+          callback(null, messages);
+        });
+      },
+
+      messagesShown: false,
+      hideTab: function() {
+        $('.communication').hide();
+        $('#messagesThreadHolder').hide();
+      },
+      scrollTo: function(id) {
+        $('.thread').animate({
+            scrollTop: $(".thread #" + id).offset().top
+        });
+      },
+      showTab: function() {
+        $('.communication').show();
+        $('#messagesThreadHolder').show();
+      },
+      toggleMessages: function(show) {
+        if(show) {
+          $('#messageThread').show(0);
+          $('#messageThread').animate({'margin-left': '788px', width:'300px'}, 500);
+
+          setTimeout(function() {
+            $('#messages').animate({'margin-right': '163px'}, 300); 
+          }, 150);
+          
+          $('#timelineContainer').animate({width:'740px'}, 500); 
+        } else {
+          $('#messageThread').animate({'margin-left': '1088px', width:'0px'}, 500, function() {
+            $('#messageThread').hide(0);
+          });
+
+          $('#messages').animate({'margin-right': '0px'}, 350);
+          $('#timelineContainer').animate({width:'1041px'}, 500);
+        }
+        this.messagesShown = !this.messagesShown;
+      }
+    })
+  };  
+
   view = {
     dataHolder: new (Backbone.View.extend({
       initialize: function() {
@@ -9,30 +179,45 @@ $(function() {
           self.content = content;
         });
       },
-      datum: function(groupId, user) {
-        $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/' + groupId + '/device?limit=100000&callback=?', function(datum) {
-          
-          firstDay = datum[datum.length-1].unixTime;
+      get: function(groupId, user, callback) {
+        this.groupId = groupId;
 
-          console.log('firstDay',firstDay);
+        $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/groups/' + groupId + '?accessToken=' + accessToken + '&callback=?', function(group) {
+          $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/' + groupId + '/device?limit=100000&callback=?', function(datum) {
+            firstDay = datum[datum.length-1].unixTime;
 
-          thisdata = datum;
-          console.log('got data!', datum, datum.length);
-
-          view.dataHolder.render(datum);
-
-          if(user) {
-            view.header.render(user);
-            $('header').css('position','relative');
-          }
+            callback(null, {
+              group: group,
+              data: datum
+            });
+          });
         });
       },
-      render: function(datum) {
+      render: function(datum, administrator) {
         $('#top').hide();
         $('header').hide();
         $('#bottom').show();
-        this.$el.html(_.template(this.content));
         
+        this.$el.html(_.template(this.content, {administrator: administrator}));
+        
+        var upload = new viewClass.Upload({el: $("#upload_tab_content")});
+        view.messages = new viewClass.Messages({el: $("#messagesThreadHolder")});
+
+        upload.render(this.groupId, true);
+        view.messages.load(this.groupId);
+        view.messages.hideTab();
+        
+        var messagesShown = false;
+
+        $('#messages').click(function() {
+          messagesShown = !messagesShown;
+          view.messages.toggleMessages(messagesShown);
+        });
+
+        $(".thread >li").click(function() {
+          timeline.scrollTo($(this).attr('id'));
+        });
+
         $('#data-tab').click(function() {$(document).trigger('show-overview')});
         $('#overlay').css('background','rgba(255, 255, 255, 1');
         
@@ -44,6 +229,7 @@ $(function() {
         $(document).on('show-detail', function() {
           $('#chart').hide();
           $('#timelineHolder').show();
+          view.messages.showTab();
           $('.message-element').show();
         });
 
@@ -53,6 +239,7 @@ $(function() {
           $('#data-tab').css('font-weight', 'bold');
           $('.message-element').hide();
           $('#chart').show();
+          view.messages.hideTab();
           $('#timelineHolder').hide();
 
           increment = 14;
@@ -220,6 +407,27 @@ $(function() {
           $('#insulin-stat').css('opacity', 0.3);
         }
         });
+      },
+      events: {
+        'click #upload-tab': 'uploadTab',
+        'click #data-tab': 'dataTab'
+      },
+      dataTab: function() {
+        $('#upload-tab').css({'font-weight': 'lighter'});
+        $('#data-tab').css({'font-weight': 'bold'});
+
+
+        $('#upload_tab_content').hide();
+        $('#data_tab_content').show();
+        $('.time-picker').show();
+      },
+      uploadTab: function() {
+        $('#data-tab').css({'font-weight': 'lighter'});
+        $('#upload-tab').css({'font-weight': 'bold'});
+
+        $('#data_tab_content').hide();
+        $('.time-picker').hide();
+        $('#upload_tab_content').show();
       }
     }))({el: $("#bottom")}),
     home: {
@@ -254,7 +462,9 @@ $(function() {
 
         this.$el.html(_.template(this.content));
         $('#login').fadeIn();
-        view.header.render();
+        
+        view.header.render({}, {top:false, handel:false, logout: false});
+
         $('header').fadeIn();
       },
       fadeOut: function(callback) {
@@ -274,20 +484,7 @@ $(function() {
           if (response.authResponse) {
             accessToken = response.authResponse.accessToken;
             
-            $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/user/facebook?accessToken=' + accessToken + '&callback=?', function(fbUser) {
-              view.login.isUser(function(error, user) {
-                if(error) {
-                  console.error(error);
-                  return;
-                }
-
-                if(user) {
-                  view.home.start();
-                } else {
-                  view.joinType.render(fbUser);
-                }
-              });
-            });
+            window.location.hash = 'dashboard';
           }
         }, {scope: 'user_groups,user_birthday,user_status,user_about_me,publish_actions,email'});
       },
@@ -299,19 +496,22 @@ $(function() {
           if (response.authResponse) {
             accessToken = response.authResponse.accessToken;
             // todo: also check blip groups this user already has access to            
-            $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/user/facebook?accessToken=' + accessToken + '&callback=?', function(fbUser) {
-              view.login.isUser(function(error, user) {
-                if(error) {
-                  console.error(error);
-                  return;
-                }
+            view.login.isUser(function(error, user) {
+              if(error) {
+                console.error(error);
+                return;
+              }
 
-                if(user) {
-                  view.home.start();
-                } else {
-                  view.joinType.render(fbUser);
-                }
-              });
+              if(!user.fb) {
+                window.location.hash = 'dashboard';
+              } else {
+                $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/groups?selected=true&administrator=false&accessToken=' + accessToken + '&callback=?', function(groups) {
+                  view.joinType.render({
+                    user: user.fb || user,
+                    groups: groups
+                  });
+                });
+              }
             });
           } else {
             window.location.hash = '';
@@ -320,19 +520,78 @@ $(function() {
       }
     }))({el: $("#top")}),
     header: new (Backbone.View.extend({
+      patientShown: false,
       initialize: function() {
         var self = this;
         $.ajax({ url: "/template/header.ejs" }).done(function(content) {
           self.content = content;
         });
       },
-      render: function(user) {
-        $('header').css('position','fixed');
+      render: function(data, options) {
+        data.options = options;
+
+        this.$el.html(_.template(this.content, data));
+
+        if(options.top) {
+          this.top();
+        } else {
+          this.bottom();
+        }
+
+        if(options.showPatient) {
+          this.patientShown = true;
+          this.showPatient();
+        } else {
+          this.patientShown = false;
+          this.hidePatient();
+        }
         this.$el.show();
-        this.$el.html(_.template(this.content, {user: user}));
       },
       events: {
-        "click #logout": "logout"
+        "click #logout": "logout",
+        "click #handel-header": "togglePatient"
+      },
+      togglePatient: function() {
+        if(view.header.patientShown) {
+          view.header.hidePatient();
+        } else {
+          view.header.showPatient();
+        }
+        view.header.patientShown = !view.header.patientShown;
+      },
+      hidePatient: function() {
+        $('#content-header').slideUp();  
+
+        $('#current_patient h1').animate({
+          top: '-35px',
+          left: '215px'
+        });
+
+        $('#current_patient img').animate({
+          width: '70px',
+          left: '135px',
+          top: '32px'
+        });
+      },
+      showPatient: function() {
+        $('#content-header').slideDown();  
+
+        $('#current_patient h1').animate({
+          top: '5px',
+          left: '112px'
+        });
+
+        $('#current_patient img').animate({
+          width: '80px',
+          left: '20px',
+          top: '80px'
+        });
+      },
+      top: function() {
+        this.$el.css('position','relative');
+      },
+      bottom: function() {
+        this.$el.css('position','fixed');
       },
       logout: function() {
         FB.logout();
@@ -345,24 +604,21 @@ $(function() {
           self.content = content;
         });
       },
-      render: function(user) {
+      render: function(data) {
         $('#top').show();
         $('#bottom').hide();
         var self = this;
         
-        this.user = user;
+        this.user = data.user;
         
         $('header').css('position','fixed');
         $('#overlay').css('background','rgba(255, 255, 255, 1');
         
         view.login.fadeOut(function() {
-          self.$el.html(_.template(self.content, user));
+          self.$el.html(_.template(self.content, data));
           
-          
-          view.header.render(self.user);
+          view.header.render({user: self.user}, {top:false, handel: false, logout: true});
 
-          $('header').show();
-          $('header .user').fadeIn();
           $('#login-usertype').fadeIn();
         });
       },
@@ -371,7 +627,11 @@ $(function() {
       },
       events: { 
         "click #surrogate": "surrogate",
-        "click #t1d": "t1d"
+        "click #t1d": "t1d",
+        "click #team-member": "member"
+      },
+      member:function() {
+        view.dashboard.render();
       },
       t1d: function() { 
         data.signup = {type: 'patient', user: this.user};
@@ -517,7 +777,7 @@ $(function() {
 
         // post data and then display it.
         $.ajax({
-          url: 'http://'+$('#api_endpoint').attr('content')+'/v1/user/join?accessToken=' + accessToken,
+          url: 'http://'+$('#api_endpoint').attr('content')+'/v1/user/join?accessToken=' + accessToken + '&callback=?',
           type: 'POST',
           crossDomain: true,
           xhr: function() {
@@ -525,6 +785,7 @@ $(function() {
 
             if(myXhr.upload){
               myXhr.upload.addEventListener('progress',function() {console.log('progress')}, false); // For handling the progress of the upload
+              myXhr.upload.addEventListener("load", function() {console.log('load')}, false);
             }
 
             return myXhr;
@@ -533,49 +794,38 @@ $(function() {
             console.log('beforeSend')
           },
           success: function(data){
-            console.log(data.patient);
-            userSignedUp(data);
+            view.login.isUser(function(err, user) {
+              userSignedUp({
+                data: data,
+                user: user.fb || user
+              });
+            });
           },
-          error: function(){ 
-            console.error('error posting new user')
+          complete: function() {
+            console.log('complete');
           },
-          data: new FormData($('form')[0]),
-          cache: false,
-          contentType: false,
-          processData: false
+          error: function(error){ 
+            console.log('error posting new user')
+          },
+          data: new FormData($('form')[0])
         });
 
-        var userSignedUp = function(profile) {
+        var userSignedUp = function(info) {
+          console.log(info);
+
           // do something about the real image
           //$('.dropImage').prependTo('#current_patient');
-          data.profile = profile;
+          data.profile = info.data;
 
-          $('#current_patient > img').attr('src', profile.patient.picture);
-          $('#current_patient h1').html(profile.patient.first_name + ' ' + profile.patient.last_name);
-          $('#content-header #patient-profile-info p').html(profile.patient.summary);
-
-          // 13 years old. Diagnosed 3 years ago.
-          var old = humanized_time_span(common.format('{year}/{month}/{day}', profile.patient.birth)).replace('ago', 'old');
-          var diagnosed = humanized_time_span(common.format('{year}/{month}/{day}', profile.patient.diagnosis));
-
-          $('#minihistory').html(common.format('{0}. Diagnosed {1}', old, diagnosed));
-
-          $('#current_patient h1').css({
-            'left': '113px',
-            'top': '0px'
-          }); 
-
-          $('#current_patient img').css({
-            'display': 'inline-block',
-            'width': '80px',
-            'left': '20px',
-            'top': '65px'
-          });
+          view.header.render({
+            patient: info.user.patient,
+            user: info.user
+          }, {top: false, handel: false, logout: true, showPatient: true});
 
           $('#profile-setup').fadeOut(function() {
             $('#content-header').slideDown();
             $('#current_patient').fadeIn();
-            view.joinGroupTutorial.render(profile);
+            view.joinGroupTutorial.render(info.data);
           });
         };
       }
@@ -640,113 +890,90 @@ $(function() {
 
         $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/groups/'+ groupId + '/select?accessToken=' + accessToken + '&callback=?', function() {
           $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/groups/'+ groupId + '?accessToken=' + accessToken + '&callback=?', function(group) {
-            var lis = _.template("<% _.each(group.team, function(member) {%> <li><img src='<%=member.picture %>'></li><%});%>", {group: group});
-
-            $('#static-team-list').html(lis);
-            $('#profile-setul-group-picker').fadeIn();
-
-            view.joinUpload.render(groupId);
+            view.login.isUser(function(err, user) {
+              view.header.render({
+                patient: group.patient,
+                user: user.fb || user,
+                team: group.team
+              }, {top: false, handel: false, logout: true});
+              view.joinUpload.render(groupId);
+            }); 
           });
         });
       }
     }))({el: $("#top")}),
-    groups: new (Backbone.View.extend({
+    dashboard: new (Backbone.View.extend({
       initialize: function() {
         var self = this;
-        $.ajax({ url: "/template/groups.ejs" }).done(function(content) {
+        $.ajax({ url: "/template/dashboard.ejs" }).done(function(content) {
           self.content = content;
         });
       },
-      render: function(groupId) {
+      render: function() {
+        var self = this;
+
         $('#top').hide();
-        $('header').hide();
         $('#bottom').show();
-        console.log(groupId,this.content);
+        $('#bottom').html('');
         $('#overlay').css('background','rgba(255, 255, 255, 1');
-        this.$el.html('<h1>Loading Data...</h1>');
+        
+        view.login.isUser(function(err, user) {
+          view.header.render({ user: user.fb || user }, {top: true, handel: false, logout: true});
+        });
+        
+        this.get(function(error, groups) {
+          if(groups.length) {
+            if(groups.length === 1) {
+              window.location.hash = 'group/' + groups[0].id;  
+              return;
+            }
+            self.$el.html(_.template(self.content, { groups: groups }));
+          } else {
+            alert('looks like you dont have access to any group');
+          }
+        });
+      },
+      get: function(callback) {
+        $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/groups?selected=true&accessToken=' + accessToken + '&callback=?', function(groups) {
+          console.log(groups);
+          callback(null, groups);
+        });
       }
     }))({el: $("#bottom")}),
-    joinUpload: new (Backbone.View.extend({
-      initialize: function() {
-        var self = this;
-        $.ajax({ url: "/template/joinUpload.ejs" }).done(function(content) {
-          self.content = content;
-        });
-      },
-      render: function(groupId) {
-        this.groupId = groupId;
-        $('#top').show();
-        $('#bottom').hide();
-        $('header').css('position','fixed');
-        this.$el.html(_.template(this.content, data.profile));
-        this.$el.find('.go').addClass('disabed');
-        $('#profile-setup-device-picker').fadeIn();
-      },
-      fadeOut: function(callback) {
-        $('#profile-setup-device-picker').slideDown(callback);
-      },
-      events: { 
-        'click #upload-animas h2': 'aminas',
-        'click #upload-dexcom h2': 'dexcom',
-        'click #upload-medtronic h2': 'medtronic',
-        'click #upload-medtronic .done': 'medtronicDone',
-        'click .go': 'go'
-      },
-      go: function () {
-        window.location.hash = 'group/' + view.joinUpload.groupId;
-      },
-      medtronicDone: function () {
-        $.ajax({
-          url: 'http://'+$('#api_endpoint').attr('content')+'/v1/' + view.joinUpload.groupId + '/device/medtronic',
-          type: 'POST',
-          crossDomain: true,
-          xhr: function() {
-            var myXhr = $.ajaxSettings.xhr();
-
-            if(myXhr.upload){
-              myXhr.upload.addEventListener('progress',function() {console.log('progress')}, false); // For handling the progress of the upload
-            }
-
-            return myXhr;
-          },
-          beforeSend: function(){console.log('beforeSend')},
-          success: function(data){
-            console.log(data);
-            view.joinUpload.$el.find('.go').removeClass('disabed');
-          },
-          error: function(){
-            console.log('error')
-          },
-          data: new FormData($('form')[0]),
-          cache: false,
-          contentType: false,
-          processData: false
-        });
-      },
-      aminas: function() {
-        $('#upload-animas .device-import').slideToggle();
-      },
-      dexcom: function() {
-        $('#upload-dexcom .device-import').slideToggle();
-      },
-      medtronic: function() {
-        $('#upload-medtronic .device-import').slideToggle();
-      }
-    }))({el: $("#top")})
+    joinUpload: new viewClass.Upload({el: $("#bottom")})
   };
+
+  $('#overlay').css('background','rgba(255, 255, 255, 1');
 });
+
+var loadData = function(id) {
+  view.login.isUser(function(err, user) {
+    view.dataHolder.get(id, user || {}, function(err, data) {
+      console.log(data.group);
+      view.header.render({
+        patient: data.group.patient,
+        user: user.fb || user,
+        team: data.group.team
+      }, {top: true, handel: true, logout: true});
+
+      var group = _.find(user.groups || [], function(g) {return g.id === id}) || {};
+
+      console.log('data', data);
+      console.log('user', user);
+      view.dataHolder.render(data.data, group.administrator);
+    }); 
+  });
+};
 
 var Router = Backbone.Router.extend({
   routes: {
-    'group/:id' : 'group'
+    'dashboard': 'dashboard',
+    'group/:id' : 'groupData'
   },
-  group: function(id) {
-    console.log(id);
-    view.groups.render(id);
-    
+  dashboard: function() {
     view.login.isUser(function(err, user) {
-      view.dataHolder.datum(id, user.patient);
+      view.dashboard.render();
     });
-  }
-
+  },
+  groupData: loadData
 });

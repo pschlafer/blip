@@ -1,0 +1,32 @@
+<div id="messageThread">
+	<% if(!messages.length) { %> 
+		<p>No messages.</p>
+	<% } else { %>
+	<ul class="thread">
+		<% for (var i in messages) {
+			var message = messages[i];
+		%>
+		<li id='<%= message.createdTime.unixTime %>'>
+			<img src="<%= message.from.picture %>">
+			<h3><%= message.from.name %></h3>
+			<div class="timestamp"><%= message.createdTime.ago %></div>
+			<div class="clear"></div>
+			<div class="text"><%= message.message %></div>
+			<ul class="subcomment">
+				<% for (var j in message.comments) {
+					var comment = message.comments[j]; 
+				%>
+				<li>
+					<img src="<%= comment.from.picture %>">
+					<h3><%= comment.from.name %></h3>
+					<div class="timestamp"><%= comment.createdTime.ago %></div>
+					<div class="clear"></div>
+					<div class="text"><%= comment.message %></div>
+				</li>
+				<% } %>
+			</ul>
+		</li>
+		<% } %>
+	</ul>
+	<% } %>
+</div>

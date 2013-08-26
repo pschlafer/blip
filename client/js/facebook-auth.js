@@ -21,8 +21,10 @@ window.fbAsyncInit = function() {
           return;
         }
 
+        console.log('user', user);
+
         if(user) {
-          view.home.start();
+          view.dashboard.render();
         } else {
           view.login.render();
         }
@@ -36,7 +38,6 @@ window.fbAsyncInit = function() {
   });
 
   FB.Event.subscribe('auth.authResponseChange', function(response) {
-    console.log(response);
     // Here we specify what we do with the response anytime this event occurs. 
     if (response.status === 'connected') {
       accessToken = response.authResponse.accessToken;
@@ -51,10 +52,6 @@ window.fbAsyncInit = function() {
       // (1) JavaScript created popup windows are blocked by most browsers unless they 
       // result from direct interaction from people using the app (such as a mouse click)
       // (2) it is a bad experience to be continually prompted to login upon page load.
-      
-
-
-    //} else {
     else {
       // In this case, the person is not logged into Facebook, so we call the login() 
       // function to prompt them to do so. Note that at this stage there is no indication

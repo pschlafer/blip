@@ -1,3 +1,6 @@
+input[type=file] {
+  width: 200px;
+}
 .container {
   width: 1130px;
   margin: auto;
@@ -160,7 +163,7 @@ input {
 #profile-setul-group-picker {
   float: right;
   width: 350px;
-  padding: 25px 5px 0px 0;
+  padding: 20px 5px 0px 0;
 }
 #profile-setul-group-picker .button {
   margin-left: 0px;
@@ -282,6 +285,11 @@ header {
 }
 #login-usertype #usertype #team-member #invites > li {
   padding: 10px 20px;
+}
+#login-usertype #usertype #team-member #invites img {
+  border-radius: 30px;
+  width: 60px;
+  height: 60px;
 }
 #login-usertype #usertype #team-member .title {
   padding-bottom: 20px;
@@ -429,9 +437,17 @@ header {
   color: white;
   text-transform: capitalize;
 }
+#nav ul .tabs {
+  margin-left: 35px;
+  font-size: 14px;
+}
 #nav li {
   padding: 15px;
   height: 16px;
+}
+#nav li:hover {
+  cursor: pointer;
+  font-weight: normal;
 }
 .today {
   font-size: 14px;
@@ -472,14 +488,6 @@ body {
 }
 #logo img {
   width: 51px;
-}
-.handel img {
-  width: 15px;
-}
-.handel {
-  width: 15px;
-  margin: auto;
-  padding-bottom: 2px;
 }
 .box:hover {
   cursor: progress;
@@ -828,7 +836,8 @@ h3 {
 }
 .thread {
   overflow: scroll;
-  height: 694px;
+  height: 693px;
+  position: absolute;
 }
 .subcomment > li {
   padding-top: 15px;
@@ -878,7 +887,7 @@ h3 {
   border-left: 1px solid #DCE4E8;
   border-right: 1px solid #DCE4E8;
   width: 0px;
-  height: 694px;
+  height: 693px;
   display: none;
   z-index: 1;
 }

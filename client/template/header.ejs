@@ -1,43 +1,62 @@
 <div class='container' style='width: 1130px'>
 	<div id='top-header'>
+		<% if (typeof patient !== 'undefined') {%>
 		<div id='current_patient'>
-			<img src=''>
-			<h1>Demo User</h1>
+			<img id='expandImg' src='<%= patient.picture %>'>
+			<h1 id='expandH1'><%= patient.first_name + ' ' + patient.last_name %></h1>
 		</div>
-		<img id='logo' src='/img/logo.png'>
-		<% if(typeof(user) != 'undefined') { %>
+		<%}%>
+		<img id='logo' title="blip" src='/img/logo.png'>
+		<% if (options.logout) { %>
 		<div id='logout'>
-			<img src='/img/power.png'>
+			<img title="logout" src='/img/power.png'>
 		</div>
+		<%}%>
+		<% if (typeof user !== 'undefined' && user.groupCount > 1) {%>
+		<div id='dashboard-icon'>
+			<a href='#dashboard'>
+				<img title="dashboard" src='/img/list.png'>
+			</a>
+		</div>
+		<%}%>
+		<% if (typeof user !== 'undefined') {%>
 		<div class='user'>
 			<div class='text'>
 				Logged in as
 				<span id='username'>
-					<%= user.first_name %> <%= user.last_name %>
+					<%= user.first_name + ' ' + user.last_name %>
 				</span>
 			</div>
 			<img src='<%= user.picture %>'>
 			<div class='clear'></div>
 		</div>
-		<% } %>
+		<%}%>
 		<div class='clear'></div>
 	</div>
 </div>
-
+<% if (typeof patient !== 'undefined') {%>
 <div id='content-header' style='display:none'>
 	<div class='container'>
 		<div id='patient-profile-info'>
-			<div id='minihistory'>13 years old. Diagnosed 3 years ago.</div>
-			<p>Electra loves to travel and to draw on her sketch book. Her favorite colors are orange and blue.</p>
+			<div id='minihistory'><%= patient.age.age %>. Diagnosed <%= patient.age.diagnosed %>.</div>
+			<p><%= patient.summary %></p>
 		</div>
-		<div id='profile-setul-group-picker' style='display:none'>
+		<% if (typeof team !== 'undefined') {%>
+		<div id='profile-setul-group-picker'>
 			<h3>Team <span></span></h3><br>
-			<ul id='static-team-list'></ul>
+			<ul id='static-team-list'>
+				<% for (var i in team) { %>
+					<li><img title='<%= team[i].name %>' alt='<%= team[i].name %>' src='<%= team[i].picture %>'></li>
+				<% } %>
+			</ul>
 		</div>
+		<%}%>
 		<div class='clear'></div>
 	</div>
 </div>
-
-<div class='container'>
-	<div id='handel-header'></div>
+<%}%>
+<% if (options.handel) { %>
+<div id='handel-header'>
+	<div class="handel"><img src="/img/handel.png"></div>
 </div>
+<%}%>

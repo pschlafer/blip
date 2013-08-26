@@ -1,0 +1,60 @@
+@import "var.less";
+
+#dashboard {
+	ul {
+		width: 850px;
+		margin: 50px auto;
+	}
+	
+	li {
+		border: 2px solid @lightgray;
+		padding: 20px 40px;
+		width: 300px;
+		margin: 20px;
+	}
+	
+	li:hover {
+		background: @lightgray;
+	}
+
+	a {
+		text-decoration: none;
+		float: left;
+	}
+	
+	a:hover {
+		text-decoration: none;
+	}
+	
+	img {
+		width: 60px;
+		border-radius: 30px;
+		position: absolute;
+	}
+
+	.name {
+		float: left;
+		padding-left: 80px;
+		font-size: 20px;
+		color: @darkblue;
+		padding-top: 10px;
+	}
+
+	.age {
+		float: left;
+		padding-left: 10px;
+		color: @lightblue;
+		font-size: 15px;
+		font-weight: lighter;
+		padding-top: 12px;
+	}
+
+	.diagnosed {
+		padding-left: 80px;
+		padding-top: 5px;
+		font-size: 15px;
+		color: @gray;
+		font-weight: lighter;
+		padding-bottom: 10px;
+	}
+}

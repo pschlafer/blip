@@ -84,7 +84,7 @@ var drawDay = function() {
     drawXAxis(svgAxisBottom);
 
     var drawYAxis = function(svg) {
-			var dayIds = ['su', 'm', 't', 'w', 't', 'f', 's'];
+			var dayIds = ['sun', 'm', 't', 'w', 't', 'f', 'sat'];
 			var today = new Date();
 
 			for(var i = 1; i <= days; i++) {
@@ -96,7 +96,7 @@ var drawDay = function() {
 				var isWeekend = today.getDay() == 0 || today.getDay() == 6;
 				
 				svg.append('text')
-					.attr('x', 20)
+					.attr('x', 15)
 					.attr('y', y + (isWeekend ? 0 : 5))
 					.attr('fill', '#AAB9C0')
 					.attr('class', 'ptext')
@@ -107,7 +107,7 @@ var drawDay = function() {
 
 				if (isWeekend) {
 					svg.append('text')
-						.attr('x', 20)
+						.attr('x', 15)
 						.attr('y', y + 12)
 						.attr('fill', '#0081AA')
 						.attr('class', 'ptext')

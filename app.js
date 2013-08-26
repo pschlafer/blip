@@ -1,5 +1,5 @@
 var package = require('./package.json');
-var config = process.env.PORT ? package.config.prod : package.config.dev;
+var config = process.env.NODE_ENV === 'production' ? package.config.prod : package.config.dev;
 
 var express = require('express')
 	, http = require('http')

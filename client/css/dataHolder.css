@@ -1,6 +1,9 @@
 .data-holder {
   display: none;
 }
+.data-holder #upload_tab_content {
+  display: none;
+}
 .data-holder header {
   background: #0069A1;
   width: 100%;
@@ -71,6 +74,10 @@
   margin-left: 48px;
   color: white;
   text-transform: capitalize;
+}
+.data-holder #nav .tabs {
+  margin-left: 35px;
+  font-size: 14px;
 }
 .data-holder #nav li {
   padding: 15px;

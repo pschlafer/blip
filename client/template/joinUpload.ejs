@@ -1,17 +1,18 @@
 <div id='profile-setup-device-picker' style='display:none'>
+	<% if (typeof patient !== 'undefined') { %>
 	<h1>Last step! Lets upload the data from <%= patient.first_name %>'s devices.</h1>
+	<% } else { %>
+	<h1>Upload Data. Previous entries will be deleted.</h1>
+	<% } %>
+	<form enctype="multipart/form-data">
 	<ul>
-		<!--<li id='upload-animas'>
+		<li id='upload-animas'>
 			<h2>Animas pump</h2>
 			<div class='device-import' style='display:none'>
-				<h3>We pull in your device data from Diasend.</h3>
-				<p>To do that we need your Diasend username and password. If you need to upload your data into Diasend first, you can do it from here.</p>
-				<div id='animas-credentials'>
-					<h4>Diasend Credentials</h4>
-					<input type="text" id='diasend_username' name="diasend_username" placeholder='username'/>
-					<input type="text" id='diasend_password' name="diasend_password" placeholder='password'/>
-					<div class='button done sync'>Sync</div>	
-				</div>
+				<h3>Export your data from Diasend as a CSV file and upload it here.</h3>
+				<p>If you need help with getting your data into Diasend go here.</p>
+				<br>
+				<input type="file" name="animas" />	
 			</div>
 		</li>
 		<li id='upload-dexcom'>
@@ -19,22 +20,22 @@
 			<div class='device-import' style='display:none'>
 				<h3>Export your data from Dexcom Studio as a CSV file and upload it here.</h3>
 				<p>If you need help with getting your data into Dexcom Studio go here.</p>
-				<div id='dexcom-drop-file'>Drop file here</div>
-				<div class='button done'>Done</div>	
+				<br>
+				<input type="file" name="dexcom" />
 			</div>
-		</li>-->
+		</li>
 		<li id='upload-medtronic'>
 			<h2>Medtronic pump (and sensor)</h2>
 			<div class='device-import' style='display:none'>
 				<h3>Export your data from Carelink as a CSV file and upload it here.</h3>
 				<p>If you need help with getting your data into Carelink go here.</p>
-				<form enctype="multipart/form-data">
-		     	<input type="file" name="file" />
-		   	</form>
-				<!--<div id='medtronic-drop-file'>Drop file here</div>-->
-				<div class='button done'>Done</div>	
+				<br>
+		    <input type="file" name="medtronic" />
+				<!--<div id='medtronic-drop-file'>Drop file here</div>
+				<div class='button done'>Done</div>	-->
 			</div>
 		</li>
 	</ul>
-	<div class='button done go'>Lets see the data!</div>	
+	</form>
+	<div class='button done go' id='uploadButton'>Upload</div>	
 </div>
