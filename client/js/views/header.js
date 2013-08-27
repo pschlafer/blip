@@ -18,6 +18,10 @@ view.header = new (Backbone.View.extend({
     	info.patient = data.user.patient;
     }
 
+    if(options.patient) {
+      info.patient = options.patient;
+    }
+    
     info.options = options;
     info.options.logout = !!data.user;
 
@@ -37,8 +41,20 @@ view.header = new (Backbone.View.extend({
         }
 
         if(options.showPatient) {
+          $('#content-header').show();  
+
+          $('#current_patient h1').css({
+            top: '5px',
+            left: '112px'
+          });
+
+          $('#current_patient img').css({
+            width: '80px',
+            left: '20px',
+            top: '80px'
+          });
+
           self.patientShown = true;
-          self.showPatient(0);
         } else {
           self.patientShown = false;
           self.hidePatient();
@@ -91,23 +107,6 @@ view.header = new (Backbone.View.extend({
     });
   },
   showPatient: function(time) {
-    if(time) {
-      $('#content-header').slideDown(time);  
-
-      $('#current_patient h1').animate({
-        top: '5px',
-        left: '112px'
-      }, time);
-
-      $('#current_patient img').animate({
-        width: '80px',
-        left: '20px',
-        top: '80px'
-      }, time);
-      
-      return;  
-    }
-
     $('#content-header').slideDown();  
 
     $('#current_patient h1').animate({

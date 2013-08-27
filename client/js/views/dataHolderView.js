@@ -7,33 +7,37 @@ view.dataHolder = new (Backbone.View.extend({
       self.content = content;
     });
   },
-  get: function(groupId, user, callback) {
-    this.groupId = groupId;
+  render: function(groupId) {
+    var self = this;
+    view.overlay.wait();
+    this.$el.show();
 
-    $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/groups/' + groupId + '?accessToken=' + accessToken + '&callback=?', function(group) {
-      $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/' + groupId + '/device?limit=100000&callback=?', function(datum) {
-        thisData = datum;
-        firstDay = datum[datum.length-1].unixTime;
+    common.step([
+      function(next) {
+        model.groups.get(groupId, next.parallel());
+        model.deviceData(groupId, next.parallel());
+      },
+      function(items, next) {
+        var group = items[0];
+        var readings = items[1];
 
-        callback(null, {
-          group: group,
-          data: datum
-        });
-      });
-    });
+        firstDay = startOfDayTicks(readings[readings.length-1].unixTime);
+
+        view.header.render({patient:group.patient, top: true, handel: true, showPatient: false, logout: true, groupId: groupId});
+        console.log('group!!!!', group);
+        self.$el.html(_.template(self.content, {administrator: group.administrator}));
+        self.bindElements(group, readings);
+      }],function(error) {
+        alert('Error fetching data');
+        console.log('error:', error);
+      }
+    );
   },
-  render: function(datum, administrator) {
-    view.overlay.white();
-    $('header').hide();
-    $('#bottom').show();
-    
-    this.$el.html(_.template(this.content, {administrator: administrator}));
-    
-    var upload = new viewClass.Upload({el: $("#upload_tab_content")});
-    view.messages = new viewClass.Messages({el: $("#messagesThreadHolder")});
+  bindElements: function(group, readings) {
+    (new viewClass.Upload({el: $("#upload_tab_content")})).render(group.id, true);
 
-    upload.render(this.groupId, true);
-    view.messages.load(this.groupId);
+    view.messages = new viewClass.Messages({el: $("#messagesThreadHolder")});
+    view.messages.load(group.id);
     view.messages.hideTab();
     
     var messagesShown = false;
@@ -50,10 +54,8 @@ view.dataHolder = new (Backbone.View.extend({
     $('#data-tab').click(function() {$(document).trigger('show-overview')});
     $('#overlay').css('background','rgba(255, 255, 255, 1');
     
-    $('header').fadeIn();
+    view.header.render({top: true, handel: true, showPatient: false, logout: true});
     $('.data-holder').fadeIn();
-
-    $('header').css('position','relative');
 
     $(document).on('show-detail', function() {
       $('#chart').hide();
@@ -98,23 +100,19 @@ view.dataHolder = new (Backbone.View.extend({
       }
     });     
 
-    //bg.map(addDate);
-    //cgm.map(addDate);
-    //pumpInsulin.map(addDate);
-    
-    bgs = _.filter(datum, function(entry){ return entry.type  === 'smbg'; }).reverse();
+    bgs = _.filter(readings, function(entry){ return entry.type  === 'smbg'; }).reverse();
     bgs.map(addDate);
 
-    cgms = _.filter(datum, function(entry){ return entry.type  === 'cbg'; }).reverse();
+    cgms = _.filter(readings, function(entry){ return entry.type  === 'cbg'; }).reverse();
     cgms.map(addDate);
 
-    boluss = _.filter(datum, function(entry){ return entry.type  === 'bolus'; }).reverse();
+    boluss = _.filter(readings, function(entry){ return entry.type  === 'bolus'; }).reverse();
     boluss.map(addDate);
 
-    basals = _.filter(datum, function(entry){ return entry.type  === 'basal'; }).reverse();
+    basals = _.filter(readings, function(entry){ return entry.type  === 'basal'; }).reverse();
     basals.map(addDate);
 
-    carbs = _.filter(datum, function(entry){ return entry.type  === 'carbs'; }).reverse();
+    carbs = _.filter(readings, function(entry){ return entry.type  === 'carbs'; }).reverse();
     carbs.map(addDate);
 
     day = drawDay();
@@ -227,7 +225,6 @@ view.dataHolder = new (Backbone.View.extend({
       colors = ['white', '#009AA3'],
       bcolors = ['#009AA3', '#87F4EF'];
 
-      
       $("#bolus-widget").children().remove()
       var rangePie = Raphael("bolus-widget", 54, 54).pieChart(27, 27, 25, values, labels, colors, bcolors, "#B6C6CF");
 
@@ -236,6 +233,7 @@ view.dataHolder = new (Backbone.View.extend({
       $('#insulin-stat').css('opacity', 0.3);
     }
     });
+    view.overlay.white();
   },
   events: {
     'click #upload-tab': 'uploadTab',

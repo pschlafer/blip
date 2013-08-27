@@ -14,8 +14,10 @@ $(function() {
         self.groupId = groupId;
 
         $('#bottom').show();  
-        
-        var html = _.template(template, tab ? {} : data.profile);
+
+        var html = _.template(template, tab ? {
+          cleanUrl: 'http://' + $('#api_endpoint').attr('content') + '/v1/' + data.user.id + '/cleanallthedata?accessToken=' + accessToken
+        } : data.profile);
         
         self.$el.html(html);  
         self.$el.find('.go').addClass('disabed');
@@ -29,19 +31,30 @@ $(function() {
 
         if(tab) {
           self.$el.find('.go').click(function() {
+            view.overlay.wait();
+            $('.go').html('Uploading and parsing data');
+
             model.upload(groupId, function(error, data) {
               if (error) {
                 console.log('error');
+                $('.go').html('Upload');
                 return;
               }
 
               console.log('uploaded within tab', data);
               //window.location.reload();
+
+              $('.go').html('Parsing Complete!');
+
+              setTimeout(function() {
+                $('.go').html('Fetching Data...');
+              }, 1000);
+              
+              window.location.reload();
             });
           });         
         } else {
           self.$el.find('.go').click(function() {
-
             // todo: show progress that data is being uploaded
             view.overlay.wait();
             $('.go').html('Uploading and parsing data');
@@ -59,6 +72,10 @@ $(function() {
               //:set done uploading data
 
               $('.go').html('Parsing Complete!');
+
+              setTimeout(function() {
+                $('.go').html('Fetching Data...');
+              }, 1000);
 
               router.navigate('group/' + groupId, {trigger: true});
             });
@@ -167,7 +184,7 @@ var Router = Backbone.Router.extend({
     console.log('data', data);
 
     if(data.user && data.user.groupCount) {
-      window.location.hash = 'dashboard';
+      router.navigate('dashboard', {trigger: true});
     } else {
       view.login.render();
     }
@@ -176,40 +193,32 @@ var Router = Backbone.Router.extend({
     if(data.user && data.user.groupCount) {
       view.dashboard.render();
     } else {
-      window.location.hash = '';
+      router.navigate('', {trigger: true});
     }
   },
   group: function(id) {
-    console.log('groupid',id);
+    if(!data.user) {
+      router.navigate('', {trigger: true}); 
+      return;
+    }
 
-    // todo: refactor data loading...
-    // todo: window data fetched from view
-    // todo: handel when a user i looking at a page not logged in, or logged in but doesnt have permissions
-    
-    /*view.login.isUser(function(err, user) {
-      view.dataHolder.get(id, user || {}, function(err, data) {
-        console.log(data.group);
-        view.header.render({
-          patient: data.group.patient,
-          user: user.fb || user,
-          team: data.group.team
-        }, {top: true, handel: true, logout: true});
-
-        var group = _.find(user.groups || [], function(g) {return g.id === id}) || {};
-
-        console.log('data', data);
-        console.log('user', user);
-        view.dataHolder.render(data.data, group.administrator);
-      }); 
-    });*/
+    if(data.user.groupCount && _.find(data.user.groups, function(g) { return g.id == id})) {
+      view.dataHolder.render(id);  
+    } else {
+      view.notFound.render({h1: 'Access Denied', h2:'Try asking them to add you to their Facebook group'});  
+    }
   },
   notFound: function() {
-    view.notFound.render();
+    view.notFound.render({h1: '404',h2: 'This is not the web page you are looking for.'});
   }
 });
 
 var hookFacebook = function() {
   FB.getLoginStatus(function(response) {
+    if (response.status === 'connected') {
+      accessToken = response.authResponse.accessToken;
+      console.log('set accessToken', accessToken);
+    }
     console.log('getLoginStatus');
 
     model.user(function(error, user) {

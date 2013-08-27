@@ -248,6 +248,15 @@ var drawPath = function(edges, svg, options) {
 	}
 };
 
+var startOfDayTicks = function(date) {
+	var d = new Date(date);
+	d.setHours(0);
+	d.setMinutes(0);
+	d.setSeconds(0);
+
+	return d;
+};
+
 var startOfDay = function(date) {
 	var d = new Date(date.toString());
 	d.setHours(0);

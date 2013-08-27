@@ -6,6 +6,12 @@ input[type=file] {
   margin: auto;
   z-index: 1000;
 }
+#deleteMyData {
+  text-align: center;
+  padding-top: 100px;
+  padding-bottom: 100px;
+  text-decoration: none;
+}
 html {
   min-height: 100%;
 }
@@ -240,9 +246,6 @@ header {
 }
 .dropImage {
   border-radius: 50px;
-}
-.login {
-  padding-bottom: 50px;
 }
 #login-usertype {
   color: #0069a1;
@@ -924,7 +927,7 @@ h3 {
 }
 #profile-setup-device-picker .go {
   width: 190px;
-  margin: 0 auto 240px auto !important;
+  margin: 0 auto 0px auto !important;
   background: #41c55f;
 }
 #profile-setup-device-picker .go:hover {
