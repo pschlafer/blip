@@ -18,12 +18,25 @@
 	<script src='/js/lib/backbone.min.js'></script>
 	<script src='/js/lib/humanized_time_span.js'></script>
 
-	<script src="/js/widget.js"></script>
-	<script src="/js/helpers.js"></script>
-	<script src="/js/day.js"></script>
-	<script src="/js/timeline.js"></script>
-	<script src="/js/dataHolder.js"></script>
-	<script src="/js/stats.js"></script>
+	<script src="/js/draw/widget.js"></script>
+	<script src="/js/draw/helpers.js"></script>
+	<script src="/js/draw/day.js"></script>
+	<script src="/js/draw/timeline.js"></script>
+	<script src="/js/draw/dataHolder.js"></script>
+	<script src="/js/draw/stats.js"></script>
+
+	<script src="/js/model/model.js"></script>
+
+	<script src="/js/views/login.js"></script>
+	<script src="/js/views/header.js"></script>
+	<script src="/js/views/notFound.js"></script>
+	<script src="/js/views/dashboard.js"></script>
+	<script src="/js/views/dataHolderView.js"></script>
+	<script src="/js/views/joinType.js"></script>
+	<script src="/js/views/joinData.js"></script>
+	<script src="/js/views/joinGroupTutorial.js"></script>
+	<script src="/js/views/joinSelectGroup.js"></script>
+	<script src="/js/views/overlay.js"></script>
 
 	<script src="/js/app.js"></script>
 	<script src="/js/facebook-auth.js"></script>
@@ -37,13 +50,11 @@
 	<link href="/css/dataHolder.css" rel="stylesheet" type="text/css" />
 	<link href="/css/dashboard.css" rel="stylesheet" type="text/css" />
 	<link href="/css/messages.css" rel="stylesheet" type="text/css" />
+	<link href="/css/notFound.css" rel="stylesheet" type="text/css" />
 </head>
 
 <body>
 	<div id='overlay'></div>
-	<div class='container'>
-		<div id='top'></div>
-	</div>
 	<header style='display:none'></header>
 	<div class='container'>
 		<div id='bottom'></div>

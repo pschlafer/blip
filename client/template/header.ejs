@@ -1,6 +1,6 @@
 <div class='container' style='width: 1130px'>
 	<div id='top-header'>
-		<% if (typeof patient !== 'undefined') {%>
+		<% if (typeof patient !== 'undefined' && !options.hidePatientTop) {%>
 		<div id='current_patient'>
 			<img id='expandImg' src='<%= patient.picture %>'>
 			<h1 id='expandH1'><%= patient.first_name + ' ' + patient.last_name %></h1>

@@ -1,0 +1,21 @@
+#notFound {
+  color: white;
+}
+#notFound h1 {
+  font-size: 50px;
+  letter-spacing: 2px;
+  width: 493px;
+  text-align: center;
+  border-bottom: dashed 1px;
+  padding-bottom: 13px;
+  margin: 0 auto;
+  padding: 20px;
+  padding-top: 240px;
+  margin-bottom: 25px;
+}
+#notFound h2 {
+  width: 100%;
+  text-align: center;
+  font-size: 25px;
+  letter-spacing: 2px;
+}

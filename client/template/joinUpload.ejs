@@ -4,9 +4,9 @@
 	<% } else { %>
 	<h1>Upload Data. Previous entries will be deleted.</h1>
 	<% } %>
-	<form enctype="multipart/form-data">
+	<form enctype="multipart/form-data" id='join_upload_form'>
 	<ul>
-		<li id='upload-animas'>
+		<!--<li id='upload-animas'>
 			<h2>Animas pump</h2>
 			<div class='device-import' style='display:none'>
 				<h3>Export your data from Diasend as a CSV file and upload it here.</h3>
@@ -23,7 +23,7 @@
 				<br>
 				<input type="file" name="dexcom" />
 			</div>
-		</li>
+		</li>-->
 		<li id='upload-medtronic'>
 			<h2>Medtronic pump (and sensor)</h2>
 			<div class='device-import' style='display:none'>
