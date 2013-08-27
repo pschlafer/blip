@@ -22,7 +22,6 @@ app.use(express.cookieParser());
 app.use(express.session({ secret: 'foo bar' }));
 
 //routes
-
 app.get('/fb', function(request, response) {
 	// me/groups
 	var facebook = new Facebook({ appId: '555596811143941', secret: 'f56ec344bf61fd7bd961577cef1bb073' });

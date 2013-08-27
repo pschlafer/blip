@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "0.0.1-23",
+  "version": "0.0.1-31",
   "private": true,
   "scripts": {
     "start": "node app.js"
@@ -25,6 +25,9 @@
       "facebook_app_secret": "91e68cf0be9fa30ab45c74e73ed15b04"
     }
   },
+  "domains": [
+    "blip.tidepool.org"
+  ],
   "subdomain": "bliptidepoolorg",
   "engines": {
     "node": "0.8.x"
