@@ -22,17 +22,16 @@
   width: 60px;
   border-radius: 30px;
   position: absolute;
+  margin-top: 10px;
 }
 #dashboard .name {
-  float: left;
   padding-left: 80px;
   font-size: 20px;
   color: #0069a1;
   padding-top: 10px;
 }
 #dashboard .age {
-  float: left;
-  padding-left: 10px;
+  padding-left: 80px;
   color: #63bfe2;
   font-size: 15px;
   font-weight: lighter;

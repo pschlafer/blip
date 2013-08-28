@@ -21,6 +21,8 @@ view.header = new (Backbone.View.extend({
     if(options.patient) {
       info.patient = options.patient;
     }
+
+    console.log('render patient', info.patient, 'options', options.patient);
     
     info.options = options;
     info.options.logout = !!data.user;
@@ -41,19 +43,7 @@ view.header = new (Backbone.View.extend({
         }
 
         if(options.showPatient) {
-          $('#content-header').show();  
-
-          $('#current_patient h1').css({
-            top: '5px',
-            left: '112px'
-          });
-
-          $('#current_patient img').css({
-            width: '80px',
-            left: '20px',
-            top: '80px'
-          });
-
+          self.showPatient();
           self.patientShown = true;
         } else {
           self.patientShown = false;
@@ -96,29 +86,45 @@ view.header = new (Backbone.View.extend({
     $('#content-header').slideUp();  
 
     $('#current_patient h1').animate({
-      top: '-35px',
-      left: '215px'
+      top: '-30px',
+      left: '210px'
     });
 
     $('#current_patient img').animate({
-      width: '70px',
+      width: '60px',
       left: '135px',
       top: '32px'
     });
   },
   showPatient: function(time) {
-    $('#content-header').slideDown();  
-
-    $('#current_patient h1').animate({
+    if(time){
+      $('#content-header').show();    
+    } else {
+      $('#content-header').slideDown();  
+    }
+    
+    var h1 = {
       top: '5px',
       left: '112px'
-    });
+    };
 
-    $('#current_patient img').animate({
-      width: '80px',
+    if(time) {
+      $('#current_patient h1').css(h1);
+    } else {
+      $('#current_patient h1').animate(h1);
+    }
+    
+    var img = {
+      width: '70px',
       left: '20px',
       top: '80px'
-    });
+    };
+
+    if(time) {
+      $('#current_patient img').css(img);
+    } else {
+      $('#current_patient img').animate(img);
+    }
   },
   top: function() {
     this.$el.css('position','relative');

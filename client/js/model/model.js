@@ -1,3 +1,9 @@
+var rCB = function(){};
+var deviceDataGlobalCallback = function(data) {
+  console.log('deviceDataGlobalCallback',data);
+  rCB(null, data);
+};
+
 $(function() {
 
 // saves user to global data variable - all api calls are authenticated with accessToken anyways
@@ -12,16 +18,18 @@ model.user = function(callback) {
 };
 
 model.upload = function(groupId, callback) {
+  var userId = data.user ? data.user.id : '';
+
   $.ajax({
-    url: 'http://'+$('#api_endpoint').attr('content')+'/v1/' + groupId + '/device/upload',
+    url: 'http://'+ window.location.host +'/v1/' + groupId + '/device/upload?userId=' + userId,
     type: 'POST',
-    crossDomain: true,
     xhr: function() {
       var myXhr = $.ajaxSettings.xhr();
       return myXhr;
     },
-    beforeSend: function(){console.log('beforeSend')},
+    beforeSend: function(){},
     success: function(data) {
+      console.log('upload data success!!', data);
       callback(null, data);
     },
     error: callback,
@@ -32,10 +40,37 @@ model.upload = function(groupId, callback) {
   });
 };
 
-model.deviceData = function(groupId, callback) {
-  $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/' + groupId + '/device?limit=1000000&callback=?', function(readings) {
-    callback(null, readings);
+model.lastUpload = function(groupId, callback) {
+  $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/' + groupId + '/lastUpload?callback=?', function(group) {    
+    callback(null, group);
   }).error(callback);
+}
+
+
+model.deviceData = function(groupId, callback) {
+  console.log('Fetching device data');
+  rCB = callback;
+
+  model.lastUpload(groupId, function(error, group) {
+    if(error) {
+      alert('Error fetchin last upload id');
+      console.error('error',error);
+      return;
+    }
+
+    $.ajax({
+      url: 'http://'+$('#api_endpoint').attr('content')+'/v1/' + groupId +'/'+ group.uploadId + '/data?limit=1000000&callback=?',
+      dataType: 'jsonp',
+      jsonpCallback: 'deviceDataGlobalCallback',
+      cache: true,
+      success: function(data) {},
+      error: callback
+    });
+  });
+  /*$.getJSON(, function(readings) {    
+    console.log('Done fetching device data');
+    callback(null, readings);
+  }).error(callback);*/
 };
 
 model.groups = {
@@ -64,20 +99,18 @@ model.groups = {
   }
 };
 
-
 model.post = {
 	user: function(callback) {
 		$.ajax({
-      url: 'http://'+$('#api_endpoint').attr('content')+'/v1/user/join?accessToken=' + accessToken,
+      url: 'http://'+ window.location.host +'/v1/user/join?accessToken=' + accessToken ,
       type: 'POST',
-      crossDomain: true,
       xhr: function() {
         var myXhr = $.ajaxSettings.xhr();
         return myXhr;
       },
       beforeSend: function(){},
       success: function(data) {
-
+        console.log('user posted', data);
       	var cb = callback;
         console.log('success');
         model.user(function() {

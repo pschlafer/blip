@@ -1,3 +1,5 @@
+var timeline;
+
 $(function() {
 
 view.dataHolder = new (Backbone.View.extend({
@@ -18,13 +20,14 @@ view.dataHolder = new (Backbone.View.extend({
         model.deviceData(groupId, next.parallel());
       },
       function(items, next) {
+
         var group = items[0];
         var readings = items[1];
+        console.log('dataHolder group',group.patient);
 
         firstDay = startOfDayTicks(readings[readings.length-1].unixTime);
 
         view.header.render({patient:group.patient, top: true, handel: true, showPatient: false, logout: true, groupId: groupId});
-        console.log('group!!!!', group);
         self.$el.html(_.template(self.content, {administrator: group.administrator}));
         self.bindElements(group, readings);
       }],function(error) {
@@ -52,15 +55,14 @@ view.dataHolder = new (Backbone.View.extend({
     });
 
     $('#data-tab').click(function() {$(document).trigger('show-overview')});
-    $('#overlay').css('background','rgba(255, 255, 255, 1');
-    
-    view.header.render({top: true, handel: true, showPatient: false, logout: true});
+    view.overlay.white();
+
     $('.data-holder').fadeIn();
 
     $(document).on('show-detail', function() {
+      view.messages.showTab();
       $('#chart').hide();
       $('#timelineHolder').show();
-      view.messages.showTab();
       $('.message-element').show();
     });
 
@@ -246,6 +248,10 @@ view.dataHolder = new (Backbone.View.extend({
     $('#upload_tab_content').hide();
     $('#data_tab_content').show();
     $('.time-picker').show();
+
+    if(!isOverview) {
+      view.messages.showTab();  
+    }
   },
   uploadTab: function() {
     $('#data-tab').css({'font-weight': 'lighter'});
@@ -254,6 +260,8 @@ view.dataHolder = new (Backbone.View.extend({
     $('#data_tab_content').hide();
     $('.time-picker').hide();
     $('#upload_tab_content').show();
+
+    view.messages.hideTab();
   }
 }))({el: $("#bottom")});
 

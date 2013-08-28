@@ -15,15 +15,27 @@ $(function() {
 
         $('#bottom').show();  
 
-        var html = _.template(template, tab ? {
-          cleanUrl: 'http://' + $('#api_endpoint').attr('content') + '/v1/' + data.user.id + '/cleanallthedata?accessToken=' + accessToken
-        } : data.profile);
-        
+        var info = tab ? {cleanUrl: 'http://' + $('#api_endpoint').attr('content') + '/v1/' + data.user.id + '/cleanallthedata?accessToken=' + accessToken} : data.profile;
+        var html = _.template(template,info);
+
         self.$el.html(html);  
         self.$el.find('.go').addClass('disabed');
 
         $('#profile-setup-device-picker').fadeIn();
 
+        if(info && info.cleanUrl) {
+          self.$el.find('#remove').click(function() {
+            view.overlay.wait('Removing Entries');
+            $.getJSON(info.cleanUrl + '&callback=?', function() {
+              window.location.hash = '';
+              FB.logout();
+              window.location.reload();
+            }).error(function(error) {
+              view.overlay.white();
+            });
+          });  
+        }
+        
         self.$el.find('#upload-animas h2').click(self.aminas);
         self.$el.find('#upload-medtronic h2').click(self.medtronic);
         self.$el.find('#upload-dexcom h2').click(self.dexcom);
@@ -31,38 +43,43 @@ $(function() {
 
         if(tab) {
           self.$el.find('.go').click(function() {
-            view.overlay.wait();
+            view.overlay.wait('Uploading');
             $('.go').html('Uploading and parsing data');
 
             model.upload(groupId, function(error, data) {
               if (error) {
-                console.log('error');
+                alert('An error occured while uploading data')
+                console.log('error',error);
                 $('.go').html('Upload');
+                view.overlay.white();
                 return;
               }
 
               console.log('uploaded within tab', data);
               //window.location.reload();
 
-              $('.go').html('Parsing Complete!');
+              
+              //$('.go').html('Parsing Complete!');
 
               setTimeout(function() {
-                $('.go').html('Fetching Data...');
-              }, 1000);
-              
+                view.overlay.wait('loading data');
+              }, 5000);
+
               window.location.reload();
             });
           });         
         } else {
           self.$el.find('.go').click(function() {
             // todo: show progress that data is being uploaded
-            view.overlay.wait();
+            view.overlay.wait('Uploading');
             $('.go').html('Uploading and parsing data');
 
             model.upload(groupId, function(error, data) {
               if (error) {
-                console.log('error');
+                alert('An error occured while uploading data')
+                console.log('error',error);
                 $('.go').html('Upload');
+                view.overlay.white();
                 return;
               }
 
@@ -71,11 +88,9 @@ $(function() {
 
               //:set done uploading data
 
-              $('.go').html('Parsing Complete!');
-
               setTimeout(function() {
-                $('.go').html('Fetching Data...');
-              }, 1000);
+                view.overlay.wait('loading data');
+              }, 5000);
 
               router.navigate('group/' + groupId, {trigger: true});
             });
@@ -169,7 +184,7 @@ $(function() {
     }
   });
   
-  view.overlay.white();
+  view.overlay.wait();
 });
 
 var Router = Backbone.Router.extend({
@@ -235,7 +250,9 @@ var hookFacebook = function() {
     } else {
       data.user = null;
       
+      
       window.location.hash = '';
+      views.overlay.blank();
       window.location.reload();
       return;
     }

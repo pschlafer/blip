@@ -13,7 +13,7 @@ view.login = new (Backbone.View.extend({
     
     this.$el.html(_.template(this.content));
 
-    view.header.render({top: true, handel: false});
+    view.header.render({top: true, handel: false, hidePatientTop: true});
 
     this.$el.find('#login').fadeIn();
   },

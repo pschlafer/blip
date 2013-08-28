@@ -14,7 +14,13 @@ input[type=file] {
 	text-align: center;
   padding-top: 100px;
   padding-bottom: 100px;
-  text-decoration: none;
+  #remove {
+  	color: @darkblue;
+  }
+  #remove:hover {
+  	color: @lightblue;
+  	cursor: pointer;
+  }
 }
 
 html {
@@ -28,11 +34,21 @@ body {
 	background-size: cover;
 }
 
+#overlay_working {
+	height: 100%;
+	z-index: 1001;
+	width: 100%;
+	background: white;
+	cursor: wait;
+	position: fixed;
+}
+
 #overlay {
 	height: 100%;
 	z-index: -1;
 	width: 100%;
 	position: fixed;
+	background: white;
 }
 
 #dropin-pic {
@@ -364,7 +380,12 @@ header {
 			}
 			.name {
 				float: left;
-				padding: 20px; 
+				padding: 20px 0px 20px 10px;
+				width: 190px;
+				height: 4px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
 		}
 		> li {

@@ -54,14 +54,7 @@ var drawTimeline = function() {
     }
   }
 
-	var parseTime = function(time) {
-		var d = convertDateToUTC(new Date(time));
-
-		d.setHours(d.getHours() - 7);
-
-		return d;
-	};
-
+	var parseTime = function(time) {var d = convertDateToUTC(new Date(time));d.setHours(d.getHours() - 7);return d;};
 	//var addDate = function(reading) {reading.date = parseTime(reading.time); return reading;};
 
 	//bg.map(addDate);
@@ -98,43 +91,43 @@ var drawTimeline = function() {
 		}
 
 		var ranges = [
-		{
-			low: 0,
-			high: 60,
-			color: '#FF0000',
-			shape: 'circle'
-		},
-		{
-			low: 60,
-			high: 80,
-			color: '#FF0000',
-			shape: 'ring'
-		},
-		{
-			low: 80,
-			high: 140,
-			color: '#2AE870',
-			shape: 'circle'
-		},
-		{
-			low: 140,
-			high: 180,
-			color: '#2AE870',
-			shape: 'circle',
-		},
-		{
-			low: 180,
-			high: 250,
-			color: '#FFB73B',
-			shape: 'ring',
-		},
-		{
-			low: 250,
-			high: 1000,
-			color: '#FFB73B',
-			shape: 'circle',
-		}
-	];
+			{
+				low: 0,
+				high: 60,
+				color: '#FF0000',
+				shape: 'circle'
+			},
+			{
+				low: 60,
+				high: 80,
+				color: '#FF0000',
+				shape: 'ring'
+			},
+			{
+				low: 80,
+				high: 140,
+				color: '#2AE870',
+				shape: 'circle'
+			},
+			{
+				low: 140,
+				high: 180,
+				color: '#2AE870',
+				shape: 'circle',
+			},
+			{
+				low: 180,
+				high: 250,
+				color: '#FFB73B',
+				shape: 'ring',
+			},
+			{
+				low: 250,
+				high: 1000,
+				color: '#FFB73B',
+				shape: 'circle',
+			}
+		];
 
 		var color;
 		var shape;
@@ -310,7 +303,9 @@ var drawTimeline = function() {
 
 	var scroll = function(date, time) {
 		var move = 0;
-		var ticks = firstDay + ($('#timelineContainer').scrollLeft()/timepx);
+		var ticks = firstDay.getTime() + ($('#timelineContainer').scrollLeft()/timepx);
+		console.log('ticks scroll', ticks);
+
 		var today = new Date();
 		
 		if(!date) {
