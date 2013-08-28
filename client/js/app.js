@@ -234,9 +234,8 @@ var hookFacebook = function() {
       accessToken = response.authResponse.accessToken;
     } else {
       data.user = null;
-      
-      view.overlay.wait('');
-      window.location.reload();
+      accessToken = '';
+      router.navigate('', { trigger: true });
       return;
     }
   });  
