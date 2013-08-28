@@ -742,7 +742,7 @@ var drawTimeline = function() {
 		draw: draw,
 		drawComment: drawComment,
 		scrollTicks: function() {
-			return firstDay + ($('#timelineContainer').scrollLeft()/timepx);
+			return firstDay.getTime() + ($('#timelineContainer').scrollLeft()/timepx);
 		}
 	};
 };

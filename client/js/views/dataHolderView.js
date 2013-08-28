@@ -186,6 +186,7 @@ view.dataHolder = new (Backbone.View.extend({
     });
 
     $('#timelineContainer').scroll(function() {
+      console.log('scroll');
     var average = stat.average(timeline.scrollTicks(), timeline.scrollTicks()+oneDay);
 
     if(average) {
