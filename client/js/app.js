@@ -182,6 +182,7 @@ var Router = Backbone.Router.extend({
     ':404': 'notFound'
   },
   home: function() {
+    view.overlay.wait();
     if(data.user && data.user.groupCount) {
       router.navigate('dashboard', {trigger: true});
     } else {
@@ -189,6 +190,7 @@ var Router = Backbone.Router.extend({
     }
   },
   dashboard: function() {
+    view.overlay.wait();
     if(data.user && data.user.groupCount) {
       view.dashboard.render();
     } else {
@@ -234,7 +236,6 @@ var hookFacebook = function() {
       data.user = null;
       
       view.overlay.wait('');
-      window.location.hash = '';
       window.location.reload();
       return;
     }
