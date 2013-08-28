@@ -39,7 +39,7 @@
 	<div class='container'>
 		<div id='patient-profile-info'>
 			<div id='minihistory'><%= patient.age.age %>. Diagnosed <%= patient.age.diagnosed %>.</div>
-			<p><%= patient.summary %></p>
+			<p title='<%= patient.summary %>'><%= patient.summary %></p>
 		</div>
 		<% if (typeof team !== 'undefined') {%>
 		<div id='profile-setul-group-picker'>
