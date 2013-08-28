@@ -15,9 +15,6 @@ var drawTimeline = function() {
 	};
 
   var drawCommentBubble = function(svg, ticks, x, y) {
-
-  	console.log(y);
-
   	var lineFunction = d3.svg.line()
 			.x(function(d) { return d.x; })
 			.y(function(d) { return d.y; })
@@ -34,7 +31,6 @@ var drawTimeline = function() {
   	bubble.on("mouseover", function() {
 			$(this).css('opacity',.2);
 			//moment(parseTime(reading.time)).format("hA ddd Do"));
-			//console.log((reading.bg + ' @ ' + moment(parseTime(reading.time)).format("hA ddd Do")));
 		});
     bubble.on("mouseout", function() {
     	$(this).css('opacity',1);
@@ -221,7 +217,6 @@ var drawTimeline = function() {
 				break;
 			}
 		}
-		//console.log(reading.type);
 
 		if(reading.type == 'cbg') {
 			point = svgContainer.append("circle")
@@ -231,7 +226,6 @@ var drawTimeline = function() {
 				.attr('fill-opacity', 1)
         .attr('fill', color);
 		}
-		//console.log('r 2');
 
 		point.attr('class','ppoint');
 		point.attr('id',reading.ticks);
@@ -239,7 +233,6 @@ var drawTimeline = function() {
 		point.on("mouseover", function() {
 			$(this).css('opacity',.2);
 			//moment(parseTime(reading.time)).format("hA ddd Do"));
-			//console.log((reading.bg + ' @ ' + moment(parseTime(reading.time)).format("hA ddd Do")));
 		});
     point.on("mouseout", function() {
     	$(this).css('opacity',1);
@@ -304,8 +297,6 @@ var drawTimeline = function() {
 	var scroll = function(date, time) {
 		var move = 0;
 		var ticks = firstDay.getTime() + ($('#timelineContainer').scrollLeft()/timepx);
-		console.log('ticks scroll', ticks);
-
 		var today = new Date();
 		
 		if(!date) {
@@ -736,7 +727,7 @@ var drawTimeline = function() {
 	return {
 		scroll: scroll,
 		scrollTo: function(ticks) {
-			var left = (ticks - firstDay) * timepx;
+			var left = ((ticks - firstDay) * timepx) - $('#timelineContainer').width()/2;
 			$('#timelineContainer').animate({ scrollLeft: left + "px" }, 0);
 		},
 		draw: draw,

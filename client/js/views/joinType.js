@@ -11,13 +11,10 @@ view.joinType =  new (Backbone.View.extend({
     var self = this;
 
     view.overlay.white();
-    $('#bottom').hide();
-    this.$el.show();
 
     view.login.fadeOut(function(){});
 
     model.groups.selectedNotAdmin(function(error, groups) {
-      console.log('selectedNotAdmin respond')
       var info = {
         user: data.user.fb || data.user,
         groups: error || groups

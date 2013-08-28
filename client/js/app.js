@@ -5,6 +5,8 @@ var model = {};
 var viewClass = {};
 
 $(function() {
+  view.overlay.wait();
+
   viewClass.Upload = Backbone.View.extend({
     initialize: function() {
     },
@@ -49,20 +51,14 @@ $(function() {
             model.upload(groupId, function(error, data) {
               if (error) {
                 alert('An error occured while uploading data')
-                console.log('error',error);
+                console.error('error',error);
                 $('.go').html('Upload');
                 view.overlay.white();
                 return;
               }
 
-              console.log('uploaded within tab', data);
-              //window.location.reload();
-
-              
-              //$('.go').html('Parsing Complete!');
-
               setTimeout(function() {
-                view.overlay.wait('loading data');
+                view.overlay.wait('Loading Data');
               }, 5000);
 
               window.location.reload();
@@ -77,19 +73,14 @@ $(function() {
             model.upload(groupId, function(error, data) {
               if (error) {
                 alert('An error occured while uploading data')
-                console.log('error',error);
+                console.error('error',error);
                 $('.go').html('Upload');
                 view.overlay.white();
                 return;
               }
 
-              //window.location.reload();
-              console.log('uploaded with no tab', data);
-
-              //:set done uploading data
-
               setTimeout(function() {
-                view.overlay.wait('loading data');
+                view.overlay.wait('Loading Data');
               }, 5000);
 
               router.navigate('group/' + groupId, {trigger: true});
@@ -121,8 +112,6 @@ $(function() {
     render: function(messages) {
       var self = this;
       $.ajax({ url: "/template/messages.ejs" }).done(function(template) {
-        console.log('messages', messages);
-
         var html = _.template(template, {messages: messages || []});
         
         for(var i in messages) {
@@ -183,8 +172,6 @@ $(function() {
       this.messagesShown = !this.messagesShown;
     }
   });
-  
-  view.overlay.wait();
 });
 
 var Router = Backbone.Router.extend({
@@ -195,9 +182,6 @@ var Router = Backbone.Router.extend({
     ':404': 'notFound'
   },
   home: function() {
-    console.log('home');
-    console.log('data', data);
-
     if(data.user && data.user.groupCount) {
       router.navigate('dashboard', {trigger: true});
     } else {
@@ -232,27 +216,25 @@ var hookFacebook = function() {
   FB.getLoginStatus(function(response) {
     if (response.status === 'connected') {
       accessToken = response.authResponse.accessToken;
-      console.log('set accessToken', accessToken);
+      console.info('Set accessToken', accessToken);
     }
-    console.log('getLoginStatus');
+    console.info('Facebook GetLoginStatus');
 
     model.user(function(error, user) {
       router = new Router();
       Backbone.history.start();
-      console.log('start backbone');
+      console.info('Start Backbone Router');
     });
   });
 
   FB.Event.subscribe('auth.authResponseChange', function(response) {
     if (response.status === 'connected') {
       accessToken = response.authResponse.accessToken;
-      console.log('authResponseChange');
     } else {
       data.user = null;
       
-      
+      view.overlay.wait('');
       window.location.hash = '';
-      views.overlay.blank();
       window.location.reload();
       return;
     }

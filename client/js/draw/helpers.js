@@ -211,8 +211,6 @@ var shape = function(reading, x, y, svgContainer) {
   }});
  
   point.on('click',function() {  	
-  	console.log('click isOverview:', isOverview);
-
   	if(isOverview) {
   		$(document).trigger('show-detail');
   		timeline.scroll(reading.date);
@@ -220,8 +218,6 @@ var shape = function(reading, x, y, svgContainer) {
   		$(document).trigger('show-overview');	
   		day.scroll(reading.date);
   	}
-  	
-  	isOverview = !isOverview
   });
 };
 

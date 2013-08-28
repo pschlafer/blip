@@ -10,7 +10,6 @@ view.header = new (Backbone.View.extend({
   },
   render: function(options) {
     var self = this;
-		console.log(options);
     //todo: render team.
 		info = data.user ? { user: data.user.fb || data.user } : {};
     
@@ -21,14 +20,11 @@ view.header = new (Backbone.View.extend({
     if(options.patient) {
       info.patient = options.patient;
     }
-
-    console.log('render patient', info.patient, 'options', options.patient);
     
     info.options = options;
     info.options.logout = !!data.user;
 
     if(options.groupId) {
-      console.log('testing header render groupId', options.groupId , 'groups', info);
       info.team = _.find(data.user.groups, function(e) { return e.id === options.groupId.toString()});
 
       model.groups.get(options.groupId, function(error, group) {
@@ -133,6 +129,7 @@ view.header = new (Backbone.View.extend({
     this.$el.css('position','fixed');
   },
   logout: function() {
+    view.overlay.wait('Logging out');
     FB.logout();
   }
 }))({el: $("header")});

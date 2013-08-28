@@ -151,7 +151,6 @@ var stats = function(bg, cgm, bolusData, basalData) {
 		var sum = 0;
 
 		for(var i = bounds.start; i < bounds.end; i++) {
-			//console.log(bolusData[i].date, bolusData[i].bolus);
 			sum += parseFloat(bolusData[i].bolus);
 		}
 

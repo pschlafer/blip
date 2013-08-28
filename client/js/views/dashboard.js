@@ -8,11 +8,7 @@ view.dashboard = new (Backbone.View.extend({
     });
   },
   render: function() {
-    view.overlay.white();
     var self = this;
-    
-    $('#bottom').show();
-    $('#bottom').html('');
     
     view.header.render({top: true, handel: false, hidePatientTop: true});
 
@@ -26,6 +22,7 @@ view.dashboard = new (Backbone.View.extend({
       } else {
         alert('looks like you dont have access to any group');
       }
+      view.overlay.white();
     });
   },
   get: function(callback) {

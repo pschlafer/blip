@@ -1,6 +1,6 @@
 var rCB = function(){};
 var deviceDataGlobalCallback = function(data) {
-  console.log('deviceDataGlobalCallback',data);
+  console.info('Got Data from DeviceDataGlobalCallback',data);
   rCB(null, data);
 };
 
@@ -29,7 +29,7 @@ model.upload = function(groupId, callback) {
     },
     beforeSend: function(){},
     success: function(data) {
-      console.log('upload data success!!', data);
+      console.info('Upload data succeded', data);
       callback(null, data);
     },
     error: callback,
@@ -48,7 +48,7 @@ model.lastUpload = function(groupId, callback) {
 
 
 model.deviceData = function(groupId, callback) {
-  console.log('Fetching device data');
+  console.info('Fetching Device Data');
   rCB = callback;
 
   model.lastUpload(groupId, function(error, group) {
@@ -67,10 +67,6 @@ model.deviceData = function(groupId, callback) {
       error: callback
     });
   });
-  /*$.getJSON(, function(readings) {    
-    console.log('Done fetching device data');
-    callback(null, readings);
-  }).error(callback);*/
 };
 
 model.groups = {
@@ -82,7 +78,6 @@ model.groups = {
   select: function(id, callback) {
     $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/groups/'+ id + '/select?accessToken=' + accessToken + '&callback=?', function() {
       model.user(function(error, user) {
-        console.log('select' , user);
         callback(error, id);
       });
     }).error(callback);
@@ -110,9 +105,7 @@ model.post = {
       },
       beforeSend: function(){},
       success: function(data) {
-        console.log('user posted', data);
       	var cb = callback;
-        console.log('success');
         model.user(function() {
         	cb(null, data);
         });

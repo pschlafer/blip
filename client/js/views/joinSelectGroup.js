@@ -25,17 +25,13 @@ view.joinSelectGroup = new (Backbone.View.extend({
 
     var groupId = $(this).attr('id');
 
-    console.log('groupId', groupId);
-
     model.groups.select(groupId, function(error, id) {
       if(error) {
         alert('Error getting Administrator groups');
-        console.log('error:', error);
+        console.error(error);
         return;
       }
-
-      console.log('groupId', id, 'user', data.user);
-
+      
       view.header.render({top: true, handel: false, logout: true, groupId: id, showPatient: true});
       
       (new viewClass.Upload({el: $("#bottom")})).render(id);

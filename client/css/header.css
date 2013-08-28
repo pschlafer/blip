@@ -105,6 +105,12 @@ header #logout img:hover {
   font-size: 15px;
   margin-left: 112px;
   margin-top: 55px;
+  margin-bottom: 5px;
+}
+#content-header #patient-profile-info p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 46px;
 }
 #content-header #minihistory {
   padding-bottom: 5px;

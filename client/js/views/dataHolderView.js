@@ -11,8 +11,7 @@ view.dataHolder = new (Backbone.View.extend({
   },
   render: function(groupId) {
     var self = this;
-    view.overlay.wait();
-    this.$el.show();
+    view.overlay.wait('Loading Data');
 
     common.step([
       function(next) {
@@ -20,16 +19,19 @@ view.dataHolder = new (Backbone.View.extend({
         model.deviceData(groupId, next.parallel());
       },
       function(items, next) {
-
         var group = items[0];
         var readings = items[1];
-        console.log('dataHolder group',group.patient);
 
         firstDay = startOfDayTicks(readings[readings.length-1].unixTime);
 
-        view.header.render({patient:group.patient, top: true, handel: true, showPatient: false, logout: true, groupId: groupId});
+        view.header.render({ patient: group.patient, top: true, handel: true, showPatient: false, logout: true, groupId: groupId});
+        
         self.$el.html(_.template(self.content, {administrator: group.administrator}));
+        
         self.bindElements(group, readings);
+        
+        view.overlay.white();
+
       }],function(error) {
         alert('Error fetching data');
         console.log('error:', error);
@@ -55,8 +57,6 @@ view.dataHolder = new (Backbone.View.extend({
     });
 
     $('#data-tab').click(function() {$(document).trigger('show-overview')});
-    view.overlay.white();
-
     $('.data-holder').fadeIn();
 
     $(document).on('show-detail', function() {
@@ -64,18 +64,18 @@ view.dataHolder = new (Backbone.View.extend({
       $('#chart').hide();
       $('#timelineHolder').show();
       $('.message-element').show();
+      isOverview = false;
     });
 
     $(document).on('show-overview', function() {
-      isOverview = true;
       $('.tab li').css('font-weight', '100');
       $('#data-tab').css('font-weight', 'bold');
       $('.message-element').hide();
       $('#chart').show();
       view.messages.hideTab();
       $('#timelineHolder').hide();
-
       increment = 14;
+      isOverview = true;
     });
 
     $('.today').click(function() {
@@ -186,7 +186,6 @@ view.dataHolder = new (Backbone.View.extend({
     });
 
     $('#timelineContainer').scroll(function() {
-      console.log('scroll');
     var average = stat.average(timeline.scrollTicks(), timeline.scrollTicks()+oneDay);
 
     if(average) {
@@ -236,7 +235,6 @@ view.dataHolder = new (Backbone.View.extend({
       $('#insulin-stat').css('opacity', 0.3);
     }
     });
-    view.overlay.white();
   },
   events: {
     'click #upload-tab': 'uploadTab',

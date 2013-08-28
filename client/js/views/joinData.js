@@ -114,13 +114,15 @@ view.joinData = new (Backbone.View.extend({
     $('#form-data').val(JSON.stringify(profile));
 
     model.post.user(function(error, data) {
-    	console.log('user crated', error, data);
+    	
 
     	if(error) {
     		alert('An error occured creating user.');
+        console.error(error);
     		return;
     	}
-    	
+    	console.info('User created', data);
+
       view.header.render({top: true, handel: false, showPatient: true});
 
       view.joinData.fadeOut(function() {

@@ -2,7 +2,6 @@ $(function() {
 
 var socket = io.connect('http://'+window.location.host);
   socket.on('message', function (message) {
-    console.log(message);
     if(data.user && data.user.id) {
       if(data.user.id == message.userId) {
         $('#overlay_working_message').html(message.text);    
@@ -13,7 +12,7 @@ var socket = io.connect('http://'+window.location.host);
 view.overlayWorking = {
   wait: function(text) {
     $('#overlay_working').show();
-    $('#overlay_working_message').html(text || 'loading');
+    $('#overlay_working_message').html(typeof text === 'string' ? text : 'loading');
   },
   hide: function() {
     $('#overlay_working').hide();
