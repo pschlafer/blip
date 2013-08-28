@@ -8,7 +8,6 @@ view.login = new (Backbone.View.extend({
     });
   },
   render: function() {
-    view.overlay.opaque();
     this.$el.show();
     
     this.$el.html(_.template(this.content));
@@ -16,6 +15,7 @@ view.login = new (Backbone.View.extend({
     view.header.render({top: true, handel: false, hidePatientTop: true});
 
     this.$el.find('#login').fadeIn();
+    view.overlay.opaque();
   },
   fadeOut: function(callback) {
     $('#login').fadeOut(callback);
