@@ -27,7 +27,6 @@ view.dashboard = new (Backbone.View.extend({
   },
   get: function(callback) {
     $.getJSON('http://'+$('#api_endpoint').attr('content')+'/v1/groups?selected=true&accessToken=' + accessToken + '&callback=?', function(groups) {
-      console.log(groups);
       callback(null, groups);
     });
   }
