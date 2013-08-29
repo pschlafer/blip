@@ -1,5 +1,5 @@
 var package = require('./package.json');
-var config = process.env.NODE_ENV === 'production' ? package.config.prod : package.config.dev;
+var config = process.env.NODE_ENV === 'production' ? package.config.prod : (process.argv,process.argv[2] === 'local' ? package.config.local : package.config.dev);
 
 var express = require('express')
 	, http = require('http')
@@ -7,8 +7,7 @@ var express = require('express')
 	, less = require('less-middleware')
 	, Facebook = require('facebook-node-sdk')
 	, app = express()
-	, needle = require('needle')
-	, upload = require('./lib/upload');
+	, needle = require('needle');
 
 var mongojs = require('mongojs')	
 	, fs = require('fs')
@@ -81,12 +80,13 @@ app.post('/v1/:groupId/device/upload', function(request, response) {
 		  	console.log('done parsing medtronic');
 
 		  	db.groups.findOne({id: request.params.groupId}, function(err, group) {
-		  		group.uploadId = guid();
-
-		  		if(err) {
+		  		if(err || !group) {
 		  			response.json(500, { error: 'group by given id not found' });		  		
 		  			return;
 		  		}
+
+		  		group.uploadId = guid();
+
 		  		db.groups.save(group, function(err, done) {
 		  			if(err) {
 			  			response.json(500, { error: 'could not save group' });		  		

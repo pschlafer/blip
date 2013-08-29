@@ -31,7 +31,7 @@ view.dataHolder = new (Backbone.View.extend({
         self.bindElements(group, readings);
         
         view.overlay.white();
-
+        setTimeout(function() {view.overlay.white();}, 100);
       }],function(error) {
         alert('Error fetching data');
         console.log('error:', error);

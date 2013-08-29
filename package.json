@@ -1,9 +1,10 @@
 {
   "name": "blip",
-  "version": "0.0.1-43",
+  "version": "0.0.1-49",
   "private": true,
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "startLocal": "node app.js local"
   },
   "dependencies": {
     "express": "3.x",
@@ -33,6 +34,12 @@
       "facebook_app_id": "430195453762263",
       "facebook_app_secret": "91e68cf0be9fa30ab45c74e73ed15b04",
       "mongodb_connection_string": "mongodb://root:root@dharma.mongohq.com:10022/blip"
+    },
+    "local": {
+      "api_endpoint": "localhost:8082",
+      "facebook_app_id": "430195453762263",
+      "facebook_app_secret": "91e68cf0be9fa30ab45c74e73ed15b04",
+      "mongodb_connection_string": "mongodb://localhost/blip"
     }
   },
   "domains": [
