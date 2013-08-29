@@ -218,7 +218,7 @@ var drawTimeline = function() {
 			}
 		}
 
-		if(reading.type == 'cbg') {
+		if(y && x && reading.type == 'cbg') {
 			point = svgContainer.append("circle")
 				.attr("cx", x)
 				.attr("cy", y)
@@ -227,28 +227,30 @@ var drawTimeline = function() {
         .attr('fill', color);
 		}
 
-		point.attr('class','ppoint');
-		point.attr('id',reading.ticks);
-		
-		point.on("mouseover", function() {
-			$(this).css('opacity',.2);
-			//moment(parseTime(reading.time)).format("hA ddd Do"));
-		});
-    point.on("mouseout", function() {
-    	$(this).css('opacity',1);
-    });
+		if(point) {
+			point.attr('class','ppoint');
+			point.attr('id',reading.ticks);
+			
+			point.on("mouseover", function() {
+				$(this).css('opacity',.2);
+				//moment(parseTime(reading.time)).format("hA ddd Do"));
+			});
+	    point.on("mouseout", function() {
+	    	$(this).css('opacity',1);
+	    });
 
-    point.on('click',function() {
-    	$(document).trigger('show-overview');
-    	day.scroll(reading.date);
-    });
+	    point.on('click',function() {
+	    	$(document).trigger('show-overview');
+	    	day.scroll(reading.date);
+	    });
 
-    $('#' + reading.ticks).tipsy({gravity: 'w', title: function() {
-    	if(reading.type = 'cbg') {
-    		return (reading.value + ' @ ' + moment(reading.date).format("h:mm a"));	
-    	}
-  		return (reading.value + ' @ ' + moment(reading.date).format("h:mm a"));
-  	}});
+	    $('#' + reading.ticks).tipsy({gravity: 'w', title: function() {
+	    	if(reading.type = 'cbg') {
+	    		return (reading.value + ' @ ' + moment(reading.date).format("h:mm a"));	
+	    	}
+	  		return (reading.value + ' @ ' + moment(reading.date).format("h:mm a"));
+	  	}});
+  	}
 	};
 
 	var drawPath = function(edges, svgContainer, options) {

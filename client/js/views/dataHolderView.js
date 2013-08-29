@@ -22,7 +22,8 @@ view.dataHolder = new (Backbone.View.extend({
         var group = items[0];
         var readings = items[1];
 
-        firstDay = startOfDayTicks(readings[readings.length-1].unixTime);
+        globalReadings = readings;
+        firstDay = startOfDayTicks(readings[readings.length-2].unixTime);
 
         view.header.render({ patient: group.patient, top: true, handel: true, showPatient: false, logout: true, groupId: groupId});
         

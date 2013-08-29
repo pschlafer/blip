@@ -13,7 +13,8 @@ var mongojs = require('mongojs')
 	, fs = require('fs')
 	, es = require('event-stream')
 	, db = mongojs(config.mongodb_connection_string, ['deviceData','groups'])
-	, mmcsv = require('./lib/parsers/mmcsv');
+	, mmcsv = require('./lib/parsers/mmcsv')
+	, dxcomParser = require('./lib/parsers/dxcomParser');
 
 // todo: add time zone origin parameter, it now assumes that user is in SF summer time
 var pstTime = function(time) { var date = new Date(time);var utc = toUTC(date);utc.setHours(date.getHours() - 7);return utc; };
@@ -59,12 +60,13 @@ app.post('/v1/:groupId/device/upload', function(request, response) {
 		if(request.query.userId) {
 			io.sockets.emit('message', {userId: request.query.userId, text: 'Removed old Entries'});
 		}
+		
 		es.pipeline(fs.createReadStream(request.files.medtronic.path), mmcsv.all().on('data',
 			function(raw) {
 				var entry = JSON.parse(raw);
 				count++;
 				if(request.query.userId && !(count%100)) {
-					io.sockets.emit('message', {userId: request.query.userId, text: 'Parsed ' + count + ' Entries'});
+					io.sockets.emit('message', {userId: request.query.userId, text: 'Parsed ' + count + ' Medtronic Entries'});
 				}
 				entry.groupId = request.params.groupId;
 				entry.unixTimeUTC = toUTC(new Date(entry.time)).getTime();
@@ -75,27 +77,54 @@ app.post('/v1/:groupId/device/upload', function(request, response) {
 		    db.deviceData.save(entry, function(){});
 		  }).on('end', function() {
 		  	if(request.query.userId) {
-					io.sockets.emit('message', {userId: request.query.userId, text: 'Parsing Complete. ' + count + ' Entries'});
+					io.sockets.emit('message', {userId: request.query.userId, text: 'Parsing Medtronic Complete. ' + count + ' Entries'});
 				}
 		  	console.log('done parsing medtronic');
 
-		  	db.groups.findOne({id: request.params.groupId}, function(err, group) {
-		  		if(err || !group) {
-		  			response.json(500, { error: 'group by given id not found' });		  		
-		  			return;
-		  		}
+		  	count = 0;
+		  	es.pipeline(fs.createReadStream(request.files.dexcom.path), dxcomParser.sugars().on('data',
+					function(raw) {
+						var entry = JSON.parse(raw);
+							
+						if(entry.time && entry.time.indexOf('NaN') == -1) {
+							count++;
+							if(request.query.userId && !(count%100)) {
+								io.sockets.emit('message', {userId: request.query.userId, text: 'Parsed ' + count + ' Dexcom Entries'});
+							}
+							entry.groupId = request.params.groupId;
+							entry.unixTimeUTC = toUTC(new Date(entry.time)).getTime();
+							entry.unixTime = pstTime(entry.time).getTime();
+							entry.company = 'dexcom';	
+						}
+						
 
-		  		group.uploadId = guid();
+						console.log(entry);
+						db.deviceData.save(entry, function(){});
+				  }).on('end', function() {
+				  	if(request.query.userId) {
+							io.sockets.emit('message', {userId: request.query.userId, text: 'Parsing Dexcom Complete. ' + count + ' Entries'});
+						}
+				  	console.log('done parsing dexcom');
+				  	
+				  	db.groups.findOne({id: request.params.groupId}, function(err, group) {
+				  		if(err || !group) {
+				  			response.json(500, { error: 'group by given id not found' });		  		
+				  			return;
+				  		}
 
-		  		db.groups.save(group, function(err, done) {
-		  			if(err) {
-			  			response.json(500, { error: 'could not save group' });		  		
-			  			return;
-			  		}
-		  			response.json(200, { done: true });
-		  		})
-					
-		  	});
+				  		group.uploadId = guid();
+
+				  		db.groups.save(group, function(err, done) {
+				  			if(err) {
+					  			response.json(500, { error: 'could not save group' });		  		
+					  			return;
+					  		}
+				  			response.json(200, { done: true });
+				  		})
+							
+				  	});
+				  })
+				);
 		  })
 		);
 	});
