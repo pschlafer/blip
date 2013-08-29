@@ -1,0 +1,5 @@
+thursday: parser, setup sara machine and ui feedback
+
+firday: add surrogate signup start compare view
+
+saturday: compare view
