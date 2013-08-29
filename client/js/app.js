@@ -41,56 +41,40 @@ $(function() {
         self.$el.find('#upload-animas h2').click(self.aminas);
         self.$el.find('#upload-medtronic h2').click(self.medtronic);
         self.$el.find('#upload-dexcom h2').click(self.dexcom);
-        self.$el.find('input[type=file]').change(self.ready);
+        //self.$el.find('input[type=file]').change(self.ready);
 
-        if(tab) {
-          self.$el.find('.go').click(function() {
-            view.overlay.wait('Uploading');
-            $('.go').html('Uploading and parsing data');
-
-            model.upload(groupId, function(error, data) {
-              if (error) {
-                alert('An error occured while uploading data')
-                console.error('error',error);
-                $('.go').html('Upload');
-                view.overlay.white();
-                return;
-              }
-
-              setTimeout(function() {
-                view.overlay.wait('Loading Data');
-              }, 5000);
-
-              window.location.reload();
-            });
-          });         
-        } else {
-          self.$el.find('.go').click(function() {
-            // todo: show progress that data is being uploaded
-            view.overlay.wait('Uploading');
-            $('.go').html('Uploading and parsing data');
-
-            model.upload(groupId, function(error, data) {
-              if (error) {
-                alert('An error occured while uploading data')
-                console.error('error',error);
-                $('.go').html('Upload');
-                view.overlay.white();
-                return;
-              }
-
-              setTimeout(function() {
-                view.overlay.wait('Loading Data');
-              }, 5000);
-
-              router.navigate('group/' + groupId, {trigger: true});
-            });
-          });
-        }
+        self.$el.find('animas_bg').change(self.animasBgFile);
+        self.$el.find('animas_pump').change(self.animasPumpFile);
+        self.$el.find('dexcom').change(self.dexcomFile);
+        self.$el.find('medtronic').change(self.medtronicFile);
       });
     },
     fadeOut: function(callback) {
       $('#profile-setup-device-picker').slideDown(callback);
+    },
+    animasBgFileSelected: function() {
+      $('animas_bg_selected')
+    },
+    animasPumpFileSelected: function() {
+
+    },
+    dexcomFileSelected: function() {
+
+    },
+    medtronicFileSelected: function() {
+
+    },
+    animasBgFile: function() {
+
+    },
+    animasPumpFile: function() {
+
+    },
+    dexcomFile: function() {
+
+    },
+    medtronicFile: function() {
+
     },
     ready: function () {
       $('#uploadButton').removeClass('disabed');

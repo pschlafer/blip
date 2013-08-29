@@ -52,9 +52,9 @@ app.post('/v1/user/join', function(request, response) {
 // todo: multiform upload to api. It now writes dirrectly to the api db, a workaround for post request file upload issue.
 app.post('/v1/:groupId/device/upload', function(request, response) {
 	if(request.query.userId) {
-		io.sockets.emit('message', {userId: request.query.userId, text: 'Upload complete'});
+		io.sockets.emit('message', {userId: request.query.userId, text: 'File uploaded.'});
 	}
-
+	
 	var count = 0;
 	db.deviceData.remove({groupId: request.params.groupId}, function() {
 		if(request.query.userId) {
@@ -101,16 +101,8 @@ app.post('/v1/:groupId/device/upload', function(request, response) {
 	});
 });
 
-function s4() {
-  return Math.floor((1 + Math.random()) * 0x10000)
-             .toString(16)
-             .substring(1);
-};
-
-function guid() {
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-         s4() + '-' + s4() + s4() + s4();
-}
+function s4() {return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1)};
+function guid() {return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();}
 
 //Serve 
 
