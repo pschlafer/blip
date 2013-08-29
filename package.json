@@ -20,7 +20,9 @@
     "common": "*",
     "socket.io": "*",
     "moment": "*",
-    "mongodb": "*"
+    "mongodb": "*",
+    "dxcom-parser": "git+ssh://git@github.com:tidepool-org/dxcom-parser.git#firstcut",
+    "mmcsv": "git+ssh://git@github.com:tidepool-org/mmcsv.git#house-cleaning"
   },
   "config": {
     "prod": {
