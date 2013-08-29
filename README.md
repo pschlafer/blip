@@ -15,6 +15,9 @@ Runs on env.PORT or 8081
 
     > npm start
 
+Run on localhost 8081 against local db
+
+    > npm run-script local 
 ## Config
 
 Path to api is set in pagacke.json config section. Reads dev block unless env.PROD is set.
