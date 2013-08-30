@@ -25,6 +25,8 @@ view.dataHolder = new (Backbone.View.extend({
         globalReadings = readings;
         firstDay = startOfDayTicks(readings[readings.length-2].unixTime);
 
+        console.info('data holder view', group);
+        
         view.header.render({ patient: group.patient, top: true, handel: true, showPatient: false, logout: true, groupId: groupId});
         
         self.$el.html(_.template(self.content, {administrator: group.administrator}));

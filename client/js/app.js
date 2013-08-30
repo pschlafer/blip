@@ -29,7 +29,6 @@ $(function() {
           self.$el.find('#remove').click(function() {
             view.overlay.wait('Removing Entries');
             $.getJSON(info.cleanUrl + '&callback=?', function() {
-              window.location.hash = '';
               FB.logout();
               window.location.reload();
             }).error(function(error) {
@@ -309,7 +308,13 @@ var hookFacebook = function() {
     } else {
       data.user = null;
       accessToken = '';
-      router.navigate('', { trigger: true });
+
+      if(window.location.hash === '') {
+        window.location.reload();
+      } else {
+        router.navigate('', { trigger: true });  
+      }
+      
       return;
     }
   });  

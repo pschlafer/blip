@@ -51,7 +51,7 @@ var shape = function(reading, x, y, svgContainer) {
 		reading.value = 0;
 	}
 	if(reading.value == 'High') {
-		reading.value = 1000;
+		reading.value = 500;
 	}
 
 	var ranges = [

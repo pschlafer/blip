@@ -9,6 +9,8 @@ view.header = new (Backbone.View.extend({
     });
   },
   render: function(options) {
+    console.error('header options', options);
+
     var self = this;
     //todo: render team.
 		info = data.user ? { user: data.user.fb || data.user } : {};
@@ -129,7 +131,10 @@ view.header = new (Backbone.View.extend({
     this.$el.css('position','fixed');
   },
   logout: function() {
+    console.info('loggin out');
+    
     view.overlay.wait('Logging out');
+
     FB.logout();
   }
 }))({el: $("header")});

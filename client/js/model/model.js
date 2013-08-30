@@ -69,7 +69,6 @@ model.lastUpload = function(groupId, callback) {
   }).error(callback);
 }
 
-
 model.deviceData = function(groupId, callback) {
   console.info('Fetching Device Data');
   rCB = callback;

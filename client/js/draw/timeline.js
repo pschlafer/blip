@@ -82,6 +82,8 @@ var drawTimeline = function() {
 		if(reading.value == 'Low') {
 			reading.value = 0;
 		}
+		reading.hoverValue = reading.value;
+
 		if(reading.value == 'High') {
 			reading.value = 1000;
 		}
@@ -216,6 +218,7 @@ var drawTimeline = function() {
 	        .attr('fill', 'white');
 				break;
 			}
+			point.attr('id',reading.type+'-'+reading.ticks);
 		}
 
 		if(y && x && reading.type == 'cbg') {
@@ -229,7 +232,7 @@ var drawTimeline = function() {
 
 		if(point) {
 			point.attr('class','ppoint');
-			point.attr('id',reading.ticks);
+			point.attr('id',reading.type+'-'+reading.ticks);
 			
 			point.on("mouseover", function() {
 				$(this).css('opacity',.2);
@@ -244,11 +247,11 @@ var drawTimeline = function() {
 	    	day.scroll(reading.date);
 	    });
 
-	    $('#' + reading.ticks).tipsy({gravity: 'w', title: function() {
+	    $('#' + reading.type+'-'+reading.ticks).tipsy({gravity: 'w', title: function() {
 	    	if(reading.type = 'cbg') {
-	    		return (reading.value + ' @ ' + moment(reading.date).format("h:mm a"));	
+	    		return (reading.hoverValue + ' @ ' + moment(reading.date).format("h:mm a"));	
 	    	}
-	  		return (reading.value + ' @ ' + moment(reading.date).format("h:mm a"));
+	  		return (reading.hoverValue + ' @ ' + moment(reading.date).format("h:mm a"));
 	  	}});
   	}
 	};
@@ -633,8 +636,6 @@ var drawTimeline = function() {
 					var entry = data[tick][i];
 					//console.log(entry);
 					if(entry) {
-
-					
 					var shape = svgContainer.append("rect")
 	          .attr("x", x)
 	          .attr('id', entry.id)
