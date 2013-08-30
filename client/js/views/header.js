@@ -9,8 +9,6 @@ view.header = new (Backbone.View.extend({
     });
   },
   render: function(options) {
-    console.error('header options', options);
-
     var self = this;
     //todo: render team.
 		info = data.user ? { user: data.user.fb || data.user } : {};

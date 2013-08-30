@@ -1,6 +1,6 @@
 <div id='profile-setup-device-picker' style='display:none'>
 	<% if (typeof cleanUrl !== 'undefined') { %>
-	<h1>Upload your data. (For now) Your previous data will be deleted.</h1>
+	<h1>Upload your data. (For now) all previous data will be deleted.</h1>
 	<% } else { %>
 	<h1>Last step! Lets upload the data from your devices.</h1>
 	<% } %>
@@ -16,7 +16,7 @@
 				<h2>Animas pump</h2>
 				<div class='device-import' style='display:none'>
 					<h3>Export your data from Diasend as a CSV file and upload it here.</h3>
-					<p>If you need help with getting your data into Diasend go here.</p>
+					<p>If you need help with getting your data into Diasend <a href='http://www.diasend.com/us/support/guides-and-manuals-2' target='_blank'>go here</a>.</p>
 					<br>
 					<h2>Continuous Glucose Monitor CSV file:</h2>
 					<input type="file" name="animasBg" class='animas_file' id='animas_bg' />
@@ -27,14 +27,14 @@
 		</ul>
 		</form>
 		<div class='button done go' id='uploadButtonAnimas'>Upload</div>	
-		
+		<h1 style='padding-top:40px'>Or</h1>
 		<form enctype="multipart/form-data" id='join_upload_form'>
 		<ul>
 			<li id='upload-dexcom'>
 				<h2>Dexcom sensor</h2>
 				<div class='device-import' style='display:none'>
 					<h3>Export your data from Dexcom Studio as a tab delimited file and upload it here.</h3>
-					<p>If you need help with getting your data into Dexcom Studio go here.</p>
+					<p>If you need help with getting your data into Dexcom Studio <a href='http://www.dexcom.com/faq/dexcom-studio/getting-started' target='_blank'>go here</a>.</p>
 					<br>
 					<input type="file" name="dexcom" id='dexcom' />
 				</div>
@@ -43,7 +43,7 @@
 				<h2>Medtronic pump (and sensor)</h2>
 				<div class='device-import' style='display:none'>
 					<h3>Export your data from Carelink as a CSV file and upload it here.</h3>
-					<p>If you need help with getting your data into Carelink go here.</p>
+					<p>If you need help with getting your data into Carelink <a href='http://www.medtronicdiabetes.com/customer-support/carelink-personal' target='_blank'>go here</a>.</p>
 					<br>
 			    <input type="file" name="medtronic" id='medtronic' />
 				</div>

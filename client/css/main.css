@@ -12,10 +12,10 @@ input[type=file] {
   padding-bottom: 50px;
 }
 #deleteMyData #remove {
-  color: #0069a1;
+  color: #ec7070;
 }
 #deleteMyData #remove:hover {
-  color: #63bfe2;
+  color: #ec7070;
   cursor: pointer;
 }
 html {
