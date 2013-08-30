@@ -6,19 +6,19 @@
 	</div>
 	<div id='choices'>
 		<ul id='usertype'>
-			<li id='t1d'>I have T1D</li>
+			<li id='t1d'>Create a new blip account for me or my child.</li>
 			<!--todo: comment for now<li id='surrogate'>Im standing in for someone who has T1D<br><span class='detail'>eg. a child</span></li>-->
 
 			<% if (!groups.length) { %>
 				<li id='no'>
-					Im a team member
-					<br><span class='detail'>eg. Dr.’s, Nurses, uncles, siblings, friends</span><br><br>
-					<p class='error'>Looks like you haven’t been invited to any teams. If you want to be, youll need your patient to add you in their facebook group.</p>
+					I'm a team member.
+					<br><span class='detail'>(Doctors, nurses, relatives, friends)</span><br><br>
+					<p class='error'>It looks like you haven’t been invited to any teams. If you want to be, you'll need to have the patient add you in their Facebook blip group.</p>
 				</li>
 			<% } else if (groups.length === 1) { %>
 				<li id='team-member'>
 					<div id='one'>
-						<div class='title'>You have been invited to <%= groups[0].patient.first_name %>'s team.</div>
+						<div class='title'><%= groups[0].patient.first_name %> is already using blip and has invited you to view his or her data. Click here to see the data without creating a new group.</div>
 						<ul id='invites'>
 							<li>
 								<div class='circular'><img src='<%= groups[0].patient.picture %>'></div>
@@ -32,7 +32,7 @@
 			<% } else { %>
 			<li id='team-member'>
 				<div id='one'>
-					<div class='title'>You have been invited to the following teams:</div>
+					<div class='title'>View blip data for:</div>
 					<ul id='invites'>
 						<% for(var i in groups) {
 							var group = groups[i]; %>
