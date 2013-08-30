@@ -24,9 +24,9 @@
 	<h3>This tool is intended for MVP weeked only</h3>
 	<h4>Users:</h4>
 	<ul>
-	<% for (var i in groups) {
-		var group = groups[i]%>
-		<li><a target='_blank' href='http://<%= config.api_endpoint %>/v1/<%= group.id %>/cleanallthedata' title='this cannot be undone'><img src='<%= group.user.picture %>'> Delete <%= group.user.first_name + ' ' + group.user.last_name %>'s data.</a></li>
+	<% for (var i in users) {
+		var user = users[i]%>
+		<li><a target='_blank' href='http://<%= config.api_endpoint %>/v1/<%= user.id %>/cleanallthedata' title='this cannot be undone'><img src='<%= user.patient.picture %>'> Delete <%= user.patient.first_name + ' ' + user.patient.last_name %>'s data.</a></li>
 	<% } %>
 	</ul>
 	<div id='overlay'></div>

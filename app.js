@@ -40,32 +40,12 @@ app.get('/', function(request, response) {
 });
 
 app.get('/cleanup', function(request, response) {
-	var allUsers = [];
-
 	common.step([
 		function(next) {
 			db.users.find({}, next);
-			
 		},
 		function(users, next) {
-			allUsers = users;
-
-			for(var i in users) {
-				db.groups.findOne({userId: users[i].id}, next.parallel());
-			}
-		},
-		function(groups) {
-			for(var i in groups) {
-				for(var j in allUsers) {
-					if(groups[i].userId == allUsers[i].id) {
-						groups[i].user = allUsers[i].patient;
-					}
-				}
-			}
-
-			console.log(groups, allUsers);
-
-			response.render('clean.ejs', { config: config, groups: groups || []});		
+			response.render('clean.ejs', { config: config, users: users || []});
 		}
 	],
 	function() {
@@ -332,8 +312,7 @@ app.post('/v1/:groupId/device/animas/upload', function(request, response) {
 function s4() {return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1)};
 function guid() {return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();}
 
-//Serve 
-
+//Serve
 var server = http.createServer(app);
 
 server.listen(app.get('port'), function(){

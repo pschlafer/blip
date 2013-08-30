@@ -15,7 +15,7 @@ input[type=file] {
   color: #ec7070;
 }
 #deleteMyData #remove:hover {
-  color: #ec7070;
+  color: #fe4042;
   cursor: pointer;
 }
 html {
