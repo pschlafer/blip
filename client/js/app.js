@@ -17,7 +17,9 @@ $(function() {
 
         $('#bottom').show();  
 
+
         var info = tab ? {cleanUrl: 'http://' + $('#api_endpoint').attr('content') + '/v1/' + data.user.id + '/cleanallthedata?accessToken=' + accessToken} : data.profile;
+        
         var html = _.template(template,info);
 
         self.$el.html(html);  

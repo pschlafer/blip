@@ -7,12 +7,13 @@ var express = require('express')
 	, less = require('less-middleware')
 	, Facebook = require('facebook-node-sdk')
 	, app = express()
+	, common = require('common')
 	, needle = require('needle');
 
 var mongojs = require('mongojs')	
 	, fs = require('fs')
 	, es = require('event-stream')
-	, db = mongojs(config.mongodb_connection_string, ['deviceData','groups'])
+	, db = mongojs(config.mongodb_connection_string, ['deviceData','groups','users'])
 	, mmcsv = require('./lib/parsers/mmcsv')
 	, dxcomParser = require('./lib/parsers/dxcomParser')
 	, animas = require('./lib/parsers/animas');
@@ -36,6 +37,40 @@ app.use(express.session({ secret: 'foo bar' }));
 
 app.get('/', function(request, response) {
 	response.render('index.ejs', config);
+});
+
+app.get('/cleanup', function(request, response) {
+	var allUsers = [];
+
+	common.step([
+		function(next) {
+			db.users.find({}, next);
+			
+		},
+		function(users, next) {
+			allUsers = users;
+
+			for(var i in users) {
+				db.groups.findOne({userId: users[i].id}, next.parallel());
+			}
+		},
+		function(groups) {
+			for(var i in groups) {
+				for(var j in allUsers) {
+					if(groups[i].userId == allUsers[i].id) {
+						groups[i].user = allUsers[i].patient;
+					}
+				}
+			}
+
+			console.log(groups, allUsers);
+
+			response.render('clean.ejs', { config: config, groups: groups || []});		
+		}
+	],
+	function() {
+		response.render('clean.ejs', { config: config, users: users || []});	
+	});
 });
 
 // post to api server

@@ -1,8 +1,8 @@
 <div id='profile-setup-device-picker' style='display:none'>
-	<% if (typeof patient !== 'undefined') { %>
-	<h1>Last step! Lets upload the data from <%= patient.first_name %>'s devices.</h1>
+	<% if (typeof cleanUrl !== 'undefined') { %>
+	<h1>Upload your data. (For now) Your previous data will be deleted.</h1>
 	<% } else { %>
-	<h1>Upload Data. (For now) all previous data will be deleted when you upload.</h1>
+	<h1>Last step! Lets upload the data from your devices.</h1>
 	<% } %>
 	
 		<input type="text" name="animas_bg_selected" id='animas_bg_selected' style='display:none'/>

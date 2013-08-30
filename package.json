@@ -1,6 +1,6 @@
 {
-  "name": "blip1",
-  "version": "0.0.1-52",
+  "name": "blip",
+  "version": "0.0.1-57",
   "private": true,
   "scripts": {
     "start": "node app.js",
@@ -12,6 +12,7 @@
     "fb": "*",
     "ejs-locals": "*",
     "less-middleware": "*",
+    "common": "*",
     "facebook-node-sdk": "*",
     "needle": "*",
     "mongojs": "*",
@@ -20,9 +21,7 @@
     "common": "*",
     "socket.io": "*",
     "moment": "*",
-    "mongodb": "*",
-    "dxcom-parser": "git+ssh://git@github.com:tidepool-org/dxcom-parser.git#firstcut",
-    "mmcsv": "git+ssh://git@github.com:tidepool-org/mmcsv.git#house-cleaning"
+    "mongodb": "*"
   },
   "config": {
     "prod": {
@@ -44,7 +43,10 @@
       "mongodb_connection_string": "mongodb://localhost/blip"
     }
   },
-  "subdomain": "bliptidepoolorg4",
+  "domains": [
+    "blip.tidepool.org"
+  ],
+  "subdomain": "bliptidepoolorg",
   "engines": {
     "node": "0.8.x"
   }
