@@ -32,7 +32,7 @@ view.joinSelectGroup = new (Backbone.View.extend({
         return;
       }
       
-      view.header.render({top: true, handel: false, logout: true, groupId: id, showPatient: true});
+      view.header.render({top: true, handel: false, logout: true, groupId: id, showPatientNow: true});
       
       (new viewClass.Upload({el: $("#bottom")})).render(id);
       //upload.render(id);

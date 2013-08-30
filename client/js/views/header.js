@@ -38,8 +38,13 @@ view.header = new (Backbone.View.extend({
           self.bottom();
         }
 
+        
+
         if(options.showPatient) {
           self.showPatient();
+          self.patientShown = true;
+        } else if(options.showPatientNow) {
+          self.showPatient(100);
           self.patientShown = true;
         } else {
           self.patientShown = false;
@@ -55,10 +60,13 @@ view.header = new (Backbone.View.extend({
       } else {
         this.bottom();
       }
-
+      
       if(options.showPatient) {
         this.patientShown = true;
         this.showPatient();
+      } else if(options.showPatientNow) {
+        self.showPatient(100);
+        self.patientShown = true;
       } else {
         this.patientShown = false;
         this.hidePatient();
