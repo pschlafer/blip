@@ -631,7 +631,8 @@ var drawTimeline = function() {
 				for(var i in data[tick]) {
 
 					var entry = data[tick][i];
-					if(entry && entry.id && entry.title && entry.y && entry.fill & entry.width & entry.tall) {
+					//console.log(entry);
+					if(entry) {
 
 					
 					var shape = svgContainer.append("rect")
