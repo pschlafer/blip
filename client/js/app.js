@@ -177,7 +177,7 @@ $(function() {
         var html = _.template(template, {messages: messages || []});
         
         for(var i in messages) {
-          timeline.drawComment(messages[i].createdTime.unixTime);
+          timeline.drawComment(messages[i].created_time.unixMili);
         }
 
         self.$el.html(html);  

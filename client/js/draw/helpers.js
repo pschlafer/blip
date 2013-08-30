@@ -208,7 +208,6 @@ var shape = function(reading, x, y, svgContainer) {
   });
 
   $('#' + reading.ticks).tipsy({gravity: 'w', title: function() {
-  	console.log(reading);
   	return (reading.value + ' @ ' + reading.created_time.daytime);
   }});
  

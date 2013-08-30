@@ -3,14 +3,11 @@ var basalSettingPoints = [];
 
 
 var drawTimeline = function() {
+	var timezoneOffset = new Date().getTimezoneOffset();
 
-	var getX = function(ticks, offset) {
-			if(!offset) {
-				offset = 0;
-			}
-
-			return (ticks - (firstDay.format('X') * 1000) - offset) * daypx/oneDay;	
-		};
+	var getX = function(ticks) {
+		return (ticks - firstDay - timezoneOffset) * daypx/oneDay;	
+	};
 		
 
 	var daysFromToday = function(day) {
@@ -24,7 +21,7 @@ var drawTimeline = function() {
 			offset = 0;
 		}
 
-		return (date - (firstDay.format('X') * 1000) - offset) * daypx/oneDay;	
+		return (date - firstDay - offset) * daypx/oneDay;	
 	};
 
   var drawCommentBubble = function(svg, ticks, x, y) {
@@ -261,8 +258,6 @@ var drawTimeline = function() {
 	    });
 
 	    $('#' + reading.type+'-'+reading.ticks).tipsy({gravity: 'w', title: function() {
-	    	console.info(reading);
-
 	    	if(reading.type = 'cbg') {
 	    		return (reading.hoverValue + ' @ ' + moment(reading.created_time.raw).format("h:mm a"));	
 	    	}
@@ -316,7 +311,7 @@ var drawTimeline = function() {
 
 	var scroll = function(date, time) {
 		var move = 0;
-		var ticks = (firstDay.format('X') * 1000) + ($('#timelineContainer').scrollLeft()/timepx);
+		var ticks = firstDay + ($('#timelineContainer').scrollLeft()/timepx);
 		var today = new Date();
 		
 		if(!date) {
@@ -341,7 +336,7 @@ var drawTimeline = function() {
 		}
 
 		
-		var left = ((date.getTime()  - (firstDay.format('X') * 1000)) * timepx) - 1080/2 + move;
+		var left = ((date.getTime() - firstDay) * timepx) - 1080/2 + move;
 		if(time === 0) {
 			$('#timelineContainer').animate({ scrollLeft: left + "px" }, 0);
 		} else {
@@ -360,9 +355,7 @@ var drawTimeline = function() {
   var svgContainer;
 
 	var draw = function(bg, cgm, boluss, basals, carbss, reading) {
-		//var firstDay = new Date('Tue Jan 08 2013 00:00:00 GMT+0100 (CET)');//startOfDay(bg[0].date);
-    //var days = deltaDays(new Date(firstDay), new Date());
-    var days = daysFromToday(globalReadings[globalReadings.length-1].created_time.daysSinceEpox);
+    var days = daysFromToday(globalReadings[globalReadings.length-1].created_time.daysSinceEpox) + 1;
 
     var width = days * daypx;
     var max = 350;
@@ -435,9 +428,9 @@ var drawTimeline = function() {
     	var segment = (oneDay/8) * daypx/oneDay;
     	var x = 0;
     	var day = (new Date());
-			day.setTime(firstDay.format('X') * 1000);
+			day.setTime(firstDay);
 			day.setHours(day.getHours() - 24);
-			
+
     	for(var i=0; i<days; i++) {
     		day.setHours(day.getHours() + 24);
     		for(var j=0; j<8; j++) {
@@ -547,13 +540,13 @@ var drawTimeline = function() {
 		// plot cgm
 		for(var i  in cgm) {
 			var reading = cgm[i];	
-			shape(reading, getX(reading.created_time.unix * 1000), getY(reading.value, height.bg) + height.xOffset, svgContainer);
+			shape(reading, getX(reading.created_time.unixMili), getY(reading.value, height.bg) + height.xOffset, svgContainer);
 		}
 
 		// plot bg
 		for(var i  in bg) {	
 			var reading = bg[i];	
-			shape(reading, getX(reading.created_time.unix * 1000), getY(reading.value, height.bg) + height.xOffset, svgContainer);
+			shape(reading, getX(reading.created_time.unixMili), getY(reading.value, height.bg) + height.xOffset, svgContainer);
 		}
 
 		var bolusMax = 10;
@@ -607,7 +600,7 @@ var drawTimeline = function() {
 			}(data);
 
 			data = _.groupBy(data, function(d) {
-				return d.created_time.unix * 1000;
+				return d.created_time.unixMili;
 			});
 
 			for(var tick in data) {
@@ -699,7 +692,7 @@ var drawTimeline = function() {
 			for(var i in basals) {
 				var basal = basals[i];
 				var p = {
-					x: getX(basal.created_time.unix * 1000),
+					x: getX(basal.created_time.unixMili),
 					y: (height.basal - (basal.basal * height.basal/basalMax)) +height.xOffset +  height.bg + height.spacing*2 + height.activity,
 					basal: basal.basal
 				};
@@ -741,13 +734,13 @@ var drawTimeline = function() {
 	return {
 		scroll: scroll,
 		scrollTo: function(ticks) {
-			var left = ((ticks - (firstDay.format('X') * 1000)) * timepx) - $('#timelineContainer').width()/2;
+			var left = ((ticks - firstDay) * timepx) - $('#timelineContainer').width()/2;
 			$('#timelineContainer').animate({ scrollLeft: left + "px" }, 0);
 		},
 		draw: draw,
 		drawComment: drawComment,
 		scrollTicks: function() {
-			return (firstDay.format('X') * 1000) + ($('#timelineContainer').scrollLeft()/timepx);
+			return firstDay + ($('#timelineContainer').scrollLeft()/timepx);
 		}
 	};
 };
