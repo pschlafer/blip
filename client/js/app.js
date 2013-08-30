@@ -131,13 +131,6 @@ $(function() {
             });
           });
         }
-        
-        
-        self.$el.find('.animas_file').change(self.animasFile);
-        self.$el.find('animas_bg').change(self.animasBgFile);
-        self.$el.find('animas_pump').change(self.animasPumpFile);
-        self.$el.find('dexcom').change(self.dexcomFile);
-        self.$el.find('medtronic').change(self.medtronicFile);
       });
     },
     fadeOut: function(callback) {
@@ -168,7 +161,17 @@ $(function() {
 
     },
     ready: function () {
-      $('#uploadButton').removeClass('disabed');
+      if ( $('#animas_bg').val() && $('#animas_pump').val() ) {
+        $('#uploadButtonAnimas').removeClass('disabed');
+      }
+
+      if ( $('#medtronic').val() && $('#dexcom').val() ) {
+        $('#uploadButton').removeClass('disabed');
+      }
+
+      if ( $('#medtronic').val() ) {
+        $('#uploadButton').removeClass('disabed');
+      }
     },
     aminas: function() {
       $('#upload-animas .device-import').slideToggle();
