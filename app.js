@@ -15,7 +15,7 @@ var mongojs = require('mongojs')
 	, db = mongojs(config.mongodb_connection_string, ['deviceData','groups'])
 	, mmcsv = require('./lib/parsers/mmcsv')
 	, dxcomParser = require('./lib/parsers/dxcomParser')
-	, animas = require('./lib/parsers/animas')
+	, animas = require('./lib/parsers/animas');
 
 // todo: add time zone origin parameter, it now assumes that user is in SF summer time
 var pstTime = function(time) { var date = new Date(time);var utc = toUTC(date);utc.setHours(date.getHours() - 7);return utc; };
