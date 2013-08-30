@@ -58,10 +58,6 @@ $(function() {
                 return;
               }
 
-              setTimeout(function() {
-                view.overlay.wait('Loading Data');
-              }, 5000);
-
               window.location.reload();
             });
           });
@@ -78,10 +74,6 @@ $(function() {
                 view.overlay.white();
                 return;
               }
-
-              setTimeout(function() {
-                view.overlay.wait('Loading Data');
-              }, 5000);
 
               window.location.reload();
             });
@@ -101,10 +93,6 @@ $(function() {
                 return;
               }
 
-              setTimeout(function() {
-                view.overlay.wait('Loading Data');
-              }, 5000);
-
               router.navigate('group/' + groupId, {trigger: true});
             });
           });
@@ -122,10 +110,6 @@ $(function() {
                 view.overlay.white();
                 return;
               }
-
-              setTimeout(function() {
-                view.overlay.wait('Loading Data');
-              }, 5000);
 
               router.navigate('group/' + groupId, {trigger: true});
             });

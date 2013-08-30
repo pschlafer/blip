@@ -790,6 +790,9 @@ h3 {
   float: none;
   font-weight: normal;
 }
+#profile-setup-device-picker h5 {
+  padding-top: 20px;
+}
 #profile-setup-device-picker ul {
   padding: 0;
   border: 0;

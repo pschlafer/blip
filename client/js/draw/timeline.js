@@ -1,17 +1,30 @@
 var basalPoints = [];
 var basalSettingPoints = [];
 
+
 var drawTimeline = function() {
-	var deltaDays = function(start, end) {
-		return Math.ceil((end.getTime() - start.getTime()) / (1000*60*60*24));
-	};
+
+	var getX = function(ticks, offset) {
+			if(!offset) {
+				offset = 0;
+			}
+
+			return (ticks - (firstDay.format('X') * 1000) - offset) * daypx/oneDay;	
+		};
+		
+
+	var daysFromToday = function(day) {
+  	var today = moment().startOf('day').format('X')*1000 / (1000*60*60*24);
+
+    return Math.round(today - day);
+  };
 
 	var getXTick = function(date, offset) {
 		if(!offset) {
 			offset = 0;
 		}
 
-		return (date - firstDay - offset) * daypx/oneDay;	
+		return (date - (firstDay.format('X') * 1000) - offset) * daypx/oneDay;	
 	};
 
   var drawCommentBubble = function(svg, ticks, x, y) {
@@ -248,10 +261,12 @@ var drawTimeline = function() {
 	    });
 
 	    $('#' + reading.type+'-'+reading.ticks).tipsy({gravity: 'w', title: function() {
+	    	console.info(reading);
+
 	    	if(reading.type = 'cbg') {
-	    		return (reading.hoverValue + ' @ ' + moment(reading.date).format("h:mm a"));	
+	    		return (reading.hoverValue + ' @ ' + moment(reading.created_time.raw).format("h:mm a"));	
 	    	}
-	  		return (reading.hoverValue + ' @ ' + moment(reading.date).format("h:mm a"));
+	  		return (reading.hoverValue + ' @ ' + moment(reading.created_time.raw).format("h:mm a"));
 	  	}});
   	}
 	};
@@ -301,7 +316,7 @@ var drawTimeline = function() {
 
 	var scroll = function(date, time) {
 		var move = 0;
-		var ticks = firstDay.getTime() + ($('#timelineContainer').scrollLeft()/timepx);
+		var ticks = (firstDay.format('X') * 1000) + ($('#timelineContainer').scrollLeft()/timepx);
 		var today = new Date();
 		
 		if(!date) {
@@ -326,7 +341,7 @@ var drawTimeline = function() {
 		}
 
 		
-		var left = ((date.getTime()  - firstDay) * timepx) - 1080/2 + move;
+		var left = ((date.getTime()  - (firstDay.format('X') * 1000)) * timepx) - 1080/2 + move;
 		if(time === 0) {
 			$('#timelineContainer').animate({ scrollLeft: left + "px" }, 0);
 		} else {
@@ -344,16 +359,17 @@ var drawTimeline = function() {
 
   var svgContainer;
 
-	var draw = function(bg, cgm, boluss, basals, carbss) {
+	var draw = function(bg, cgm, boluss, basals, carbss, reading) {
 		//var firstDay = new Date('Tue Jan 08 2013 00:00:00 GMT+0100 (CET)');//startOfDay(bg[0].date);
-    var days = deltaDays(new Date(firstDay), new Date());
+    //var days = deltaDays(new Date(firstDay), new Date());
+    var days = daysFromToday(globalReadings[globalReadings.length-1].created_time.daysSinceEpox);
+
     var width = days * daypx;
     var max = 350;
 		var padding = 10;
 
     var totalHeight = height.xOffset*2 + height.bg + height.spacing*2 + height.activity + height.basal;
     var basalMax = 2;
-		
 		
     var slots = ['12 AM','3 AM','6 AM','9 AM', '12 PM', '3 PM', '6 PM' ,'9 PM'];
     var colors = ['#DCE4E8','#E3E9EC','#EAEEF0','#F7F8F9','#F7F8F9','#EAEEF0','#E3E9EC','#DCE4E8'];
@@ -419,8 +435,9 @@ var drawTimeline = function() {
     	var segment = (oneDay/8) * daypx/oneDay;
     	var x = 0;
     	var day = (new Date());
-			day.setTime(firstDay);
-
+			day.setTime(firstDay.format('X') * 1000);
+			day.setHours(day.getHours() - 24);
+			
     	for(var i=0; i<days; i++) {
     		day.setHours(day.getHours() + 24);
     		for(var j=0; j<8; j++) {
@@ -471,10 +488,7 @@ var drawTimeline = function() {
     		}
     	}
     };
-
-
     drawBackground();
-
 
     var drawSpacing = function() {
     	var steps = [
@@ -513,15 +527,6 @@ var drawTimeline = function() {
                           .attr("height", height.spacing);
     };
     drawSpacing();
-		
-
-		var getX = function(date, offset) {
-			if(!offset) {
-				offset = 0;
-			}
-
-			return (date.getTime() - firstDay - offset) * daypx/oneDay;	
-		};
 
 		var getY = function(value, height) {
 			var y = value * ((height - padding)/max);
@@ -542,13 +547,13 @@ var drawTimeline = function() {
 		// plot cgm
 		for(var i  in cgm) {
 			var reading = cgm[i];	
-			shape(reading, getX(reading.date), getY(reading.value, height.bg) + height.xOffset, svgContainer);
+			shape(reading, getX(reading.created_time.unix * 1000), getY(reading.value, height.bg) + height.xOffset, svgContainer);
 		}
 
 		// plot bg
 		for(var i  in bg) {	
 			var reading = bg[i];	
-			shape(reading, getX(reading.date), getY(reading.value, height.bg) + height.xOffset, svgContainer);
+			shape(reading, getX(reading.created_time.unix * 1000), getY(reading.value, height.bg) + height.xOffset, svgContainer);
 		}
 
 		var bolusMax = 10;
@@ -602,11 +607,11 @@ var drawTimeline = function() {
 			}(data);
 
 			data = _.groupBy(data, function(d) {
-				return d.ticks;
+				return d.created_time.unix * 1000;
 			});
 
 			for(var tick in data) {
-				var x = getXTick(tick);
+				var x = getX(tick);
 
 				var bolus = _.findWhere(data[tick], {bolus: true});
 				var carbs = _.findWhere(data[tick], {carbs: true});
@@ -694,7 +699,7 @@ var drawTimeline = function() {
 			for(var i in basals) {
 				var basal = basals[i];
 				var p = {
-					x: getX(basal.date),
+					x: getX(basal.created_time.unix * 1000),
 					y: (height.basal - (basal.basal * height.basal/basalMax)) +height.xOffset +  height.bg + height.spacing*2 + height.activity,
 					basal: basal.basal
 				};
@@ -730,18 +735,19 @@ var drawTimeline = function() {
 	};
 
 	var drawComment = function(ticks) {
-		drawCommentBubble(svgContainer, ticks, getXTick(ticks), height.xOffset + height.bg + height.spacing + height.activity/2  - 20);
+		drawCommentBubble(svgContainer, ticks, getX(ticks), height.xOffset + height.bg + height.spacing + height.activity/2  - 20);
 	}
+	
 	return {
 		scroll: scroll,
 		scrollTo: function(ticks) {
-			var left = ((ticks - firstDay) * timepx) - $('#timelineContainer').width()/2;
+			var left = ((ticks - (firstDay.format('X') * 1000)) * timepx) - $('#timelineContainer').width()/2;
 			$('#timelineContainer').animate({ scrollLeft: left + "px" }, 0);
 		},
 		draw: draw,
 		drawComment: drawComment,
 		scrollTicks: function() {
-			return firstDay.getTime() + ($('#timelineContainer').scrollLeft()/timepx);
+			return (firstDay.format('X') * 1000) + ($('#timelineContainer').scrollLeft()/timepx);
 		}
 	};
 };

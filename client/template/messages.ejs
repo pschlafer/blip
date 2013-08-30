@@ -9,7 +9,7 @@
 		<li id='<%= message.createdTime.unixTime %>'>
 			<img src="<%= message.from.picture %>">
 			<h3><%= message.from.name %></h3>
-			<div class="timestamp"><%= message.createdTime.ago %></div>
+			<div class="timestamp"><%= message.createdTime.nice %></div>
 			<div class="clear"></div>
 			<div class="text"><%= message.message %></div>
 			<ul class="subcomment">
@@ -19,7 +19,7 @@
 				<li>
 					<img src="<%= comment.from.picture %>">
 					<h3><%= comment.from.name %></h3>
-					<div class="timestamp"><%= comment.createdTime.ago %></div>
+					<div class="timestamp"><%= comment.createdTime.nice %></div>
 					<div class="clear"></div>
 					<div class="text"><%= comment.message %></div>
 				</li>

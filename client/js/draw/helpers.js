@@ -1,3 +1,4 @@
+
 var deltaDays = function(start, end) {
 	return Math.ceil((end.getTime() - start.getTime()) / (1000*60*60*24));
 };
@@ -207,7 +208,8 @@ var shape = function(reading, x, y, svgContainer) {
   });
 
   $('#' + reading.ticks).tipsy({gravity: 'w', title: function() {
-  	return (reading.value + ' @ ' + moment(reading.date).format("hA ddd Do"));
+  	console.log(reading);
+  	return (reading.value + ' @ ' + reading.created_time.daytime);
   }});
  
   point.on('click',function() {  	

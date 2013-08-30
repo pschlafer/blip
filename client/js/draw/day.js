@@ -12,6 +12,12 @@ var drawDay = function() {
   	segmentWidth: 123
   };
 
+  var daysFromToday = function(day) {
+  	var today = moment().startOf('day').format('X')*1000 / (1000*60*60*24);
+
+    return Math.round(today - day);
+  };
+  
   var scrollTicks = function() {
 		var today = startOfDay(new Date());
   	var ticks = today.getTime() - ($('#chartMain').scrollTop()/dimensions.day * oneDay);
@@ -48,7 +54,7 @@ var drawDay = function() {
 	};
 
 	var draw = function(bg) {
-    var days = deltaDays(bg[0].date, new Date());
+    var days = daysFromToday(bg[0].created_time.daysSinceEpox);
     
     var totalHeight = dimensions.day*days;
     var	svg = d3.select("#chartMain").append("svg").attr("width", dimensions.width).attr("height", totalHeight);
@@ -167,8 +173,9 @@ var drawDay = function() {
 
     var drawData = function(bg) {
     	bg.map(function(reading) {
-	    	reading.x = parseInt(dimensions.yaxis + dimensions.leftEdge + dayMilliseconds(reading.date) * timepx);
-	    	reading.y = parseInt(deltaDays(reading.date, new Date()) * dimensions.day + 14);
+	    	reading.x = parseInt(dimensions.yaxis + dimensions.leftEdge + reading.created_time.dayMilliseconds * timepx);
+				reading.y = parseInt(daysFromToday(reading.created_time.daysSinceEpox) * dimensions.day + 14);
+
 	    	return reading;
 	    });
 			

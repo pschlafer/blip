@@ -23,7 +23,7 @@ view.dataHolder = new (Backbone.View.extend({
         var readings = items[1];
 
         globalReadings = readings;
-        firstDay = startOfDayTicks(readings[readings.length-2].unixTime);
+        firstDay = moment(readings[readings.length-1].created_time.raw).startOf('day');
 
         console.info('data holder view', group);
         
