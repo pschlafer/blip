@@ -1,19 +1,19 @@
 <div class='login' id='login-usertype' style='display:none'>
 	<div id='head'>
 		<!--<img src='/img/ian.jpg' class='circle'>-->
-		<h1> Hi <%= user.first_name %></h1>
-		<h2>We need a little bit of info about you to set things up correctly</h2>
+		<h1> Hi, <%= user.first_name %></h1>
+		<h2>We need a little more information to set things up.</h2>
 	</div>
 	<div id='choices'>
 		<ul id='usertype'>
-			<li id='t1d'>Create a new blip account for me or my child.</li>
+			<li id='t1d'>I have T1D, or I am the parent of someone who has T1D.</li>
 			<!--todo: comment for now<li id='surrogate'>Im standing in for someone who has T1D<br><span class='detail'>eg. a child</span></li>-->
 
 			<% if (!groups.length) { %>
 				<li id='no'>
-					I'm a team member.
-					<br><span class='detail'>(Doctors, nurses, relatives, friends)</span><br><br>
-					<p class='error'>It looks like you haven’t been invited to any teams. If you want to be, you'll need to have the patient add you in their Facebook blip group.</p>
+					I am a team member, such as a doctor, nurse, diabetes educator, or friend. (For now, parents should join as if they have T1D, above.)
+					<br><br>
+					<p class='error'>It looks like you haven’t been invited to any teams yet. Ask your friend/patient to invite you to their private Facebook group for blip.</p>
 				</li>
 			<% } else if (groups.length === 1) { %>
 				<li id='team-member'>
