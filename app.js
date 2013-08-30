@@ -147,7 +147,83 @@ app.post('/v1/:groupId/device/animas/upload', function(request, response) {
 		console.log('request.files',request.files.animasPump.path);
 		console.log('request.files',request.files.animasBg.path);
 
-		console.log(fs.readFileSync(request.files.animasPump.path, 'utf8'));
+		fs.readFile(request.files.animasPump.path, 'utf8', function(err, data) {
+			var trs = data.split('\r');
+
+			for(var i in trs) {
+				animas(request.params.groupId).all(trs[i], function(err, data) {
+					if(err) {
+						response.json(500, {error: err });
+						return;
+					}
+					count++;
+					if(request.query.userId && !(count%100)) {
+						io.sockets.emit('message', {userId: request.query.userId, text: 'Parsed ' + count + ' Pump Entries'});
+					}
+
+				//	console.log(data);
+			    data && db.deviceData.save(data, function(){});				
+				});		
+			}
+
+			if(request.query.userId) {
+				io.sockets.emit('message', {userId: request.query.userId, text: 'Parsing Pump Complete. ' + count + ' Entries'});
+			}
+	  	console.log('done parsing animas');
+
+	  	count = 0;
+
+	  	fs.readFile(request.files.animasBg.path, 'utf8', function(err, datas) {
+	  		var tr = datas.split('\r');
+	  		console.log('sugar tr', tr);
+	  		for(var j in tr) {
+
+					animas(request.params.groupId).sugar(tr[j], function(err, entry) {
+						if(err) {
+							response.json(500, {error: err });
+							return;
+						}
+						count++;
+						if(request.query.userId && !(count%100)) {
+							io.sockets.emit('message', {userId: request.query.userId, text: 'Parsed ' + count + ' Bg Entries'});
+						}
+
+						console.log(entry);
+
+				    entry && db.deviceData.save(entry, function(){});				
+					});
+				}
+				if(request.query.userId) {
+					io.sockets.emit('message', {userId: request.query.userId, text: 'Parsing CGM Complete. ' + count + ' Entries'});
+				}
+		  	console.log('done parsing animas cgm');
+
+		  	db.groups.findOne({id: request.params.groupId}, function(err, group) {
+		  		if(err || !group) {
+		  			response.json(500, { error: 'group by given id not found' });		  		
+		  			return;
+		  		}
+
+		  		group.uploadId = guid();
+
+		  		db.groups.save(group, function(err, done) {
+		  			if(err) {
+			  			response.json(500, { error: 'could not save group' });		  		
+			  			return;
+			  		}
+		  			response.json(200, { done: true });
+		  		});
+		  	});
+	  	})	
+		})
+
+		
+		
+
+  	
+		
+		
+		
 
 		/*es.pipeline(fs.createReadStream(request.files.animasPump.path), animas(request.params.groupId).all(), es.map( function(data, callback) {
       console.log(data);

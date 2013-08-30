@@ -140,7 +140,7 @@ var drawTimeline = function() {
 		var id = dayId(reading.date) + '-' + dayMinutes(reading.date);
 		var point;
 
-		if(reading.type == 'smbg') {
+		if(y && x && id && reading.type == 'smbg') {
 			switch(shape) {
 				case 'ring':
 				point = svgContainer.append("circle")
@@ -631,6 +631,9 @@ var drawTimeline = function() {
 				for(var i in data[tick]) {
 
 					var entry = data[tick][i];
+					if(entry && entry.id && entry.title && entry.y && entry.fill & entry.width & entry.tall) {
+
+					
 					var shape = svgContainer.append("rect")
 	          .attr("x", x)
 	          .attr('id', entry.id)
@@ -651,6 +654,7 @@ var drawTimeline = function() {
 				  });	
 
 				  $('#' + entry.id).tipsy({gravity: 'w'});
+				  }
 				}
 			};
 		};
