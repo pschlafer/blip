@@ -1,6 +1,6 @@
 {
-  "name": "blip",
-  "version": "0.0.1-49",
+  "name": "blip1",
+  "version": "0.0.1-52",
   "private": true,
   "scripts": {
     "start": "node app.js",
@@ -42,10 +42,7 @@
       "mongodb_connection_string": "mongodb://localhost/blip"
     }
   },
-  "domains": [
-    "blip.tidepool.org"
-  ],
-  "subdomain": "bliptidepoolorg",
+  "subdomain": "bliptidepoolorg4",
   "engines": {
     "node": "0.8.x"
   }

@@ -44,7 +44,7 @@ $(function() {
         self.$el.find('input[type=file]').change(self.ready);
 
         if(tab) {
-          self.$el.find('.go').click(function() {
+          self.$el.find('#uploadButton').click(function() {
             view.overlay.wait('Uploading');
             $('.go').html('Uploading and parsing data');
 
@@ -63,9 +63,30 @@ $(function() {
 
               window.location.reload();
             });
+          });
+
+          self.$el.find('#uploadButtonAnimas').click(function() {
+            view.overlay.wait('Uploading');
+            $('.go').html('Uploading and parsing data');
+
+            model.uploadAnimas(groupId, function(error, data) {
+              if (error) {
+                alert('An error occured while uploading data')
+                console.error('error',error);
+                $('.go').html('Upload');
+                view.overlay.white();
+                return;
+              }
+
+              setTimeout(function() {
+                view.overlay.wait('Loading Data');
+              }, 5000);
+
+              window.location.reload();
+            });
           });         
         } else {
-          self.$el.find('.go').click(function() {
+          self.$el.find('#uploadButton').click(function() {
             // todo: show progress that data is being uploaded
             view.overlay.wait('Uploading');
             $('.go').html('Uploading and parsing data');
@@ -86,8 +107,32 @@ $(function() {
               router.navigate('group/' + groupId, {trigger: true});
             });
           });
+
+          self.$el.find('#uploadButtonAnimas').click(function() {
+            // todo: show progress that data is being uploaded
+            view.overlay.wait('Uploading');
+            $('.go').html('Uploading and parsing data');
+
+            model.uploadAnimas(groupId, function(error, data) {
+              if (error) {
+                alert('An error occured while uploading data')
+                console.error('error',error);
+                $('.go').html('Upload');
+                view.overlay.white();
+                return;
+              }
+
+              setTimeout(function() {
+                view.overlay.wait('Loading Data');
+              }, 5000);
+
+              router.navigate('group/' + groupId, {trigger: true});
+            });
+          });
         }
         
+        
+        self.$el.find('.animas_file').change(self.animasFile);
         self.$el.find('animas_bg').change(self.animasBgFile);
         self.$el.find('animas_pump').change(self.animasPumpFile);
         self.$el.find('dexcom').change(self.dexcomFile);
@@ -109,8 +154,8 @@ $(function() {
     medtronicFileSelected: function() {
 
     },
-    animasBgFile: function() {
-
+    animasFile: function() {
+      $('#uploadButtonAnimas').removeClass('disabed');
     },
     animasPumpFile: function() {
 

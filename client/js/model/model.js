@@ -17,6 +17,29 @@ model.user = function(callback) {
   });
 };
 
+model.uploadAnimas = function(groupId, callback) {
+  var userId = data.user ? data.user.id : '';
+
+  $.ajax({
+    url: 'http://'+ window.location.host +'/v1/' + groupId + '/device/animas/upload?userId=' + userId,
+    type: 'POST',
+    xhr: function() {
+      var myXhr = $.ajaxSettings.xhr();
+      return myXhr;
+    },
+    beforeSend: function(){},
+    success: function(data) {
+      console.info('Upload data succeded', data);
+      callback(null, data);
+    },
+    error: callback,
+    data: new FormData($('#join_upload_animas_form')[0]),
+    cache: false,
+    contentType: false,
+    processData: false
+  });
+};
+
 model.upload = function(groupId, callback) {
   var userId = data.user ? data.user.id : '';
 

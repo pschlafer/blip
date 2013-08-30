@@ -14,7 +14,8 @@ var mongojs = require('mongojs')
 	, es = require('event-stream')
 	, db = mongojs(config.mongodb_connection_string, ['deviceData','groups'])
 	, mmcsv = require('./lib/parsers/mmcsv')
-	, dxcomParser = require('./lib/parsers/dxcomParser');
+	, dxcomParser = require('./lib/parsers/dxcomParser')
+	, animas = require('./lib/parsers/animas')
 
 // todo: add time zone origin parameter, it now assumes that user is in SF summer time
 var pstTime = function(time) { var date = new Date(time);var utc = toUTC(date);utc.setHours(date.getHours() - 7);return utc; };
@@ -127,6 +128,93 @@ app.post('/v1/:groupId/device/upload', function(request, response) {
 				);
 		  })
 		);
+	});
+});
+
+app.post('/v1/:groupId/device/animas/upload', function(request, response) {
+	if(request.query.userId) {
+		io.sockets.emit('message', {userId: request.query.userId, text: 'File uploaded.'});
+	}
+	
+	var count = 0;
+	db.deviceData.remove({groupId: request.params.groupId}, function() {
+		if(request.query.userId) {
+			io.sockets.emit('message', {userId: request.query.userId, text: 'Removed old Entries'});
+		}
+		
+		//var animasParser = animas(request.params.groupId);
+
+		console.log('request.files',request.files.animasPump.path);
+		console.log('request.files',request.files.animasBg.path);
+
+		console.log(fs.readFileSync(request.files.animasPump.path, 'utf8'));
+
+		/*es.pipeline(fs.createReadStream(request.files.animasPump.path), animas(request.params.groupId).all(), es.map( function(data, callback) {
+      console.log(data);
+    }));*/
+    /*
+    .on('data',
+			function(raw) {
+				console.log('raw',raw);
+
+				var entry = JSON.parse(raw);
+				count++;
+				if(request.query.userId && !(count%100)) {
+					io.sockets.emit('message', {userId: request.query.userId, text: 'Parsed ' + count + ' Pump Entries'});
+				}
+
+				console.log(entry);
+		    db.deviceData.save(entry, function(){});
+		  }).on('end', function() {
+		  	if(request.query.userId) {
+					io.sockets.emit('message', {userId: request.query.userId, text: 'Parsing Medtronic Complete. ' + count + ' Entries'});
+				}
+		  	console.log('done parsing animas');
+
+		  	count = 0;
+		  	es.pipeline(fs.createReadStream(request.files.animasBg.path), animas.sugars().on('data',
+					function(raw) {
+						//if(!raw.indexOf('NaN')) {return;}
+						//console.log('raw',raw);
+						var entry = raw;
+							
+						if(entry.time && entry.time.indexOf('NaN') == -1) {
+							count++;
+							if(request.query.userId && !(count%100)) {
+								io.sockets.emit('message', {userId: request.query.userId, text: 'Parsed ' + count + ' BG Entries'});
+							}
+						}
+						
+
+						console.log(entry);
+						db.deviceData.save(entry, function(){});
+				  }).on('end', function() {
+				  	if(request.query.userId) {
+							io.sockets.emit('message', {userId: request.query.userId, text: 'Parsing Dexcom Complete. ' + count + ' Entries'});
+						}
+				  	console.log('done parsing dexcom');
+				  	
+				  	db.groups.findOne({id: request.params.groupId}, function(err, group) {
+				  		if(err || !group) {
+				  			response.json(500, { error: 'group by given id not found' });		  		
+				  			return;
+				  		}
+
+				  		group.uploadId = guid();
+
+				  		db.groups.save(group, function(err, done) {
+				  			if(err) {
+					  			response.json(500, { error: 'could not save group' });		  		
+					  			return;
+					  		}
+				  			response.json(200, { done: true });
+				  		})
+							
+				  	});
+				  })
+				);
+		  })
+		);*/
 	});
 });
 
