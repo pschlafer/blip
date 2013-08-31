@@ -32,7 +32,7 @@ $(function() {
             view.overlay.wait('Removing Entries');
             $.getJSON(info.cleanUrl + '&callback=?', function() {
               FB.logout();
-              window.location.reload();
+              //window.location.reload();
             }).error(function(error) {
               view.overlay.white();
             });
