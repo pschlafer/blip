@@ -80,7 +80,10 @@ $(function() {
           });         
         } else {
           self.$el.find('#uploadButton').click(function() {
-            // todo: show progress that data is being uploaded
+            if (!$('#medtronic').val()) {
+              return;
+            }
+
             view.overlay.wait('Uploading');
             $('.go').html('Uploading and parsing data');
 
@@ -98,7 +101,10 @@ $(function() {
           });
 
           self.$el.find('#uploadButtonAnimas').click(function() {
-            // todo: show progress that data is being uploaded
+            if (!$('#animas_bg').val() || !$('#animas_pump').val() ) {
+              return;
+            }
+
             view.overlay.wait('Uploading');
             $('.go').html('Uploading and parsing data');
 
