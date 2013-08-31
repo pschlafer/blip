@@ -74,26 +74,30 @@ app.post('/v1/:groupId/device/upload', function(request, response) {
 	var count = 0;
 	db.deviceData.remove({groupId: request.params.groupId}, function() {
 		if(request.query.userId) {
-			io.sockets.emit('message', {userId: request.query.userId, text: 'Removed old Entries'});
+			io.sockets.emit('message', {userId: request.query.userId, text: 'Removed previews data points'});
 		}
 		
 		es.pipeline(fs.createReadStream(request.files.medtronic.path), mmcsv.all().on('data',
 			function(raw) {
 				var entry = JSON.parse(raw);
-				count++;
-				if(request.query.userId && !(count%100)) {
-					io.sockets.emit('message', {userId: request.query.userId, text: 'Parsed ' + count + ' Medtronic Entries'});
-				}
-				entry.groupId = request.params.groupId;
-				entry.unixTimeUTC = toUTC(new Date(entry.time)).getTime();
-				entry.unixTime = pstTime(entry.time).getTime();
-				entry.company = 'medtronic';
 
-				console.log(entry);
-		    db.deviceData.save(entry, function(){});
+				if(entry) {
+					count++;
+					if(request.query.userId && !(count%100)) {
+						io.sockets.emit('message', {userId: request.query.userId, text: common.format('Reading {0} Medtronic data points.', count)});
+					}
+					entry.groupId = request.params.groupId;
+					entry.unixTimeUTC = toUTC(new Date(entry.time)).getTime();
+					entry.unixTime = pstTime(entry.time).getTime();
+					entry.company = 'medtronic';
+
+					console.log(entry);
+			    db.deviceData.save(entry, function(){});	
+				}
+				
 		  }).on('end', function() {
 		  	if(request.query.userId) {
-					io.sockets.emit('message', {userId: request.query.userId, text: 'Parsing Medtronic Complete. ' + count + ' Entries'});
+					io.sockets.emit('message', {userId: request.query.userId, text: common.format('Reading Medtronic Complete. {0} data points', count)});
 				}
 		  	console.log('done parsing medtronic');
 
@@ -102,23 +106,23 @@ app.post('/v1/:groupId/device/upload', function(request, response) {
 					function(raw) {
 						var entry = JSON.parse(raw);
 							
-						if(entry.time && entry.time.indexOf('NaN') == -1) {
+						if(entry && entry.time && entry.time.indexOf('NaN') == -1) {
 							count++;
 							if(request.query.userId && !(count%100)) {
-								io.sockets.emit('message', {userId: request.query.userId, text: 'Parsed ' + count + ' Dexcom Entries'});
+								common.format('Reading {0} Dexcom data points.', count)
+								io.sockets.emit('message', {userId: request.query.userId, text: common.format('Reading {0} Dexcom data points.', count)});
 							}
 							entry.groupId = request.params.groupId;
 							entry.unixTimeUTC = toUTC(new Date(entry.time)).getTime();
 							entry.unixTime = pstTime(entry.time).getTime();
 							entry.company = 'dexcom';	
-						}
-						
 
-						console.log(entry);
-						db.deviceData.save(entry, function(){});
+							console.log(entry);
+							db.deviceData.save(entry, function(){});
+						}
 				  }).on('end', function() {
 				  	if(request.query.userId) {
-							io.sockets.emit('message', {userId: request.query.userId, text: 'Parsing Dexcom Complete. ' + count + ' Entries'});
+							io.sockets.emit('message', {userId: request.query.userId, text: common.format('Reading Dexcom Complete. {0} data points', count)});
 						}
 				  	console.log('done parsing dexcom');
 				  	
@@ -154,7 +158,7 @@ app.post('/v1/:groupId/device/animas/upload', function(request, response) {
 	var count = 0;
 	db.deviceData.remove({groupId: request.params.groupId}, function() {
 		if(request.query.userId) {
-			io.sockets.emit('message', {userId: request.query.userId, text: 'Removed old Entries'});
+			io.sockets.emit('message', {userId: request.query.userId, text: 'Removed previews data points'});
 		}
 		
 		//var animasParser = animas(request.params.groupId);
@@ -171,18 +175,20 @@ app.post('/v1/:groupId/device/animas/upload', function(request, response) {
 						response.json(500, {error: err });
 						return;
 					}
-					count++;
-					if(request.query.userId && !(count%100)) {
-						io.sockets.emit('message', {userId: request.query.userId, text: 'Parsed ' + count + ' Pump Entries'});
-					}
+					
+					if(data) {
+						count++;
+						if(request.query.userId && !(count%100)) {
+							io.sockets.emit('message', {userId: request.query.userId, text: common.format('Reading {0} Pump data points.', count)});
+						}
 
-				//	console.log(data);
-			    data && db.deviceData.save(data, function(){});				
+				    db.deviceData.save(data, function(){});					
+					}
 				});		
 			}
 
 			if(request.query.userId) {
-				io.sockets.emit('message', {userId: request.query.userId, text: 'Parsing Pump Complete. ' + count + ' Entries'});
+				io.sockets.emit('message', {userId: request.query.userId, text: common.format('Reading Pump Complete. {0} data points', count)});
 			}
 	  	console.log('done parsing animas');
 
@@ -198,18 +204,21 @@ app.post('/v1/:groupId/device/animas/upload', function(request, response) {
 							response.json(500, {error: err });
 							return;
 						}
-						count++;
-						if(request.query.userId && !(count%100)) {
-							io.sockets.emit('message', {userId: request.query.userId, text: 'Parsed ' + count + ' Bg Entries'});
+
+						if(entry) {
+							count++;
+							if(request.query.userId && !(count%100)) {
+								io.sockets.emit('message', {userId: request.query.userId, text: common.format('Reading {0} Blood Sugar data points.', count)});
+							}
+
+							console.log(entry);
+
+					    db.deviceData.save(entry, function(){});					
 						}
-
-						console.log(entry);
-
-				    entry && db.deviceData.save(entry, function(){});				
 					});
 				}
 				if(request.query.userId) {
-					io.sockets.emit('message', {userId: request.query.userId, text: 'Parsing CGM Complete. ' + count + ' Entries'});
+					io.sockets.emit('message', {userId: request.query.userId, text: common.format('Reading Blood Sugar Complete. {0} data points', count)});
 				}
 		  	console.log('done parsing animas cgm');
 
