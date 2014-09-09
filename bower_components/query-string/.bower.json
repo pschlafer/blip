@@ -1,0 +1,36 @@
+{
+  "name": "query-string",
+  "version": "0.3.0",
+  "description": "Parse and stringify URL query strings",
+  "main": "query-string.js",
+  "keywords": [
+    "querystring",
+    "query",
+    "string",
+    "qs",
+    "param",
+    "parameter",
+    "url",
+    "uri",
+    "parse",
+    "stringify",
+    "encode",
+    "decode"
+  ],
+  "ignore": [
+    ".*",
+    "test.js",
+    "component.json",
+    "package.json"
+  ],
+  "homepage": "https://github.com/sindresorhus/query-string",
+  "_release": "0.3.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.3.0",
+    "commit": "95984366cbb3547e6793953e5a3614db39e69805"
+  },
+  "_source": "git://github.com/sindresorhus/query-string.git",
+  "_target": "0.3.0",
+  "_originalSource": "query-string"
+}

@@ -35,6 +35,7 @@ var BrowserWarningOverlay = require('./components/browserwarningoverlay');
 var Notification = require('./components/notification');
 var TermsOverlay = require('./components/termsoverlay');
 var MailTo = require('./components/mailto');
+var ModalOverlay = require('./components/modaloverlay');
 
 var Login = require('./pages/login');
 var Signup = require('./pages/signup');
@@ -43,6 +44,7 @@ var Patients = require('./pages/patients');
 var Patient = require('./pages/patient');
 var PatientEdit = require('./pages/patientedit');
 var PatientData = require('./pages/patientdata');
+
 
 // Styles
 require('tideline/css/tideline.less');
@@ -164,9 +166,21 @@ var AppComponent = React.createClass({
       app.log('State changed', stateDiff);
     }
   },
-
+  renderModalOverlay: function() {
+    return (
+      <ModalOverlay
+        message= "Are you sure you want to leave Ian's Care Team? You will no longer be able to see their data"
+        cancel= "Cancel"
+        action= "Im sure, remove me."
+        onAction={function() {
+          console.log('close');
+        }}
+         />
+    );
+  },
   render: function() {
     var overlay = this.renderOverlay();
+    var modaloverlay = this.renderModalOverlay();
     var navbar = this.renderNavbar();
     var notification = this.renderNotification();
     var page = this.renderPage();
@@ -175,6 +189,7 @@ var AppComponent = React.createClass({
     /* jshint ignore:start */
     return (
       <div className="app">
+        {modaloverlay}
         {overlay}
         {navbar}
         {notification}

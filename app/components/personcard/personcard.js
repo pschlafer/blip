@@ -21,14 +21,16 @@ var cx = require('react/lib/cx');
 var PersonCard = React.createClass({
   propTypes: {
     href: React.PropTypes.string,
-    onClick: React.PropTypes.func
+    onClick: React.PropTypes.func,
+    person: React.PropTypes.object
   },
 
   render: function() {
     var classes = cx({
       'personcard': true,
       'personcard-clickable': this.isClickable(),
-      'personcard-empty': this.isEmpty()
+      'personcard-empty': this.isEmpty(),
+      'personcard-owner': this.props.person.permissions.admin || this.props.person.permissions.root
     });
 
     if (!this.isClickable()) {

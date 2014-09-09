@@ -1,0 +1,12 @@
+{
+  "name": "bows",
+  "homepage": "https://github.com/latentflip/bows",
+  "_release": "beb35328d5",
+  "_resolution": {
+    "type": "commit",
+    "commit": "beb35328d5c224fc5635928a1b45b32e0d839caa"
+  },
+  "_source": "https://github.com/latentflip/bows.git",
+  "_target": "beb35328d5c224fc5635928a1b45b32e0d839caa",
+  "_originalSource": "https://github.com/latentflip/bows.git"
+}

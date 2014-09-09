@@ -1,0 +1,18 @@
+{
+  "name": "sundial",
+  "version": "0.1.3",
+  "description": "Tidepool's datetime wrapper",
+  "dependencies": {
+    "moment": "2.7.0"
+  },
+  "homepage": "https://github.com/tidepool-org/sundial",
+  "_release": "0.1.3",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.1.3",
+    "commit": "93f08629f74669d0571d917adcd9a7c50f2463a2"
+  },
+  "_source": "git://github.com/tidepool-org/sundial.git",
+  "_target": "0.1.3",
+  "_originalSource": "sundial"
+}

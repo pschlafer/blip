@@ -1,0 +1,36 @@
+{
+  "name": "bows",
+  "version": "0.3.0",
+  "description": "Rainbowed console logs for chrome in development",
+  "main": "bows.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "andlog": ">=0.0.4"
+  },
+  "devDependencies": {
+    "browserify": "",
+    "uglify-js": "~2.3.6"
+  },
+  "author": "Philip Roberts",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "gitHead": "bd7b0c00f47771a342ddc098cdc7e5ee5b4a53b3",
+  "directories": {
+    "example": "example"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/latentflip/bows.git"
+  },
+  "keywords": [
+    "color",
+    "logging",
+    "chrome",
+    "console"
+  ],
+  "bugs": {
+    "url": "https://github.com/latentflip/bows/issues"
+  }
+}

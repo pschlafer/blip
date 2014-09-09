@@ -17,9 +17,13 @@
   display: block;
   text-align: center;
   padding: 30px @spacing-small;
-  font-weight: 600;
-  color: @gray-dark;
+  font-weight: 400;
+  color: @gray-darker;
   background: @gray-lighter;
+}
+
+.personcard-owner {
+  background: @owned-account;
 }
 
 // Empty "placeholder" list item:
@@ -30,12 +34,21 @@
 
 .personcard-clickable,
 a.personcard-clickable {
-  color: @gray-dark;
+  color: @gray-darker;
   text-decoration: none;
 
   .no-touch &:hover,
   &:focus,
   &:active {
     background-color: @gray-light;
+  }
+}
+
+.personcard-owner.personcard-clickable,
+.personcard-owner.a.personcard-clickable {
+  .no-touch &:hover,
+  &:focus,
+  &:active {
+    background-color: @owned-account-hover;
   }
 }

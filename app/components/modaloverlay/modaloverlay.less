@@ -1,0 +1,58 @@
+.modal-overlay-button-cancel {
+  background-color: @gray-dark;
+
+  .no-touch &:hover,
+  &:focus,
+  &:active {
+    background-color: @gray;
+  }
+}
+//
+// Modal
+// ----------------------
+
+.modal-overlay{
+
+
+  // This is modal bg
+  &:before{
+    content: "";
+    background: rgba(255,0,0,.6);
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 10;
+  }
+
+  &:target{
+
+    // Active animate in modal
+    &:before{
+      display: block;
+    }
+    .modal-overlay-dialog{
+      top: 20%;
+    }
+
+  }
+
+}
+
+// Modal Dialog
+// ----------------------
+
+.modal-overlay-dialog{
+  background: #fefefe;
+  border-radius: 5px;
+  margin-left: -200px;
+  position: fixed;
+  left: 50%;
+  top: 30%;
+  z-index: 11;
+  width: 360px;
+}
+
+.modal-overlay-body{
+}
+
+.modal-overlay-footer{
+}

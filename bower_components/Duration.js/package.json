@@ -1,0 +1,21 @@
+{
+  "name": "duration-js",
+  "version": "3.3.3",
+  "description": "small simple library for dealing with durations",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/icholy/Duration.js.git"
+  },
+  "main": "duration.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "dependencies": {
+    "chai": "~1.7.2",
+    "mocha": "~1.13.0"
+  },
+  "author": "Ilia Choly",
+  "license": "MIT",
+  "keywords": [],
+  "bugs": "https://github.com/icholy/Duration.js/issues"
+}

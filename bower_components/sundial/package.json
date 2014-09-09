@@ -1,0 +1,40 @@
+{
+  "name": "sundial",
+  "version": "0.1.3",
+  "description": "Tidepool's datetime wrapper",
+  "keywords": [
+    "datetime",
+    "date",
+    "time"
+  ],
+  "homepage": "https://github.com/tidepool-org/sundial",
+  "bugs": "https://github.com/tidepool-org/sundial/issues",
+  "license": "BSD-2-clause",
+  "author": {
+    "name": "Eric Tschetter",
+    "email": "cheddar@tidepool.org",
+    "url": "https://github.com/cheddar"
+  },
+  "contributors": [
+    {
+      "name": "Jamie Bate",
+      "email": "jamie@tidepool.org"
+    }
+  ],
+  "files": [
+    "sundial.js",
+    "lib"
+  ],
+  "main": "sundial.js",
+  "repository": "https://github.com/tidepool-org/sundial.git",
+  "dependencies": {
+    "moment": "2.7.0"
+  },
+  "devDependencies": {
+    "grunt": "0.4.1",
+    "grunt-cli": "0.1.11",
+    "grunt-contrib-jshint": "0.6.4",
+    "grunt-mocha-test": "0.7.0",
+    "salinity": "0.0.3"
+  }
+}
