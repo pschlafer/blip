@@ -28,6 +28,7 @@ var Patients = React.createClass({
     user: React.PropTypes.object,
     fetchingUser: React.PropTypes.bool,
     patients: React.PropTypes.array,
+    invites: React.PropTypes.array,
     fetchingPatients: React.PropTypes.bool,
     showingWelcomeMessage: React.PropTypes.bool,
     onSetAsCareGiver: React.PropTypes.func,
@@ -46,12 +47,31 @@ var Patients = React.createClass({
           <div className="patients-heirarchy-inverted">
             {welcomeTitle}
             {loadingIndicator}
+            {invites}
             {patients}
           </div>
         </div>
       </div>
     );
     /* jshint ignore:end */
+  },
+  renderInvitations: function() {
+    var invites = this.props.invites;
+
+    if (_.isEmpty(invites)) {
+      return null;
+    }
+
+    for
+
+    return(
+      /* jshint ignore:start */
+      <ul className='invitations'>
+        {invitations}
+      </ul>
+      /* jshint ignore:end */
+    );
+
   },
   renderPatients: function() {
     if (this.isResettingPatientsData() || this.isResettingUserData()) {
