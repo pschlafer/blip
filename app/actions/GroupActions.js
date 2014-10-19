@@ -34,6 +34,27 @@ var GroupActions = {
         groups: groups
       });
     });
+  },
+
+  fetch: function(groupId) {
+    AppDispatcher.dispatch({
+      type: AppConstants.api.STARTED_GET_GROUP,
+      groupId: groupId
+    });
+    api.patient.get(groupId, function(err, group) {
+      if (err) {
+        return AppDispatcher.dispatch({
+          type: AppConstants.api.FAILED_GET_GROUP,
+          groupId: groupId,
+          error: err
+        });
+      }
+
+      AppDispatcher.dispatch({
+        type: AppConstants.api.COMPLETED_GET_GROUP,
+        group: group
+      });
+    });
   }
 
 };

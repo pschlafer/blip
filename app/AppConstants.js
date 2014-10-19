@@ -33,14 +33,18 @@ var AppConstants = {
     STARTED_SIGNUP: null,
     COMPLETED_SIGNUP: null,
     FAILED_SIGNUP: null,
-    
+
     STARTED_LOGOUT: null,
     COMPLETED_LOGOUT: null,
     FAILED_LOGOUT: null,
 
     STARTED_GET_GROUPS: null,
     COMPLETED_GET_GROUPS: null,
-    FAILED_GET_GROUPS: null
+    FAILED_GET_GROUPS: null,
+
+    STARTED_GET_GROUP: null,
+    COMPLETED_GET_GROUP: null,
+    FAILED_GET_GROUP: null
   })
 
 };

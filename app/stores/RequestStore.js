@@ -60,15 +60,6 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       RequestStore.emitChange();
       break;
 
-    case AppConstants.api.FAILED_GET_GROUPS:
-      RequestStore._state.error = {
-        key: AppConstants.api.FAILED_GET_GROUPS,
-        message: 'Something went wrong while trying to fetch groups you have access to',
-        original: payload.error
-      };
-      RequestStore.emitChange();
-      break;
-
     case AppConstants.api.FAILED_LOGIN:
       // Don't handle wrong credentials globally
       if (payload.error && payload.error.status !== 401) {
@@ -97,6 +88,25 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       RequestStore._state.error = {
         key: AppConstants.api.FAILED_LOGOUT,
         message: 'Something went wrong while logging out',
+        original: payload.error
+      };
+      RequestStore.emitChange();
+      break;
+
+    case AppConstants.api.FAILED_GET_GROUPS:
+      RequestStore._state.error = {
+        key: AppConstants.api.FAILED_GET_GROUPS,
+        message: 'Something went wrong while trying to fetch groups you have access to',
+        original: payload.error
+      };
+      RequestStore.emitChange();
+      break;
+
+    case AppConstants.api.FAILED_GET_GROUP:
+      RequestStore._state.error = {
+        key: AppConstants.api.FAILED_GET_GROUP,
+        groupId: payload.groupId,
+        message: 'Something went wrong while trying to fetch group with id' + payload.groupId,
         original: payload.error
       };
       RequestStore.emitChange();

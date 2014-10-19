@@ -19,6 +19,7 @@ var AppConstants = require('../AppConstants');
 var EventEmitter = require('events').EventEmitter;
 var merge = require('react/lib/merge');
 var UserStore = require('./UserStore');
+var utils = require('../core/utils');
 
 var CHANGE_EVENT = 'change';
 
@@ -50,15 +51,21 @@ var GroupStore = merge(EventEmitter.prototype, {
   },
 
   getAll: function() {
-    return _.map(this._state.permissionsByGroupId, function(perms, groupId) {
-      var user = _.cloneDeep(UserStore.get(groupId));
-      user.permissions = _.cloneDeep(perms);
-      return user;
-    });
+    return _.map(_.keys(this._state.permissionsByGroupId), this.get.bind(this));
   },
 
   isFetchingAll: function() {
     return Boolean(this._state.requests.fetchingAll);
+  },
+  
+  get: function(groupId) {
+    var group = _.cloneDeep(UserStore.get(groupId));
+    group.permissions = _.cloneDeep(this._state.permissionsByGroupId[groupId]);
+    return group;
+  },
+
+  isFetching: function(groupId) {
+    return Boolean(utils.getIn(this._state.requests, [groupId, 'fetching']));
   }
 
 });
@@ -84,6 +91,25 @@ GroupStore.dispatchToken = AppDispatcher.register(function(payload) {
         acc[group.userid] = _.cloneDeep(group.permissions);
         return acc;
       }, {});
+      GroupStore.emitChange();
+      break;
+
+    case AppConstants.api.STARTED_GET_GROUP:
+      GroupStore._state.requests[payload.groupId] = {fetching: true};
+      GroupStore.emitChange();
+      break;
+
+    case AppConstants.api.FAILED_GET_GROUP:
+      GroupStore._state.requests[payload.groupId] = {fetching: false};
+      GroupStore.emitChange();
+      break;
+
+    case AppConstants.api.COMPLETED_GET_GROUP:
+      AppDispatcher.waitFor([UserStore.dispatchToken]);
+      var group = payload.group;
+      GroupStore._state.requests[group.userid] = {fetching: false};
+      GroupStore._state.permissionsByGroupId[group.userid] =
+        _.cloneDeep(group.permissions);
       GroupStore.emitChange();
       break;
 

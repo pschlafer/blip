@@ -18,17 +18,19 @@ var AppDispatcher = require('../AppDispatcher');
 var AppConstants = require('../AppConstants');
 var EventEmitter = require('events').EventEmitter;
 var merge = require('react/lib/merge');
+var UserStore = require('./UserStore');
+var utils = require('../core/utils');
 
 var CHANGE_EVENT = 'change';
 
 var getInitialState = function() {
   return {
     requests: {},
-    usersById: {}
+    membersByGroupId: {}
   };
 };
 
-var UserStore = merge(EventEmitter.prototype, {
+var MemberStore = merge(EventEmitter.prototype, {
 
   _state: getInitialState(),
 
@@ -48,47 +50,49 @@ var UserStore = merge(EventEmitter.prototype, {
     this.removeListener(CHANGE_EVENT, callback);
   },
 
-  get: function(userId) {
-    return this._state.usersById[userId];
+  getForGroup: function(groupId) {
+    return _.map(this._state.membersByGroupId[groupId],
+    function(permissions, memberId) {
+      var member = _.cloneDeep(UserStore.get(memberId));
+      member.permissions = permissions;
+      return member;
+    });
   },
 
-  _updateWithUser: function(user) {
-    this._state.usersById[user.userid] = {
-      userid: user.userid,
-      profile: _.cloneDeep(user.profile)
-    };
-  },
-
-  _updateWithGroup: function(group) {
-    this._updateWithUser(group);
-    if (group.team) {
-      var self = this;
-      _.forEach(group.team, function(member) {
-        self._updateWithUser(member);
-      });
-    }
+  isFetchingForGroup: function(groupId) {
+    return Boolean(utils.getIn(this._state.requests, [groupId, 'fetching']));
   }
 
 });
 
-UserStore.dispatchToken = AppDispatcher.register(function(payload) {
+MemberStore.dispatchToken = AppDispatcher.register(function(payload) {
   switch(payload.type) {
 
-    case AppConstants.api.COMPLETED_GET_GROUPS:
-      _.forEach(payload.groups, function(group) {
-        UserStore._updateWithGroup(group);
-      });
-      UserStore.emitChange();
+    case AppConstants.api.STARTED_GET_GROUP:
+      MemberStore._state.requests[payload.groupId] = {fetching: true};
+      MemberStore.emitChange();
+      break;
+
+    case AppConstants.api.FAILED_GET_GROUP:
+      MemberStore._state.requests[payload.groupId] = {fetching: false};
+      MemberStore.emitChange();
       break;
 
     case AppConstants.api.COMPLETED_GET_GROUP:
-      UserStore._updateWithGroup(payload.group);
-      UserStore.emitChange();
+      AppDispatcher.waitFor([UserStore.dispatchToken]);
+      var group = payload.group;
+      MemberStore._state.requests[group.userid] = {fetching: false};
+      MemberStore._state.membersByGroupId[group.userid] =
+        _.reduce(group.team, function(acc, member) {
+          acc[member.userid] = _.cloneDeep(member.permissions);
+          return acc;
+        }, {});
+      MemberStore.emitChange();
       break;
 
     case AppConstants.api.COMPLETED_LOGOUT:
-      UserStore.reset();
-      UserStore.emitChange();
+      MemberStore.reset();
+      MemberStore.emitChange();
       break;
 
     default:
@@ -97,4 +101,4 @@ UserStore.dispatchToken = AppDispatcher.register(function(payload) {
 
 });
 
-module.exports = UserStore;
+module.exports = MemberStore;

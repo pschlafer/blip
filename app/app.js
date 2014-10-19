@@ -51,6 +51,7 @@ var AuthActions = window.AuthActions = require('./actions/AuthActions');
 var AuthStore = window.AuthStore = require('./stores/AuthStore');
 var GroupActions = window.GroupActions = require('./actions/GroupActions');
 var GroupStore = window.GroupStore = require('./stores/GroupStore');
+var MemberStore = window.MemberStore = require('./stores/MemberStore');
 var RequestActions = window.RequestActions = require('./actions/RequestActions');
 var RequestStore = window.RequestStore = require('./stores/RequestStore');
 var UserStore = window.UserStore = require('./stores/UserStore');
