@@ -54,8 +54,7 @@ var Patients = React.createClass({
   },
 
   componentDidMount: function() {
-    GroupStore.addChangeListener(this.handleStoreChange);
-    GroupActions.fetchAll();
+    GroupStore.addChangeListener(this.handleStoreChange);    
   },
 
   componentWillUnmount: function() {

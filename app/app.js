@@ -47,6 +47,8 @@ var Patient = require('./pages/patient');
 var PatientEdit = require('./pages/patientedit');
 var PatientData = require('./pages/patientdata');
 
+var AuthActions = window.AuthActions = require('./actions/AuthActions');
+var AuthStore = window.AuthStore = require('./stores/AuthStore');
 var GroupActions = window.GroupActions = require('./actions/GroupActions');
 var GroupStore = window.GroupStore = require('./stores/GroupStore');
 var RequestActions = window.RequestActions = require('./actions/RequestActions');
@@ -109,13 +111,9 @@ function trackMetric() {
 
 var AppComponent = React.createClass({
   getInitialState: function() {
-    return {
-      authenticated: app.api.user.isAuthenticated(),
+    return _.assign({
       notification: null,
       page: null,
-      user: null,
-      fetchingUser: true,
-      loggingOut: false,
       patient: null,
       fetchingPatient: true,
       invites: null,
@@ -130,17 +128,26 @@ var AppComponent = React.createClass({
       showingWelcomeMessage: false,
       dismissedBrowserWarning: false,
       queryParams: queryString.parseTypes(window.location.search)
+    }, this.getStateFromStores());
+  },
+
+  getStateFromStores: function() {
+    return {
+      authenticated: AuthStore.isAuthenticated(),
+      user: AuthStore.getLoggedInUser(),
+      loggingOut: AuthStore.isLoggingOut()
     };
   },
 
   componentDidMount: function() {
-    if (this.state.authenticated) {
-      this.fetchUser();
-    }
-
-    this.setupAndStartRouter();
-
     RequestStore.addChangeListener(this.handleRequestStoreChange);
+    AuthStore.addChangeListener(this.handleStoreChange);
+    this.setupAndStartRouter();
+  },
+
+  componentWillUnmount: function() {
+    RequestStore.removeChangeListener(this.handleRequestStoreChange);
+    AuthStore.removeChangeListener(this.handleStoreChange);
   },
 
   handleRequestStoreChange: function() {
@@ -150,8 +157,20 @@ var AppComponent = React.createClass({
     }
   },
 
-  componentWillUnmount: function() {
-    RequestStore.removeChangeListener(this.handleRequestStoreChange);
+  handleStoreChange: function() {
+    var requestError = RequestStore.getError();
+    if (requestError) {
+      this.handleApiError(requestError.original, requestError.message);
+    }
+
+    var isLogoutSuccessfull = (
+      this.state.loggingOut && !AuthStore.isLoggingOut() && !requestError
+    );
+    if (isLogoutSuccessfull) {
+      this.handleLogoutSuccess();
+    }
+
+    this.setState(this.getStateFromStores());
   },
 
   setupAndStartRouter: function() {
@@ -255,12 +274,10 @@ var AppComponent = React.createClass({
           <Navbar
             version={config.VERSION}
             user={this.state.user}
-            fetchingUser={this.state.fetchingUser}
             patient={patient}
             fetchingPatient={this.state.fetchingPatient}
             currentPage={this.state.page}
             getUploadUrl={getUploadUrl}
-            onLogout={this.logout}
             trackMetric={trackMetric}/>
         </div>
         /* jshint ignore:end */
@@ -339,9 +356,8 @@ var AppComponent = React.createClass({
     return (
       /* jshint ignore:start */
       <Login
-        onSubmit={this.login}
         inviteEmail={this.getInviteEmail()}
-        onSubmitSuccess={this.handleLoginSuccess}
+        onLoginSuccess={this.handleLoginSuccess}
         trackMetric={trackMetric} />
       /* jshint ignore:end */
     );
@@ -367,9 +383,8 @@ var AppComponent = React.createClass({
     return (
       /* jshint ignore:start */
       <Signup
-        onSubmit={this.signup}
         inviteEmail={this.getInviteEmail()}
-        onSubmitSuccess={this.handleSignupSuccess}
+        onSignupSuccess={this.handleSignupSuccess}
         trackMetric={trackMetric} />
       /* jshint ignore:end */
     );
@@ -396,6 +411,9 @@ var AppComponent = React.createClass({
   showPatients: function() {
     this.renderPage = this.renderPatients;
     this.setState({page: 'patients'});
+    // NOTE: need this to not cause "dispatch while dispatch under way" error
+    // should go away when we switch to `react-router`
+    _.defer(GroupActions.fetchAll);
     this.fetchInvites();
     trackMetric('Viewed Care Team List');
   },
@@ -712,31 +730,13 @@ var AppComponent = React.createClass({
     });
   },
 
-  login: function(formValues, cb) {
-    var user = formValues.user;
-    var options = formValues.options;
-
-    app.api.user.login(user, options, cb);
-  },
-
   handleLoginSuccess: function() {
-    this.fetchUser();
-    this.setState({authenticated: true});
     this.redirectToDefaultRoute();
     trackMetric('Logged In');
   },
 
-  signup: function(formValues, cb) {
-    var user = formValues;
-
-    app.api.user.signup(user, cb);
-  },
-
   handleSignupSuccess: function(user) {
     this.setState({
-      authenticated: true,
-      user: user,
-      fetchingUser: false,
       showingAcceptTerms: config.SHOW_ACCEPT_TERMS ? true : false,
       showingWelcomeMessage: true
     });
@@ -756,67 +756,20 @@ var AppComponent = React.createClass({
     });
   },
 
-  logout: function() {
-    var self = this;
-
-    if (this.state.loggingOut) {
-      return;
-    }
-
-    this.setState({
-      loggingOut: true,
-      dismissedBrowserWarning: false
-    });
-
-    // Need to track this before expiring auth token
-    trackMetric('Logged Out');
-
-    app.api.user.logout(function(err) {
-      if (err) {
-        self.setState({loggingOut: false});
-        var message = 'An error occured while logging out';
-        return self.handleApiError(err, message);
-      }
-      self.refs.logoutOverlay.fadeOut(function() {
-        self.setState({loggingOut: false});
-      });
-      self.handleLogoutSuccess();
-    });
-  },
-
   handleLogoutSuccess: function() {
     // Nasty race condition between React state change and router it seems,
     // need to call `showLogin()` to make sure we don't try to render something
     // else, although it will get called again after router changes route, but
     // that's ok
     this.showLogin();
-    this.setState({authenticated: false});
     this.clearUserData();
+    this.setState({dismissedBrowserWarning: false});
     router.setRoute('/login');
   },
 
   closeNotification: function() {
     RequestActions.dismissError();
     this.setState({notification: null});
-  },
-
-  fetchUser: function() {
-    var self = this;
-
-    self.setState({fetchingUser: true});
-
-    app.api.user.get(function(err, user) {
-      if (err) {
-        self.setState({fetchingUser: false});
-        var message = 'An error occured while fetching user';
-        return self.handleApiError(err, message);
-      }
-
-      self.setState({
-        user: user,
-        fetchingUser: false
-      });
-    });
   },
 
   fetchPendingInvites: function(cb) {
@@ -1008,12 +961,9 @@ var AppComponent = React.createClass({
 
   clearUserData: function() {
     this.setState({
-      user: null,
       patient: null,
       patientData: null
     });
-    UserStore.reset();
-    GroupStore.reset();
   },
 
   updateUser: function(formValues) {
@@ -1226,11 +1176,18 @@ app.init = function(callback) {
       self.mock.init(params);
       self.log('Mock services initialized with params', params);
     }
-    initApi();
+    initAuth();
   }
 
-  function initApi() {
-    self.api.init(callback);
+  function initAuth() {
+    var handleAuthStoreChange = function() {
+      if (!AuthStore.isLoadingSession()) {
+        AuthStore.removeChangeListener(handleAuthStoreChange);
+        callback();
+      }
+    };
+    AuthStore.addChangeListener(handleAuthStoreChange);
+    AuthActions.loadSession();
   }
 
   beginInit();

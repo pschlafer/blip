@@ -67,6 +67,11 @@ UserStore.dispatchToken = AppDispatcher.register(function(payload) {
       UserStore.emitChange();
       break;
 
+    case AppConstants.api.COMPLETED_LOGOUT:
+      UserStore.reset();
+      UserStore.emitChange();
+      break;
+
     default:
       // Do nothing
   }

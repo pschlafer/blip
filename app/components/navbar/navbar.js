@@ -20,6 +20,8 @@ var cx = require('react/lib/cx');
 
 var personUtils = require('../../core/personutils');
 
+var AuthActions = require('../../actions/AuthActions');
+
 var logoSrc = require('./images/blip-logo-80x80.png');
 
 var Navbar = React.createClass({
@@ -27,11 +29,9 @@ var Navbar = React.createClass({
     version: React.PropTypes.string,
     currentPage: React.PropTypes.string,
     user: React.PropTypes.object,
-    fetchingUser: React.PropTypes.bool,
     patient: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool,
     getUploadUrl: React.PropTypes.func,
-    onLogout: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired
   },
 
@@ -209,10 +209,7 @@ var Navbar = React.createClass({
       e.preventDefault();
     }
 
-    var logout = this.props.onLogout;
-    if (logout) {
-      logout();
-    }
+    AuthActions.logout();
   }
 });
 

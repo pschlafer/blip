@@ -24,11 +24,13 @@ var LoginLogo = require('../../components/loginlogo');
 var SimpleForm = require('../../components/simpleform');
 var MailTo = require('../../components/mailto');
 
+var AuthActions = require('../../actions/AuthActions');
+var AuthStore = require('../../stores/AuthStore');
+
 var Login = React.createClass({
   propTypes: {
-    onSubmit: React.PropTypes.func.isRequired,
     inviteEmail: React.PropTypes.string,
-    onSubmitSuccess: React.PropTypes.func.isRequired,
+    onLoginSuccess: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired
   },
 
@@ -47,12 +49,52 @@ var Login = React.createClass({
       formValues.username = this.props.inviteEmail;
     }
 
-    return {
-      working: false,
+    return _.assign({
       formValues: formValues,
       validationErrors: {},
       notification: null
+    }, this.getInitialStateFromStores());
+  },
+
+  getInitialStateFromStores: function() {
+    return {
+      working: AuthStore.isLoggingIn(),
     };
+  },
+
+  getStateFromStores: function() {
+    var state = this.getInitialStateFromStores();
+    var loginError = AuthStore.getLoginError();
+    if (loginError) {
+      var message = 'An error occured while logging in.';
+      if (loginError.status === 401) {
+        message = 'Wrong username or password.';
+      }
+
+      state.notification = {
+        type: 'error',
+        message: message
+      };
+    }
+    else {
+      state.notification = null;
+    }
+    return state;
+  },
+
+  componentDidMount: function() {
+    AuthStore.addChangeListener(this.handleStoreChange);
+  },
+
+  componentWillUnmount: function() {
+    AuthStore.removeChangeListener(this.handleStoreChange);
+  },
+
+  handleStoreChange: function() {
+    if (AuthStore.isAuthenticated()) {
+      return this.props.onLoginSuccess();
+    }
+    this.setState(this.getStateFromStores());
   },
 
   render: function() {
@@ -184,7 +226,7 @@ var Login = React.createClass({
 
   prepareFormValuesForSubmit: function(formValues) {
     return {
-      user: {
+      credentials: {
         username: formValues.username,
         password: formValues.password
       },
@@ -195,31 +237,7 @@ var Login = React.createClass({
   },
 
   submitFormValues: function(formValues) {
-    var self = this;
-    var submit = this.props.onSubmit;
-
-    submit(formValues, function(err) {
-      if (err) {
-        var message = 'An error occured while logging in.';
-        if (err.status === 401) {
-          message = 'Wrong username or password.';
-        }
-
-        self.setState({
-          working: false,
-          notification: {
-            type: 'error',
-            message: message
-          }
-        });
-        return;
-      }
-      self.props.onSubmitSuccess();
-      // NOTE: We don't set state `working: false` because it seems to trigger
-      // a re-render of the login page before the redirect in `onSubmitSuccess`
-      // making an unpleasant UI flash. We don't really need it as the login
-      // page will be recreated on next visit to `/login`.
-    });
+    AuthActions.login(formValues.credentials, formValues.options);
   }
 });
 

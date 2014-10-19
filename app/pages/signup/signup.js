@@ -23,10 +23,12 @@ var LoginNav = require('../../components/loginnav');
 var LoginLogo = require('../../components/loginlogo');
 var SimpleForm = require('../../components/simpleform');
 
+var AuthActions = require('../../actions/AuthActions');
+var AuthStore = require('../../stores/AuthStore');
+
 var Signup = React.createClass({
   propTypes: {
-    onSubmit: React.PropTypes.func.isRequired,
-    onSubmitSuccess: React.PropTypes.func.isRequired,
+    onSignupSuccess: React.PropTypes.func.isRequired,
     inviteEmail: React.PropTypes.string,
     trackMetric: React.PropTypes.func.isRequired
   },
@@ -63,12 +65,52 @@ var Signup = React.createClass({
       formValues.username = this.props.inviteEmail;
     }
 
-    return {
-      working: false,
+    return _.assign({
       formValues: formValues,
       validationErrors: {},
       notification: null
+    }, this.getInitialStateFromStores());
+  },
+
+  getInitialStateFromStores: function() {
+    return {
+      working: AuthStore.isSigningUp(),
     };
+  },
+
+  getStateFromStores: function() {
+    var state = this.getInitialStateFromStores();
+    var signupError = AuthStore.getSignupError();
+    if (signupError) {
+      var message = 'An error occured while signing up.';
+      if (signupError.status === 400) {
+        message = 'An account already exists for that email.';
+      }
+
+      state.notification = {
+        type: 'error',
+        message: message
+      };
+    }
+    else {
+      state.notification = null;
+    }
+    return state;
+  },
+
+  componentDidMount: function() {
+    AuthStore.addChangeListener(this.handleStoreChange);
+  },
+
+  componentWillUnmount: function() {
+    AuthStore.removeChangeListener(this.handleStoreChange);
+  },
+
+  handleStoreChange: function() {
+    if (AuthStore.isAuthenticated()) {
+      return this.props.onSignupSuccess();
+    }
+    this.setState(this.getStateFromStores());
   },
 
   render: function() {
@@ -207,27 +249,7 @@ var Signup = React.createClass({
   },
 
   submitFormValues: function(formValues) {
-    var self = this;
-    var submit = this.props.onSubmit;
-
-    submit(formValues, function(err, result) {
-      if (err) {
-        var message = 'An error occured while signing up.';
-        if (err.status === 400) {
-          message = 'An account already exists for that email.';
-        }
-
-        self.setState({
-          working: false,
-          notification: {
-            type: 'error',
-            message: message
-          }
-        });
-        return;
-      }
-      self.props.onSubmitSuccess(result);
-    });
+    AuthActions.signup(formValues);
   }
 });
 

@@ -71,6 +71,11 @@ GroupStore.dispatchToken = AppDispatcher.register(function(payload) {
       GroupStore.emitChange();
       break;
 
+    case AppConstants.api.FAILED_GET_GROUPS:
+      GroupStore._state.requests.fetchingAll = false;
+      GroupStore.emitChange();
+      break;
+
     case AppConstants.api.COMPLETED_GET_GROUPS:
       AppDispatcher.waitFor([UserStore.dispatchToken]);
       GroupStore._state.requests.fetchingAll = false;
@@ -79,6 +84,11 @@ GroupStore.dispatchToken = AppDispatcher.register(function(payload) {
         acc[group.userid] = _.cloneDeep(group.permissions);
         return acc;
       }, {});
+      GroupStore.emitChange();
+      break;
+
+    case AppConstants.api.COMPLETED_LOGOUT:
+      GroupStore.reset();
       GroupStore.emitChange();
       break;
 
