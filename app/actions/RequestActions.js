@@ -13,20 +13,15 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var keyMirror = require('react/lib/keyMirror');
+var AppDispatcher = require('../AppDispatcher');
+var AppConstants = require('../AppConstants');
 
-var AppConstants = {
+var RequestActions = {
 
-  request: keyMirror({
-    DISMISSED_REQUEST_ERROR: null
-  }),
-
-  api: keyMirror({
-    STARTED_GET_GROUPS: null,
-    COMPLETED_GET_GROUPS: null,
-    FAILED_GET_GROUPS: null
-  })
+  dismissError: function() {
+    AppDispatcher.dispatch({type: AppConstants.request.DISMISSED_REQUEST_ERROR});
+  }
 
 };
 
-module.exports = AppConstants;
+module.exports = RequestActions;

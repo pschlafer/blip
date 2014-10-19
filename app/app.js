@@ -47,9 +47,11 @@ var Patient = require('./pages/patient');
 var PatientEdit = require('./pages/patientedit');
 var PatientData = require('./pages/patientdata');
 
-window.GroupActions = require('./actions/GroupActions');
-var UserStore = window.UserStore = require('./stores/UserStore');
+var GroupActions = window.GroupActions = require('./actions/GroupActions');
 var GroupStore = window.GroupStore = require('./stores/GroupStore');
+var RequestActions = window.RequestActions = require('./actions/RequestActions');
+var RequestStore = window.RequestStore = require('./stores/RequestStore');
+var UserStore = window.UserStore = require('./stores/UserStore');
 
 // Styles
 require('tideline/css/tideline.less');
@@ -137,6 +139,19 @@ var AppComponent = React.createClass({
     }
 
     this.setupAndStartRouter();
+
+    RequestStore.addChangeListener(this.handleRequestStoreChange);
+  },
+
+  handleRequestStoreChange: function() {
+    var error = RequestStore.getError();
+    if (error) {
+      this.handleApiError(error.original, error.message);
+    }
+  },
+
+  componentWillUnmount: function() {
+    RequestStore.removeChangeListener(this.handleRequestStoreChange);
   },
 
   setupAndStartRouter: function() {
@@ -438,7 +453,7 @@ var AppComponent = React.createClass({
     });
 
     app.api.invitation.accept(invitation.key, invitation.creator.userid, function(err) {
-      self.fetchPatients({hideLoading: true});
+      GroupActions.fetchAll();
 
       if(err) {
         return self.handleApiError(err, 'Something went wrong while accepting the invitation.');
@@ -472,7 +487,7 @@ var AppComponent = React.createClass({
         return self.handleApiError(err, 'Something went wrong while removing member from group.');
       }
 
-      self.fetchPatients();
+      GroupActions.fetchAll();
     });
   },
 
@@ -781,6 +796,7 @@ var AppComponent = React.createClass({
   },
 
   closeNotification: function() {
+    RequestActions.dismissError();
     this.setState({notification: null});
   },
 
@@ -853,29 +869,6 @@ var AppComponent = React.createClass({
       self.setState({
         invites: invites,
         fetchingInvites: false
-      });
-    });
-  },
-
-  fetchPatients: function(options) {
-    var self = this;
-
-    if(options && !options.hideLoading) {
-        self.setState({fetchingPatients: true});
-    }
-
-    app.api.patient.getAll(function(err, patients) {
-      if (err) {
-        var message = 'Something went wrong while fetching care teams';
-        self.setState({fetchingPatients: false});
-        // TODO: RequestStore to gather these errors,
-        // then can remove this `fetchPatients` method
-        return self.handleApiError(err, message);
-      }
-
-      self.setState({
-        patients: patients,
-        fetchingPatients: false
       });
     });
   },
