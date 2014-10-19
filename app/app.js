@@ -47,6 +47,10 @@ var Patient = require('./pages/patient');
 var PatientEdit = require('./pages/patientedit');
 var PatientData = require('./pages/patientdata');
 
+window.GroupActions = require('./actions/GroupActions');
+var UserStore = window.UserStore = require('./stores/UserStore');
+var GroupStore = window.GroupStore = require('./stores/GroupStore');
+
 // Styles
 require('tideline/css/tideline.less');
 require('./core/less/fonts.less');
@@ -110,8 +114,6 @@ var AppComponent = React.createClass({
       user: null,
       fetchingUser: true,
       loggingOut: false,
-      patients: null,
-      fetchingPatients: true,
       patient: null,
       fetchingPatient: true,
       invites: null,
@@ -380,7 +382,6 @@ var AppComponent = React.createClass({
     this.renderPage = this.renderPatients;
     this.setState({page: 'patients'});
     this.fetchInvites();
-    this.fetchPatients();
     trackMetric('Viewed Care Team List');
   },
 
@@ -390,8 +391,6 @@ var AppComponent = React.createClass({
       <Patients
           user={this.state.user}
           fetchingUser={this.state.fetchingUser}
-          patients={this.state.patients}
-          fetchingPatients={this.state.fetchingPatients}
           invites={this.state.invites}
           uploadUrl={app.api.getUploadUrl()}
           fetchingInvites={this.state.fetchingInvites}
@@ -869,6 +868,8 @@ var AppComponent = React.createClass({
       if (err) {
         var message = 'Something went wrong while fetching care teams';
         self.setState({fetchingPatients: false});
+        // TODO: RequestStore to gather these errors,
+        // then can remove this `fetchPatients` method
         return self.handleApiError(err, message);
       }
 
@@ -1015,10 +1016,11 @@ var AppComponent = React.createClass({
   clearUserData: function() {
     this.setState({
       user: null,
-      patients: null,
       patient: null,
       patientData: null
     });
+    UserStore.reset();
+    GroupStore.reset();
   },
 
   updateUser: function(formValues) {

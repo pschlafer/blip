@@ -22,6 +22,7 @@
     "envify": "1.2.1",
     "envify-loader": "0.1.0",
     "file-loader": "0.6.1",
+    "flux": "2.0.1",
     "hakken": "0.1.4",
     "json-loader": "0.5.1",
     "jsx-loader": "0.11.0",

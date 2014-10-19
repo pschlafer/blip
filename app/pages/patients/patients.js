@@ -24,12 +24,13 @@ var PeopleList = require('../../components/peoplelist');
 var PersonCard = require('../../components/personcard');
 var Invitation = require('../../components/invitation');
 
+var GroupActions = require('../../actions/GroupActions');
+var GroupStore = require('../../stores/GroupStore');
+
 var Patients = React.createClass({
   propTypes: {
     user: React.PropTypes.object,
     fetchingUser: React.PropTypes.bool,
-    patients: React.PropTypes.array,
-    fetchingPatients: React.PropTypes.bool,
     invites: React.PropTypes.array,
     fetchingInvites: React.PropTypes.bool,
     showingWelcomeMessage: React.PropTypes.bool,
@@ -39,6 +40,30 @@ var Patients = React.createClass({
     onDismissInvitation: React.PropTypes.func,
     onRemovePatient: React.PropTypes.func,
     uploadUrl: React.PropTypes.string
+  },
+
+  getInitialState: function() {
+    return this.getStateFromStores();
+  },
+
+  getStateFromStores: function() {
+    return {
+      patients: GroupStore.getAll(),
+      fetchingPatients: GroupStore.isFetchingAll()
+    };
+  },
+
+  componentDidMount: function() {
+    GroupStore.addChangeListener(this.handleStoreChange);
+    GroupActions.fetchAll();
+  },
+
+  componentWillUnmount: function() {
+    GroupStore.removeChangeListener(this.handleStoreChange);
+  },
+
+  handleStoreChange: function() {
+    this.setState(this.getStateFromStores());
   },
 
   render: function() {
@@ -96,7 +121,7 @@ var Patients = React.createClass({
 
     var content;
     var user = _.cloneDeep(this.props.user);
-    var patients = _.clone(this.props.patients) || [];
+    var patients = _.clone(this.state.patients) || [];
 
     if(personUtils.isPatient(user)) {
       user.permissions = {
@@ -236,7 +261,7 @@ var Patients = React.createClass({
   },
 
   isResettingPatientsData: function() {
-    return (this.props.fetchingPatients && !this.props.patients);
+    return (this.state.fetchingPatients && _.isEmpty(this.state.patients));
   },
 
   handleClickPatient: function(patient) {
