@@ -19,17 +19,19 @@ var AppConstants = require('../AppConstants');
 var EventEmitter = require('events').EventEmitter;
 var merge = require('react/lib/merge');
 var utils = require('../core/utils');
+var nurseShark = require('tideline/plugins/nurseshark');
+var TidelineData = require('tideline/js/tidelinedata');
 
 var CHANGE_EVENT = 'change';
 
 var getInitialState = function() {
   return {
     requests: {},
-    invitationsByGroupId: {}
+    tidelineDataByGroupId: {}
   };
 };
 
-var InvitationSentStore = merge(EventEmitter.prototype, {
+var TidelineDataStore = merge(EventEmitter.prototype, {
 
   _state: getInitialState(),
 
@@ -50,38 +52,54 @@ var InvitationSentStore = merge(EventEmitter.prototype, {
   },
 
   getForGroup: function(groupId) {
-    return _.cloneDeep(this._state.invitationsByGroupId[groupId]);
+    return this._state.tidelineDataByGroupId[groupId];
   },
 
   isFetchingForGroup: function(groupId) {
     return Boolean(utils.getIn(this._state.requests, [groupId, 'fetching']));
+  },
+
+  _preprocessHealthData: function(healthData) {
+    if (!(healthData && healthData.length >= 0)) {
+      return null;
+    }
+
+    var res = nurseShark.processData(healthData);
+    var tidelineData = new TidelineData(res.processedData);
+
+    window.tidelineData = tidelineData;
+    window.downloadProcessedData = function() {
+      console.save(res.processedData);
+    };
+
+    return tidelineData;
   }
 
 });
 
-InvitationSentStore.dispatchToken = AppDispatcher.register(function(payload) {
+TidelineDataStore.dispatchToken = AppDispatcher.register(function(payload) {
   switch(payload.type) {
 
-    case AppConstants.api.STARTED_GET_INVITATIONS_SENT:
-      InvitationSentStore._state.requests[payload.groupId] = true;
-      InvitationSentStore.emitChange();
+    case AppConstants.api.STARTED_GET_HEALTH_DATA:
+      TidelineDataStore._state.requests[payload.groupId] = true;
+      TidelineDataStore.emitChange();
       break;
 
-    case AppConstants.api.FAILED_GET_INVITATIONS_SENT:
-      InvitationSentStore._state.requests[payload.groupId] = false;
-      InvitationSentStore.emitChange();
+    case AppConstants.api.FAILED_GET_HEALTH_DATA:
+      TidelineDataStore._state.requests[payload.groupId] = false;
+      TidelineDataStore.emitChange();
       break;
 
-    case AppConstants.api.COMPLETED_GET_INVITATIONS_SENT:
-      InvitationSentStore._state.requests[payload.groupId] = false;
-      InvitationSentStore._state.invitationsByGroupId[payload.groupId] =
-        _.cloneDeep(payload.invitations);
-      InvitationSentStore.emitChange();
+    case AppConstants.api.COMPLETED_GET_HEALTH_DATA:
+      TidelineDataStore._state.requests[payload.groupId] = false;
+      TidelineDataStore._state.tidelineDataByGroupId[payload.groupId] =
+        TidelineDataStore._preprocessHealthData(payload.healthData);
+      TidelineDataStore.emitChange();
       break;
 
     case AppConstants.api.COMPLETED_LOGOUT:
-      InvitationSentStore.reset();
-      InvitationSentStore.emitChange();
+      TidelineDataStore.reset();
+      TidelineDataStore.emitChange();
       break;
 
     default:
@@ -90,4 +108,4 @@ InvitationSentStore.dispatchToken = AppDispatcher.register(function(payload) {
 
 });
 
-module.exports = InvitationSentStore;
+module.exports = TidelineDataStore;

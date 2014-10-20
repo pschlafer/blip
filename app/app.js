@@ -20,9 +20,6 @@ var bows = require('bows');
 var _ = require('lodash');
 var async = require('async');
 
-var nurseShark = require('tideline/plugins/nurseshark/');
-var TidelineData = require('tideline/js/tidelinedata');
-
 var config = require('./config');
 var router = require('./router');
 var api = require('./core/api');
@@ -57,6 +54,7 @@ var RequestStore = window.RequestStore = require('./stores/RequestStore');
 var UserStore = window.UserStore = require('./stores/UserStore');
 var InvitationReceivedActions = window.InvitationReceivedActions = require('./actions/InvitationReceivedActions');
 var InvitationSentActions = window.InvitationSentActions = require('./actions/InvitationSentActions');
+var HealthDataActions = window.HealthDataActions = require('./actions/HealthDataActions');
 
 // Styles
 require('tideline/css/tideline.less');
@@ -117,9 +115,6 @@ var AppComponent = React.createClass({
     return _.assign({
       notification: null,
       page: null,
-      bgPrefs: null,
-      patientData: null,
-      fetchingPatientData: true,
       fetchingMessageData: true,
       showingAcceptTerms: false,
       showingWelcomeMessage: false,
@@ -628,26 +623,16 @@ var AppComponent = React.createClass({
 
     var self = this;
     _.defer(GroupActions.fetch.bind(GroupActions, this.patientId));
-    this.fetchPatientData(this.patientId);
+    _.defer(HealthDataActions.fetchForGroup.bind(HealthDataActions, this.patientId));
 
     trackMetric('Viewed Data');
   },
 
   renderPatientData: function() {
-    // On each state change check if patient object was returned from server
-    if (this.isDoneFetchingAndNotFoundPatient()) {
-      app.log('Patient not found');
-      this.redirectToDefaultRoute();
-      return;
-    }
-
     /* jshint ignore:start */
     return (
       <PatientData
         patientId={this.patientId}
-        bgPrefs={this.state.bgPrefs}
-        patientData={this.state.patientData}
-        fetchingPatientData={this.state.fetchingPatientData}
         isUserPatient={this.isSamePersonUserAndPatient()}
         queryParams={this.state.queryParams}
         uploadUrl={app.api.getUploadUrl()}
@@ -710,60 +695,6 @@ var AppComponent = React.createClass({
     this.setState({notification: null});
   },
 
-  fetchPatientData: function(patientId) {
-    var self = this;
-
-    self.setState({fetchingPatientData: true});
-
-    var loadPatientData = function(cb) {
-      app.api.patientData.get(patientId, cb);
-    };
-
-    var loadTeamNotes = function(cb) {
-      app.api.team.getNotes(patientId, cb);
-    };
-
-    async.parallel({
-      patientData: loadPatientData,
-      teamNotes: loadTeamNotes
-    },
-    function(err, results) {
-      if (err) {
-        var message = 'Error fetching data for patient with id ' + patientId;
-        self.setState({fetchingPatientData: false});
-
-        // Patient with id not found, cary on
-        if (err.status === 404) {
-          app.log(message);
-          return;
-        }
-
-        return self.handleApiError(err, message);
-      }
-
-      var patientData = results.patientData || [];
-      var notes = results.teamNotes || [];
-
-      app.log('Patient device data count', patientData.length);
-      app.log('Team notes count', notes.length);
-
-      var combinedData = patientData.concat(notes);
-      window.downloadInputData = function() {
-        console.save(combinedData, 'blip-input.json');
-      };
-      patientData = self.processPatientData(combinedData);
-
-      self.setState({
-        bgPrefs: {
-          bgClasses: patientData.bgClasses,
-          bgUnits: patientData.bgUnits
-        },
-        patientData: patientData,
-        fetchingPatientData: false
-      });
-    });
-  },
-
   fetchMessageThread: function(messageId,callback) {
     app.log('fetching messages for ' + messageId);
 
@@ -785,28 +716,12 @@ var AppComponent = React.createClass({
     });
   },
 
-  processPatientData: function(data) {
-    if (!(data && data.length >= 0)) {
-      return null;
-    }
-
-    var res = nurseShark.processData(data);
-    var tidelineData = new TidelineData(res.processedData);
-
-    window.tidelineData = tidelineData;
-    window.downloadProcessedData = function() {
-      console.save(res.processedData);
-    };
-
-    return tidelineData;
-  },
-
   fetchCurrentPatientData: function() {
     if (!this.patientId) {
       return;
     }
 
-    this.fetchPatientData(this.patientId);
+    HealthDataActions.fetchForGroup(this.patientId);
   },
 
   clearUserData: function() {

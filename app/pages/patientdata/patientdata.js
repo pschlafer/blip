@@ -31,12 +31,11 @@ var nurseShark = require('tideline/plugins/nurseshark/');
 
 var Messages = require('../../components/messages');
 
+var TidelineDataStore = require('../../stores/TidelineDataStore');
+
 var PatientData = React.createClass({
   propTypes: {
-    bgPrefs: React.PropTypes.object,
-    patientData: React.PropTypes.object,
     patientId: React.PropTypes.string,
-    fetchingPatientData: React.PropTypes.bool,
     isUserPatient: React.PropTypes.bool,
     queryParams: React.PropTypes.object.isRequired,
     uploadUrl: React.PropTypes.string,
@@ -66,7 +65,20 @@ var PatientData = React.createClass({
       messages: null
     };
 
-    return state;
+    return _.assign(state, this.getStateFromStores());
+  },
+
+  getStateFromStores: function(props) {
+    props = props || this.props;
+    var patientData = TidelineDataStore.getForGroup(props.patientId);
+    return {
+      patientData: patientData,
+      fetchingPatientData: TidelineDataStore.isFetchingForGroup(props.patientId),
+      bgPrefs: {
+        bgClasses: patientData ? patientData.bgClasses : null,
+        bgUnits: patientData ? patientData.bgUnits : null
+      }
+    };
   },
 
   componentWillMount: function() {
@@ -83,6 +95,22 @@ var PatientData = React.createClass({
         }
       });
     }
+  },
+
+  componentDidMount: function() {
+    TidelineDataStore.addChangeListener(this.handleStoreChange);
+  },
+
+  componentWillUnmount: function() {
+    TidelineDataStore.removeChangeListener(this.handleStoreChange);
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    this.setState(this.getStateFromStores(nextProps));
+  },
+
+  handleStoreChange: function() {
+    this.setState(this.getStateFromStores());
   },
 
   log: bows('PatientData'),
@@ -102,7 +130,7 @@ var PatientData = React.createClass({
   },
 
   renderPatientData: function() {
-    if (this.props.fetchingPatientData) {
+    if (this.state.fetchingPatientData) {
       return this.renderLoading();
     }
 
@@ -194,14 +222,14 @@ var PatientData = React.createClass({
 
   isEmptyPatientData: function() {
     var patientDataLength =
-      utils.getIn(this.props.patientData, ['data', 'length'], 0);
+      utils.getIn(this.state.patientData, ['data', 'length'], 0);
     return !Boolean(patientDataLength);
   },
 
   isInsufficientPatientData: function() {
     // add additional checks against data and return false iff:
     // only one datapoint
-    var data = this.props.patientData.data;
+    var data = this.state.patientData.data;
     if (data.length === 1) {
       this.log('Sorry, you need more than one datapoint.');
       return true;
@@ -229,11 +257,11 @@ var PatientData = React.createClass({
         /* jshint ignore:start */
         return (
           <Daily
-            bgPrefs={this.props.bgPrefs}
+            bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
-            patientData={this.props.patientData}
+            patientData={this.state.patientData}
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
             onShowMessageThread={this.handleShowMessageThread}
@@ -249,11 +277,11 @@ var PatientData = React.createClass({
         /* jshint ignore:start */
         return (
           <Weekly
-            bgPrefs={this.props.bgPrefs}
+            bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
-            patientData={this.props.patientData}
+            patientData={this.state.patientData}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToSettings={this.handleSwitchToSettings}
@@ -269,9 +297,9 @@ var PatientData = React.createClass({
         /* jshint ignore:start */
         return (
           <Settings
-            bgPrefs={this.props.bgPrefs}
+            bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
-            patientData={this.props.patientData}
+            patientData={this.state.patientData}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToSettings={this.handleSwitchToSettings}
