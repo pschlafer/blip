@@ -27,12 +27,13 @@ var sundial = require('sundial');
 var Message = require('./message');
 var MessageForm = require('./messageform');
 
+var AuthStore = require('../../stores/AuthStore');
+
 var Messages = React.createClass({
 
   propTypes: {
     messages : React.PropTypes.array,
     createDatetime : React.PropTypes.string,
-    user : React.PropTypes.object,
     patient : React.PropTypes.object,
     onClose : React.PropTypes.func,
     onSave : React.PropTypes.func,
@@ -50,16 +51,35 @@ var Messages = React.createClass({
     this.setState({messages: nextProps.messages});
   },
   getInitialState: function() {
-    return {
+    return _.assign({
       messages : this.props.messages
+    }, this.getStateFromStores());
+  },
+
+  getStateFromStores: function() {
+    return {
+      user: AuthStore.getLoggedInUser()
     };
   },
+
+  componentDidMount: function() {
+    AuthStore.addChangeListener(this.handleStoreChange);
+  },
+
+  componentWillUnmount: function() {
+    AuthStore.removeChangeListener(this.handleStoreChange);
+  },
+
+  handleStoreChange: function() {
+    this.setState(this.getStateFromStores());
+  },
+
   /*
    * Should the use be able to edit this message?
    */
   getSaveEdit:function(messageUserId){
     var saveEdit;
-    if(messageUserId === this.props.user.userid){
+    if(messageUserId === this.state.user.userid){
       saveEdit = this.handleEditNote;
     }
     return saveEdit;
@@ -192,7 +212,7 @@ var Messages = React.createClass({
 
       var comment = {
         parentmessage : parent.id,
-        userid : this.props.user.userid,
+        userid : this.state.user.userid,
         groupid : parent.groupid,
         messagetext : formValues.text,
         timestamp : formValues.timestamp
@@ -207,7 +227,7 @@ var Messages = React.createClass({
           }
           //set so we can display right away
           comment.id = commentId;
-          comment.user = this.props.user.profile;
+          comment.user = this.state.user.profile;
           var withReply = this.state.messages;
           withReply.push(comment);
           this.setState({
@@ -224,7 +244,7 @@ var Messages = React.createClass({
       var createNote = this.props.onSave;
 
       var message = {
-        userid : this.props.user.userid,
+        userid : this.state.user.userid,
         groupid : this.props.patient.userid,
         messagetext : formValues.text,
         timestamp : sundial.formatForStorage(formValues.timestamp,sundial.getOffset())
@@ -239,7 +259,7 @@ var Messages = React.createClass({
           }
           //set so we can display right away
           message.id = messageId;
-          message.user = this.props.user.profile;
+          message.user = this.state.user.profile;
           //give this message to anyone that needs it
           this.props.onNewMessage(message);
 

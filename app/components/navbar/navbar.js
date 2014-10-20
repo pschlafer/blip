@@ -21,6 +21,7 @@ var cx = require('react/lib/cx');
 var personUtils = require('../../core/personutils');
 
 var AuthActions = require('../../actions/AuthActions');
+var AuthStore = require('../../stores/AuthStore');
 
 var logoSrc = require('./images/blip-logo-80x80.png');
 
@@ -28,11 +29,32 @@ var Navbar = React.createClass({
   propTypes: {
     version: React.PropTypes.string,
     currentPage: React.PropTypes.string,
-    user: React.PropTypes.object,
     patient: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool,
     getUploadUrl: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired
+  },
+
+  getInitialState: function() {
+    return this.getStateFromStores();
+  },
+
+  getStateFromStores: function() {
+    return {
+      user: AuthStore.getLoggedInUser()
+    };
+  },
+
+  componentDidMount: function() {
+    AuthStore.addChangeListener(this.handleStoreChange);
+  },
+
+  componentWillUnmount: function() {
+    AuthStore.removeChangeListener(this.handleStoreChange);
+  },
+
+  handleStoreChange: function() {
+    this.setState(this.getStateFromStores());
   },
 
   render: function() {
@@ -109,7 +131,7 @@ var Navbar = React.createClass({
   renderUploadLink: function() {
     var noLink = <div className="Navbar-uploadButton"></div>;
 
-    if (!this.isSamePersonUserAndPatient()) {
+    if (!this.isRootOrAdmin()) {
       return noLink;
     }
 
@@ -136,7 +158,7 @@ var Navbar = React.createClass({
   },
 
   renderMenuSection: function() {
-    var user = this.props.user;
+    var user = this.state.user;
 
     if (_.isEmpty(user)) {
       return <div className="Navbar-menuSection"></div>;
@@ -185,7 +207,7 @@ var Navbar = React.createClass({
   },
 
   getUserDisplayName: function() {
-    return personUtils.fullName(this.props.user);
+    return personUtils.fullName(this.state.user);
   },
 
   getPatientDisplayName: function() {
@@ -200,8 +222,9 @@ var Navbar = React.createClass({
     return '#/patients/' + patient.userid;
   },
 
-  isSamePersonUserAndPatient: function() {
-    return personUtils.isSame(this.props.user, this.props.patient);
+  isRootOrAdmin: function() {
+    return personUtils.hasPermissions('root', this.props.patient) ||
+           personUtils.hasPermissions('admin', this.props.patient);
   },
 
   handleLogout: function(e) {

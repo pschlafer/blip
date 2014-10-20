@@ -24,8 +24,6 @@ var PatientTeam = require('./patientteam');
 
 var Patient = React.createClass({
   propTypes: {
-    user: React.PropTypes.object,
-    fetchingUser: React.PropTypes.bool,
     patient: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool,
     onUpdatePatient: React.PropTypes.func,
@@ -119,8 +117,6 @@ var Patient = React.createClass({
       <div className="PatientPage-infoSection">
         <div className="PatientPage-sectionTitle">Info</div>
         <PatientInfo
-          user={this.props.user}
-          fetchingUser={this.props.fetchingUser}
           patient={this.props.patient}
           fetchingPatient={this.props.fetchingPatient}
           onUpdatePatient={this.props.onUpdatePatient}
@@ -185,7 +181,6 @@ var Patient = React.createClass({
       <div className="PatientPage-teamSection">
         <div className="PatientPage-sectionTitle">My Care Team <span className="PatientPage-sectionTitleMessage">These people can view your data.</span></div>
         <PatientTeam
-          user={this.props.user}
           patient={this.props.patient}
           pendingInvites={this.props.pendingInvites}
           onChangeMemberPermissions={this.props.onChangeMemberPermissions}

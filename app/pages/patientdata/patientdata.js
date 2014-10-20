@@ -46,7 +46,6 @@ var PatientData = React.createClass({
     onEditMessage: React.PropTypes.func,
     onCreateMessage: React.PropTypes.func,
     onUpdatePatientData: React.PropTypes.func,
-    user: React.PropTypes.object,
     trackMetric: React.PropTypes.func.isRequired
   },
 
@@ -291,7 +290,6 @@ var PatientData = React.createClass({
       return (
         <Messages
           createDatetime={this.state.createMessageDatetime}
-          user={this.props.user}
           patient={this.props.patient}
           onClose={this.closeMessageCreation}
           onSave={this.props.onCreateMessage}
@@ -302,7 +300,6 @@ var PatientData = React.createClass({
       return (
         <Messages
           messages={this.state.messages}
-          user={this.props.user}
           patient={this.props.patient}
           onClose={this.closeMessageThread}
           onSave={this.handleReplyToMessage}

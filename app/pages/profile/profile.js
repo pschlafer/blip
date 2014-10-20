@@ -22,10 +22,10 @@ var SimpleForm = require('../../components/simpleform');
 var PeopleList = require('../../components/peoplelist');
 var PersonCard = require('../../components/personcard');
 
+var AuthStore = require('../../stores/AuthStore');
+
 var Profile = React.createClass({
   propTypes: {
-    user: React.PropTypes.object,
-    fetchingUser: React.PropTypes.bool,
     onSubmit: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired
   },
@@ -40,11 +40,29 @@ var Profile = React.createClass({
   MESSAGE_TIMEOUT: 2000,
 
   getInitialState: function() {
-    return {
-      formValues: this.formValuesFromUser(this.props.user),
+    return _.assign({
       validationErrors: {},
       notification: null
+    }, this.getStateFromStores());
+  },
+
+  getStateFromStores: function() {
+    return {
+      formValues: this.formValuesFromUser(AuthStore.getLoggedInUser())
     };
+  },
+
+  componentDidMount: function() {
+    AuthStore.addChangeListener(this.handleStoreChange);
+  },
+
+  componentWillUnmount: function() {
+    AuthStore.removeChangeListener(this.handleStoreChange);
+    clearTimeout(this.messageTimeoutId);
+  },
+
+  handleStoreChange: function() {
+    this.setState(this.getStateFromStores());
   },
 
   formValuesFromUser: function(user) {
@@ -56,15 +74,6 @@ var Profile = React.createClass({
       fullName: user.profile && user.profile.fullName,
       username: user.username
     };
-  },
-
-  componentWillReceiveProps: function(nextProps) {
-    // Keep form values in sync with upstream changes
-    this.setState({formValues: this.formValuesFromUser(nextProps.user)});
-  },
-
-  componentWillUnmount: function() {
-    clearTimeout(this.messageTimeoutId);
   },
 
   render: function() {
@@ -103,8 +112,6 @@ var Profile = React.createClass({
   },
 
   renderForm: function() {
-    var disabled = this.isResettingUserData();
-
     /* jshint ignore:start */
     return (
       <SimpleForm
@@ -113,8 +120,7 @@ var Profile = React.createClass({
         validationErrors={this.state.validationErrors}
         submitButtonText="Save"
         onSubmit={this.handleSubmit}
-        notification={this.state.notification}
-        disabled={disabled}/>
+        notification={this.state.notification} />
     );
     /* jshint ignore:end */
   },
@@ -135,25 +141,6 @@ var Profile = React.createClass({
       </div>
     );
     /* jshint ignore:end */
-  },
-
-  renderUserCareTeam: function() {
-    var patient = _.cloneDeep(this.props.user);
-    if (patient.userid) {
-      patient.link = '#/patients/' + patient.userid + '/edit';
-    }
-
-    /* jshint ignore:start */
-    return (
-      <PeopleList
-        people={[patient]}
-        isPatientList={true}/>
-    );
-    /* jshint ignore:end */
-  },
-
-  isResettingUserData: function() {
-    return (this.props.fetchingUser && !this.props.user);
   },
 
   handleSubmit: function(formValues) {

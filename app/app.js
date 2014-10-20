@@ -274,7 +274,6 @@ var AppComponent = React.createClass({
         <div className="App-navbar">
           <Navbar
             version={config.VERSION}
-            user={this.state.user}
             patient={patient}
             fetchingPatient={this.state.fetchingPatient}
             currentPage={this.state.page}
@@ -401,8 +400,6 @@ var AppComponent = React.createClass({
     return (
       /* jshint ignore:start */
       <Profile
-          user={this.state.user}
-          fetchingUser={this.state.fetchingUser}
           onSubmit={this.updateUser}
           trackMetric={trackMetric}/>
       /* jshint ignore:end */
@@ -423,8 +420,6 @@ var AppComponent = React.createClass({
     /* jshint ignore:start */
     return (
       <Patients
-          user={this.state.user}
-          fetchingUser={this.state.fetchingUser}
           invites={this.state.invites}
           uploadUrl={app.api.getUploadUrl()}
           fetchingInvites={this.state.fetchingInvites}
@@ -597,8 +592,6 @@ var AppComponent = React.createClass({
     /* jshint ignore:start */
     return (
       <Patient
-        user={this.state.user}
-        fetchingUser={this.state.fetchingUser}
         patient={this.state.patient}
         fetchingPatient={this.state.fetchingPatient}
         onUpdatePatient={this.updatePatient}
@@ -706,7 +699,6 @@ var AppComponent = React.createClass({
     /* jshint ignore:start */
     return (
       <PatientData
-        user={this.state.user}
         patient={this.state.patient}
         bgPrefs={this.state.bgPrefs}
         patientData={this.state.patientData}

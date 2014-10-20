@@ -20,6 +20,8 @@ var cx = require('react/lib/cx');
 var ModalOverlay = require('../../components/modaloverlay');
 var InputGroup = require('../../components/inputgroup');
 
+var AuthStore = require('../../stores/AuthStore');
+
 var PermissionInputGroup = React.createClass({
   propTypes: {
     name: React.PropTypes.string,
@@ -320,7 +322,6 @@ var ConfirmDialog = React.createClass({
 
 var PatientTeam = React.createClass({
   propTypes: {
-    user: React.PropTypes.object,
     patient: React.PropTypes.object,
     pendingInvites: React.PropTypes.array,
     onChangeMemberPermissions: React.PropTypes.func,
@@ -330,12 +331,30 @@ var PatientTeam = React.createClass({
   },
 
   getInitialState: function() {
-    return {
+    return _.assign({
       showModalOverlay: false,
       invite: false,
       dialog: null,
       editing: false
+    }, this.getStateFromStores());
+  },
+
+  getStateFromStores: function() {
+    return {
+      user: AuthStore.getLoggedInUser()
     };
+  },
+
+  componentDidMount: function() {
+    AuthStore.addChangeListener(this.handleStoreChange);
+  },
+
+  componentWillUnmount: function() {
+    AuthStore.removeChangeListener(this.handleStoreChange);
+  },
+
+  handleStoreChange: function() {
+    this.setState(this.getStateFromStores());
   },
 
   renderChangeTeamMemberPermissionsDialog: function(member) {
@@ -343,7 +362,7 @@ var PatientTeam = React.createClass({
 
     var handleCancel = this.overlayClickHandler;
     var handleSubmit = function(permissions, cb) {
-      self.props.onChangeMemberPermissions(self.props.user.userid, member.userid, permissions, function(err) {
+      self.props.onChangeMemberPermissions(self.state.user.userid, member.userid, permissions, function(err) {
         if (err) {
           return cb(err);
         }
@@ -381,7 +400,7 @@ var PatientTeam = React.createClass({
 
     var handleCancel = this.overlayClickHandler;
     var handleSubmit = function(cb) {
-      self.props.onRemoveMember(self.props.user.userid, member.userid, function(err) {
+      self.props.onRemoveMember(self.state.user.userid, member.userid, function(err) {
         if (err) {
           return cb(err);
         }

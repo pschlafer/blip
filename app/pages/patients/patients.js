@@ -24,13 +24,12 @@ var PeopleList = require('../../components/peoplelist');
 var PersonCard = require('../../components/personcard');
 var Invitation = require('../../components/invitation');
 
+var AuthStore = require('../../stores/AuthStore');
 var GroupActions = require('../../actions/GroupActions');
 var GroupStore = require('../../stores/GroupStore');
 
 var Patients = React.createClass({
   propTypes: {
-    user: React.PropTypes.object,
-    fetchingUser: React.PropTypes.bool,
     invites: React.PropTypes.array,
     fetchingInvites: React.PropTypes.bool,
     showingWelcomeMessage: React.PropTypes.bool,
@@ -48,16 +47,19 @@ var Patients = React.createClass({
 
   getStateFromStores: function() {
     return {
+      user: AuthStore.getLoggedInUser(),
       patients: GroupStore.getAll(),
       fetchingPatients: GroupStore.isFetchingAll()
     };
   },
 
   componentDidMount: function() {
-    GroupStore.addChangeListener(this.handleStoreChange);    
+    AuthStore.addChangeListener(this.handleStoreChange);
+    GroupStore.addChangeListener(this.handleStoreChange);
   },
 
   componentWillUnmount: function() {
+    AuthStore.removeChangeListener(this.handleStoreChange);
     GroupStore.removeChangeListener(this.handleStoreChange);
   },
 
@@ -114,12 +116,12 @@ var Patients = React.createClass({
     /* jshint ignore:end */
   },
   renderPatients: function() {
-    if (this.isResettingPatientsData() || this.isResettingUserData()) {
+    if (this.isResettingPatientsData()) {
       return null;
     }
 
     var content;
-    var user = _.cloneDeep(this.props.user);
+    var user = _.cloneDeep(this.state.user);
     var patients = _.clone(this.state.patients) || [];
 
     if(personUtils.isPatient(user)) {
@@ -171,7 +173,7 @@ var Patients = React.createClass({
     /* jshint ignore:end */
   },
   renderAddAccount: function() {
-    if(personUtils.isPatient(this.props.user)) {
+    if(personUtils.isPatient(this.state.user)) {
       return null;
     }
 
@@ -200,8 +202,7 @@ var Patients = React.createClass({
     /* jshint ignore:end */
   },
   renderLoadingIndicator: function() {
-    var isResettingPatientList = this.isResettingUserData() ||this.isResettingPatientsData();
-    if (isResettingPatientList && this.isResettingInvitesData()) {
+    if (this.isResettingPatientsData() && this.isResettingInvitesData()) {
       /* jshint ignore:start */
       return (
         <div className="patients-section">
@@ -228,10 +229,6 @@ var Patients = React.createClass({
       </div>
     );
     /* jshint ignore:end */
-  },
-
-  isResettingUserData: function() {
-    return (this.props.fetchingUser && !this.props.user);
   },
 
   handleClickCreateProfile: function() {
@@ -264,7 +261,7 @@ var Patients = React.createClass({
   },
 
   handleClickPatient: function(patient) {
-    if (personUtils.isSame(this.props.user, patient)) {
+    if (personUtils.isSame(this.state.user, patient)) {
       this.props.trackMetric('Clicked Own Care Team');
     }
     else {

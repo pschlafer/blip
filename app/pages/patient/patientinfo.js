@@ -26,8 +26,6 @@ var FORM_DATE_FORMAT = 'MM/DD/YYYY';
 
 var PatientInfo = React.createClass({
   propTypes: {
-    user: React.PropTypes.object,
-    fetchingUser: React.PropTypes.bool,
     patient: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool,
     onUpdatePatient: React.PropTypes.func,
@@ -117,7 +115,7 @@ var PatientInfo = React.createClass({
   },
 
   renderEditLink: function() {
-    if (!this.isSamePersonUserAndPatient()) {
+    if (!this.isRootOrAdmin()) {
       return null;
     }
 
@@ -235,8 +233,9 @@ var PatientInfo = React.createClass({
     );
   },
 
-  isSamePersonUserAndPatient: function() {
-    return personUtils.isSame(this.props.user, this.props.patient);
+  isRootOrAdmin: function() {
+    return personUtils.hasPermissions('root', this.props.patient) ||
+           personUtils.hasPermissions('admin', this.props.patient);
   },
 
   getDisplayName: function(patient) {
