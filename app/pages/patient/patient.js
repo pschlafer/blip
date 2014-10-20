@@ -72,7 +72,7 @@ var Patient = React.createClass({
     return (
       <div className="PatientPage-content">
         {this.renderInfo()}
-        {this.renderAccess()}
+        {this.renderTeam()}
         {this.renderModalOverlay()}
       </div>
     );
@@ -129,8 +129,9 @@ var Patient = React.createClass({
     );
   },
 
-  isSamePersonUserAndPatient: function() {
-    return personUtils.isSame(this.props.user, this.props.patient);
+  isRootOrAdmin: function() {
+    return personUtils.hasPermissions('root', this.props.patient) ||
+           personUtils.hasPermissions('admin', this.props.patient);
   },
 
   renderDeleteDialog: function() {
@@ -142,7 +143,7 @@ var Patient = React.createClass({
   renderDelete: function() {
     var self = this;
 
-    if (!this.isSamePersonUserAndPatient()) {
+    if (!this.isRootOrAdmin()) {
       return null;
     }
 
@@ -175,22 +176,25 @@ var Patient = React.createClass({
     /* jshint ignore:end */
   },
 
-  renderAccess: function() {
-    if (!this.isSamePersonUserAndPatient()) {
+  renderTeam: function() {
+    if (!this.isRootOrAdmin()) {
       return null;
     }
 
     return (
       <div className="PatientPage-teamSection">
         <div className="PatientPage-sectionTitle">My Care Team <span className="PatientPage-sectionTitleMessage">These people can view your data.</span></div>
-        {this.renderPatientTeam()}
+        <PatientTeam
+          user={this.props.user}
+          patient={this.props.patient}
+          pendingInvites={this.props.pendingInvites}
+          onChangeMemberPermissions={this.props.onChangeMemberPermissions}
+          onRemoveMember={this.props.onRemoveMember}
+          onInviteMember={this.props.onInviteMember}
+          onCancelInvite={this.props.onCancelInvite} />
       </div>
     );
-  },
-
-  renderPatientTeam: function() {
-    return this.transferPropsTo(<PatientTeam />);
-  },
+  }
 });
 
 module.exports = Patient;
