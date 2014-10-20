@@ -145,23 +145,16 @@ var AppComponent = React.createClass({
   },
 
   componentDidMount: function() {
-    RequestStore.addChangeListener(this.handleRequestStoreChange);
+    RequestStore.addChangeListener(this.handleStoreChange);
     AuthStore.addChangeListener(this.handleStoreChange);
     GroupStore.addChangeListener(this.handleStoreChange);
     this.setupAndStartRouter();
   },
 
   componentWillUnmount: function() {
-    RequestStore.removeChangeListener(this.handleRequestStoreChange);
+    RequestStore.removeChangeListener(this.handleStoreChange);
     AuthStore.removeChangeListener(this.handleStoreChange);
     GroupStore.removeChangeListener(this.handleStoreChange);
-  },
-
-  handleRequestStoreChange: function() {
-    var error = RequestStore.getError();
-    if (error) {
-      this.handleApiError(error.original, error.message);
-    }
   },
 
   handleStoreChange: function() {
