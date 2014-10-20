@@ -22,6 +22,7 @@ var tokenLocalKey = 'mockAuthToken';
 
 var userIdSize = 10;
 var tokenIdSize = 16;
+var childAccountUsernameSize = 8;
 
 function generateUserId() {
   return common.generateRandomId(userIdSize);
@@ -29,6 +30,10 @@ function generateUserId() {
 
 function generateTokenId() {
   return common.generateRandomId(tokenIdSize);
+}
+
+function generateChildAccountUsername() {
+  return common.generateRandomId(childAccountUsernameSize);
 }
 
 var patch = function(mock, api) {
@@ -112,6 +117,8 @@ var patch = function(mock, api) {
       }
     });
   }
+
+  var setPermissions = common.setPermissions.bind(null, data);
 
   api.user.loadSession = function(callback) {
     var userId;
@@ -202,6 +209,7 @@ var patch = function(mock, api) {
   };
 
   api.user.signup = function(user, callback) {
+    api.log('[mock] POST /user');
     user = _.cloneDeep(user);
 
     setTimeout(function() {
@@ -268,6 +276,24 @@ var patch = function(mock, api) {
       user = _.omit(user, 'password');
       callback(err, user);
     }, getDelayFor('api.user.put'));
+  };
+
+  api.user.createChildAccount = function(child, callback) {
+    api.log('[mock] POST /user/child');
+    child = _.cloneDeep(child);
+
+    setTimeout(function() {
+      var loggedInUserId = api.userId;
+
+      child.userid = generateUserId();
+      child.username = generateChildAccountUsername();
+      child.emails = [];
+      addUser(child);
+      setPermissions(child.userid, loggedInUserId, {admin: {}});
+
+      child = _.omit(child, 'username', 'emails');
+      callback(null, child);
+    }, getDelayFor('api.user.createChildAccount'));
   };
 
   return api;

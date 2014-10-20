@@ -193,6 +193,11 @@ api.user.put = function(user, cb) {
   });
 };
 
+api.user.createChildAccount = function(child, callback) {
+  api.log('POST /user/child [NOT IMPLEMENTED]');
+  callback(null, {});
+};
+
 function accountFromUser(user) {
   var account = _.pick(user, 'username', 'password', 'emails');
   return account;
