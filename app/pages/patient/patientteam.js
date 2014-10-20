@@ -21,6 +21,7 @@ var ModalOverlay = require('../../components/modaloverlay');
 var InputGroup = require('../../components/inputgroup');
 
 var AuthStore = require('../../stores/AuthStore');
+var MemberStore = require('../../stores/MemberStore');
 
 var PermissionInputGroup = React.createClass({
   propTypes: {
@@ -322,6 +323,7 @@ var ConfirmDialog = React.createClass({
 
 var PatientTeam = React.createClass({
   propTypes: {
+    patientId: React.PropTypes.string,
     patient: React.PropTypes.object,
     pendingInvites: React.PropTypes.array,
     onChangeMemberPermissions: React.PropTypes.func,
@@ -341,16 +343,19 @@ var PatientTeam = React.createClass({
 
   getStateFromStores: function() {
     return {
-      user: AuthStore.getLoggedInUser()
+      user: AuthStore.getLoggedInUser(),
+      members: MemberStore.getForGroup(this.props.patientId)
     };
   },
 
   componentDidMount: function() {
     AuthStore.addChangeListener(this.handleStoreChange);
+    MemberStore.addChangeListener(this.handleStoreChange);
   },
 
   componentWillUnmount: function() {
     AuthStore.removeChangeListener(this.handleStoreChange);
+    MemberStore.removeChangeListener(this.handleStoreChange);
   },
 
   handleStoreChange: function() {
@@ -570,7 +575,7 @@ var PatientTeam = React.createClass({
   },
 
   renderInvite: function() {
-    var isTeamEmpty = this.props.patient.team.length === 0;
+    var isTeamEmpty = _.isEmpty(this.state.members);
     var self = this;
     var classes = {
       'PatientTeam-member': true,
@@ -651,7 +656,7 @@ var PatientTeam = React.createClass({
     });
 
     var editControls = this.renderEditControls();
-    var members = _.map(this.props.patient.team, this.renderTeamMember);
+    var members = _.map(this.state.members, this.renderTeamMember);
     var pendingInvites = _.map(this.props.pendingInvites, this.renderPendingInvite);
     var invite = this.state && this.state.invite ? this.renderInviteForm() : this.renderInvite();
 

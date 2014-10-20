@@ -57,9 +57,12 @@ var GroupStore = merge(EventEmitter.prototype, {
   isFetchingAll: function() {
     return Boolean(this._state.requests.fetchingAll);
   },
-  
+
   get: function(groupId) {
     var group = _.cloneDeep(UserStore.get(groupId));
+    if (!group) {
+      return null;
+    }
     group.permissions = _.cloneDeep(this._state.permissionsByGroupId[groupId]);
     return group;
   },

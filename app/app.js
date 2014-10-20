@@ -115,8 +115,6 @@ var AppComponent = React.createClass({
     return _.assign({
       notification: null,
       page: null,
-      patient: null,
-      fetchingPatient: true,
       invites: null,
       fetchingInvites: true,
       pendingInvites:null,
@@ -132,23 +130,31 @@ var AppComponent = React.createClass({
     }, this.getStateFromStores());
   },
 
+  // This is a React anti-pattern, but it is used like `this.renderPage`,
+  // to be removed when we switch to `react-router`
+  patientId: null,
+
   getStateFromStores: function() {
     return {
       authenticated: AuthStore.isAuthenticated(),
       user: AuthStore.getLoggedInUser(),
-      loggingOut: AuthStore.isLoggingOut()
+      loggingOut: AuthStore.isLoggingOut(),
+      patient: this.patientId ? GroupStore.get(this.patientId) : null,
+      fetchingPatient: this.patientId ? GroupStore.isFetching(this.patientId) : true
     };
   },
 
   componentDidMount: function() {
     RequestStore.addChangeListener(this.handleRequestStoreChange);
     AuthStore.addChangeListener(this.handleStoreChange);
+    GroupStore.addChangeListener(this.handleStoreChange);
     this.setupAndStartRouter();
   },
 
   componentWillUnmount: function() {
     RequestStore.removeChangeListener(this.handleRequestStoreChange);
     AuthStore.removeChangeListener(this.handleStoreChange);
+    GroupStore.removeChangeListener(this.handleStoreChange);
   },
 
   handleRequestStoreChange: function() {
@@ -489,7 +495,8 @@ var AppComponent = React.createClass({
         return self.handleApiError(err, 'Something went wrong while changing member perimissions.');
       }
 
-      self.fetchPatient(patientId, cb);
+      GroupActions.fetch(patientId);
+      cb();
     });
   },
 
@@ -514,7 +521,8 @@ var AppComponent = React.createClass({
         return self.handleApiError(err, 'Something went wrong while removing member.');
       }
 
-      self.fetchPatient(patientId, cb);
+      GroupActions.fetch(patientId);
+      cb();
     });
   },
 
@@ -566,6 +574,7 @@ var AppComponent = React.createClass({
   },
   showPatient: function(patientId) {
     this.renderPage = this.renderPatient;
+    this.patientId = patientId;
     this.setState({
       page: 'patients/' + patientId,
       // Reset patient object to avoid showing previous one
@@ -575,23 +584,15 @@ var AppComponent = React.createClass({
       fetchingPatient: true
     });
     this.fetchPendingInvites();
-    this.fetchPatient(patientId,function(err,patient){
-      return;
-    });
+    _.defer(GroupActions.fetch.bind(GroupActions, this.patientId));
     trackMetric('Viewed Profile');
   },
 
   renderPatient: function() {
-    // On each state change check if patient object was returned from server
-    if (this.isDoneFetchingAndNotFoundPatient()) {
-      app.log('Patient not found');
-      this.redirectToDefaultRoute();
-      return;
-    }
-
     /* jshint ignore:start */
     return (
       <Patient
+        patientId={this.patientId}
         patient={this.state.patient}
         fetchingPatient={this.state.fetchingPatient}
         onUpdatePatient={this.updatePatient}
@@ -603,15 +604,6 @@ var AppComponent = React.createClass({
         trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */
-  },
-
-  isDoneFetchingAndNotFoundPatient: function() {
-    // Wait for patient object to come back from server
-    if (this.state.fetchingPatient) {
-      return false;
-    }
-
-    return !this.state.patient;
   },
 
   showPatientNew: function() {
@@ -672,6 +664,7 @@ var AppComponent = React.createClass({
 
   showPatientData: function(patientId) {
     this.renderPage = this.renderPatientData;
+    this.patientId = patientId;
     this.setState({
       page: 'patients/' + patientId + '/data',
       patient: null,
@@ -681,9 +674,8 @@ var AppComponent = React.createClass({
     });
 
     var self = this;
-    this.fetchPatient(patientId, function(err, patient) {
-      self.fetchPatientData(patient);
-    });
+    _.defer(GroupActions.fetch.bind(GroupActions, this.patientId));
+    this.fetchPatientData(this.patientId);
 
     trackMetric('Viewed Data');
   },
@@ -819,40 +811,8 @@ var AppComponent = React.createClass({
     });
   },
 
-  fetchPatient: function(patientId, callback) {
+  fetchPatientData: function(patientId) {
     var self = this;
-
-    self.setState({fetchingPatient: true});
-
-    app.api.patient.get(patientId, function(err, patient) {
-      if (err) {
-        var message = 'Error fetching patient with id ' + patientId;
-        self.setState({fetchingPatient: false});
-
-        // Patient with id not found, cary on
-        if (err.status === 404) {
-          app.log(message);
-          return;
-        }
-
-        return self.handleApiError(err, message);
-      }
-
-      self.setState({
-        patient: patient,
-        fetchingPatient: false
-      });
-
-      if (typeof callback === 'function') {
-        callback(null, patient);
-      }
-    });
-  },
-
-  fetchPatientData: function(patient) {
-    var self = this;
-
-    var patientId = patient.userid;
 
     self.setState({fetchingPatientData: true});
 
@@ -943,13 +903,11 @@ var AppComponent = React.createClass({
   },
 
   fetchCurrentPatientData: function() {
-    var patient = this.state.patient;
-
-    if (!patient) {
+    if (!this.patientId) {
       return;
     }
 
-    this.fetchPatientData(patient);
+    this.fetchPatientData(this.patientId);
   },
 
   clearUserData: function() {

@@ -106,7 +106,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       RequestStore._state.error = {
         key: AppConstants.api.FAILED_GET_GROUP,
         groupId: payload.groupId,
-        message: 'Something went wrong while trying to fetch group with id' + payload.groupId,
+        message: 'Something went wrong while trying to fetch group with id ' + payload.groupId,
         original: payload.error
       };
       RequestStore.emitChange();
