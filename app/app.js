@@ -637,7 +637,6 @@ var AppComponent = React.createClass({
         queryParams={this.state.queryParams}
         uploadUrl={app.api.getUploadUrl()}
         onRefresh={this.fetchCurrentPatientData}
-        onFetchMessageThread={this.fetchMessageThread}
         onSaveComment={app.api.team.replyToMessageThread.bind(app.api.team)}
         onCreateMessage={app.api.team.startMessageThread.bind(app.api.team)}
         onEditMessage={app.api.team.editMessage.bind(app.api.team)}
@@ -693,27 +692,6 @@ var AppComponent = React.createClass({
   closeNotification: function() {
     RequestActions.dismissError();
     this.setState({notification: null});
-  },
-
-  fetchMessageThread: function(messageId,callback) {
-    app.log('fetching messages for ' + messageId);
-
-    var self = this;
-    self.setState({fetchingMessageData: true});
-
-    app.api.team.getMessageThread(messageId,function(err, thread){
-      self.setState({fetchingMessageData: false});
-
-      if (err) {
-        var message =
-          'Error fetching data for message thread with id ' + messageId;
-        self.handleApiError(err, message);
-        return callback(null);
-      }
-
-      app.log('Fetched message thread with '+thread.length+' messages');
-      return callback(thread);
-    });
   },
 
   fetchCurrentPatientData: function() {

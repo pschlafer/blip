@@ -40,7 +40,6 @@ var PatientData = React.createClass({
     queryParams: React.PropTypes.object.isRequired,
     uploadUrl: React.PropTypes.string,
     onRefresh: React.PropTypes.func,
-    onFetchMessageThread: React.PropTypes.func,
     onSaveComment: React.PropTypes.func,
     onEditMessage: React.PropTypes.func,
     onCreateMessage: React.PropTypes.func,
@@ -58,7 +57,7 @@ var PatientData = React.createClass({
         }
       },
       chartType: 'daily',
-      createMessage: null,
+      showingThreadWithId: null,
       createMessageDatetime: null,
       datetimeLocation: null,
       initialDatetimeLocation: null,
@@ -324,10 +323,10 @@ var PatientData = React.createClass({
           onNewMessage={this.handleMessageCreation}
           onEdit={this.handleEditMessage} />
       );
-    } else if(this.state.messages) {
+    } else if(this.state.showingThreadWithId) {
       return (
         <Messages
-          messages={this.state.messages}
+          threadId={this.state.showingThreadWithId}
           patientId={this.props.patientId}
           onClose={this.closeMessageThread}
           onSave={this.handleReplyToMessage}
@@ -338,7 +337,7 @@ var PatientData = React.createClass({
   },
 
   closeMessageThread: function(){
-    this.setState({ messages: null });
+    this.setState({ showingThreadWithId: null });
     this.refs.tideline.closeMessageThread();
     this.props.trackMetric('Closed Message Thread Modal');
   },
@@ -373,15 +372,8 @@ var PatientData = React.createClass({
     this.props.trackMetric('Edit To Message');
   },
 
-  handleShowMessageThread: function(messageThread) {
-    var self = this;
-
-    var fetchMessageThread = this.props.onFetchMessageThread;
-    if (fetchMessageThread) {
-      fetchMessageThread(messageThread,function(thread){
-        self.setState({ messages: thread });
-      });
-    }
+  handleShowMessageThread: function(threadId) {
+    this.setState({showingThreadWithId: threadId});
 
     this.props.trackMetric('Clicked Message Icon');
   },

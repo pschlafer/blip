@@ -28,11 +28,13 @@ var Message = require('./message');
 var MessageForm = require('./messageform');
 
 var AuthStore = require('../../stores/AuthStore');
+var MessageThreadActions = require('../../actions/MessageThreadActions');
+var MessageThreadStore = require('../../stores/MessageThreadStore');
 
 var Messages = React.createClass({
 
   propTypes: {
-    messages : React.PropTypes.array,
+    threadId : React.PropTypes.string,
     createDatetime : React.PropTypes.string,
     patientId : React.PropTypes.string,
     onClose : React.PropTypes.func,
@@ -47,31 +49,44 @@ var Messages = React.createClass({
       COMMENT_PROMPT : 'Type a comment here ...'
     };
   },
-  componentWillReceiveProps: function(nextProps) {
-    this.setState({messages: nextProps.messages});
-  },
+
   getInitialState: function() {
-    return _.assign({
-      messages : this.props.messages
-    }, this.getStateFromStores());
+    return this.getStateFromStores();
   },
 
-  getStateFromStores: function() {
+  getStateFromStores: function(props) {
+    props = props || this.props;
     return {
-      user: AuthStore.getLoggedInUser()
+      user: AuthStore.getLoggedInUser(),
+      messages: props.threadId ? MessageThreadStore.get(props.threadId) : null
     };
   },
 
   componentDidMount: function() {
     AuthStore.addChangeListener(this.handleStoreChange);
+    MessageThreadStore.addChangeListener(this.handleStoreChange);
+    this.fetchMessageThreadIfNeeded();
   },
 
   componentWillUnmount: function() {
     AuthStore.removeChangeListener(this.handleStoreChange);
+    MessageThreadStore.removeChangeListener(this.handleStoreChange);
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    this.setState(this.getStateFromStores(nextProps));
+    this.fetchMessageThreadIfNeeded(nextProps);
   },
 
   handleStoreChange: function() {
     this.setState(this.getStateFromStores());
+  },
+
+  fetchMessageThreadIfNeeded: function(props) {
+    props = props || this.props;
+    if (props.threadId) {
+      MessageThreadActions.fetch(props.threadId);
+    }
   },
 
   /*
@@ -128,7 +143,7 @@ var Messages = React.createClass({
     return;
   },
   isMessageThread:function(){
-    return this.state.messages;
+    return Boolean(this.props.threadId);
   },
   renderCommentOnThreadForm:function(){
 

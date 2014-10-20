@@ -96,7 +96,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
     case AppConstants.api.FAILED_GET_GROUPS:
       RequestStore._state.error = {
         key: AppConstants.api.FAILED_GET_GROUPS,
-        message: 'Something went wrong while trying to fetch groups you have access to',
+        message: 'Something went wrong while trying to fetch groups user has access to',
         original: payload.error
       };
       RequestStore.emitChange();
@@ -106,7 +106,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       RequestStore._state.error = {
         key: AppConstants.api.FAILED_GET_GROUP,
         groupId: payload.groupId,
-        message: 'Something went wrong while trying to fetch group with id ' + payload.groupId,
+        message: 'Something went wrong while trying to fetch group ' + payload.groupId,
         original: payload.error
       };
       RequestStore.emitChange();
@@ -125,7 +125,27 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       RequestStore._state.error = {
         key: AppConstants.api.FAILED_GET_INVITATIONS_SENT,
         groupId: payload.groupId,
-        message: 'Something went wrong while trying to fetch sent invitations for group with id ' + payload.groupId,
+        message: 'Something went wrong while trying to fetch sent invitations for group ' + payload.groupId,
+        original: payload.error
+      };
+      RequestStore.emitChange();
+      break;
+
+    case AppConstants.api.FAILED_GET_HEALTH_DATA:
+      RequestStore._state.error = {
+        key: AppConstants.api.FAILED_GET_HEALTH_DATA,
+        groupId: payload.groupId,
+        message: 'Something went wrong while trying to fetch health data for group ' + payload.groupId,
+        original: payload.error
+      };
+      RequestStore.emitChange();
+      break;
+
+    case AppConstants.api.FAILED_GET_MESSAGE_THREAD:
+      RequestStore._state.error = {
+        key: AppConstants.api.FAILED_GET_MESSAGE_THREAD,
+        threadId: payload.threadId,
+        message: 'Something went wrong while trying to fetch message thread ' + payload.threadId,
         original: payload.error
       };
       RequestStore.emitChange();
