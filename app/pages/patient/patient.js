@@ -28,7 +28,6 @@ var Patient = React.createClass({
   propTypes: {
     patientId: React.PropTypes.string,
     onUpdatePatient: React.PropTypes.func,
-    pendingInvites: React.PropTypes.array,
     onChangeMemberPermissions: React.PropTypes.func,
     onRemoveMember: React.PropTypes.func,
     onInviteMember: React.PropTypes.func,
@@ -208,7 +207,6 @@ var Patient = React.createClass({
         <div className="PatientPage-sectionTitle">My Care Team <span className="PatientPage-sectionTitleMessage">These people can view your data.</span></div>
         <PatientTeam
           patientId={this.props.patientId}
-          pendingInvites={this.props.pendingInvites}
           onChangeMemberPermissions={this.props.onChangeMemberPermissions}
           onRemoveMember={this.props.onRemoveMember}
           onInviteMember={this.props.onInviteMember}

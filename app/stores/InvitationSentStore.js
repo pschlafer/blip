@@ -18,17 +18,18 @@ var AppDispatcher = require('../AppDispatcher');
 var AppConstants = require('../AppConstants');
 var EventEmitter = require('events').EventEmitter;
 var merge = require('react/lib/merge');
+var utils = require('../core/utils');
 
 var CHANGE_EVENT = 'change';
 
 var getInitialState = function() {
   return {
     requests: {},
-    invitations: []
+    invitationsByGroupId: []
   };
 };
 
-var InvitationReceivedStore = merge(EventEmitter.prototype, {
+var InvitationSentStore = merge(EventEmitter.prototype, {
 
   _state: getInitialState(),
 
@@ -48,38 +49,39 @@ var InvitationReceivedStore = merge(EventEmitter.prototype, {
     this.removeListener(CHANGE_EVENT, callback);
   },
 
-  getAll: function() {
-    return _.cloneDeep(this._state.invitations);
+  getForGroup: function(groupId) {
+    return _.cloneDeep(this._state.invitationsByGroupId[groupId]);
   },
 
-  isFetchingAll: function() {
-    return Boolean(this._state.requests.fetchingAll);
+  isFetchingForGroup: function(groupId) {
+    return Boolean(utils.getIn(this._state.requests, [groupId, 'fetching']));
   }
 
 });
 
-InvitationReceivedStore.dispatchToken = AppDispatcher.register(function(payload) {
+InvitationSentStore.dispatchToken = AppDispatcher.register(function(payload) {
   switch(payload.type) {
 
-    case AppConstants.api.STARTED_GET_INVITATIONS_RECEIVED:
-      InvitationReceivedStore._state.requests.fetchingAll = true;
-      InvitationReceivedStore.emitChange();
+    case AppConstants.api.STARTED_GET_INVITATIONS_SENT:
+      InvitationSentStore._state.requests[payload.groupId] = true;
+      InvitationSentStore.emitChange();
       break;
 
-    case AppConstants.api.FAILED_GET_INVITATIONS_RECEIVED:
-      InvitationReceivedStore._state.requests.fetchingAll = false;
-      InvitationReceivedStore.emitChange();
+    case AppConstants.api.FAILED_GET_INVITATIONS_SENT:
+      InvitationSentStore._state.requests[payload.groupId] = false;
+      InvitationSentStore.emitChange();
       break;
 
-    case AppConstants.api.COMPLETED_GET_INVITATIONS_RECEIVED:
-      InvitationReceivedStore._state.requests.fetchingAll = false;
-      InvitationReceivedStore._state.invitations = _.cloneDeep(payload.invitations);
-      InvitationReceivedStore.emitChange();
+    case AppConstants.api.COMPLETED_GET_INVITATIONS_SENT:
+      InvitationSentStore._state.requests[payload.groupId] = false;
+      InvitationSentStore._state.invitationsByGroupId[payload.groupId] =
+        _.cloneDeep(payload.invitations);
+      InvitationSentStore.emitChange();
       break;
 
     case AppConstants.api.COMPLETED_LOGOUT:
-      InvitationReceivedStore.reset();
-      InvitationReceivedStore.emitChange();
+      InvitationSentStore.reset();
+      InvitationSentStore.emitChange();
       break;
 
     default:
@@ -88,4 +90,4 @@ InvitationReceivedStore.dispatchToken = AppDispatcher.register(function(payload)
 
 });
 
-module.exports = InvitationReceivedStore;
+module.exports = InvitationSentStore;

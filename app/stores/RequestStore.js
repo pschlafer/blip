@@ -121,6 +121,16 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       RequestStore.emitChange();
       break;
 
+    case AppConstants.api.FAILED_GET_INVITATIONS_SENT:
+      RequestStore._state.error = {
+        key: AppConstants.api.FAILED_GET_INVITATIONS_SENT,
+        groupId: payload.groupId,
+        message: 'Something went wrong while trying to fetch sent invitations for group with id ' + payload.groupId,
+        original: payload.error
+      };
+      RequestStore.emitChange();
+      break;
+
     case AppConstants.api.COMPLETED_LOGOUT:
       RequestStore.reset();
       RequestStore.emitChange();

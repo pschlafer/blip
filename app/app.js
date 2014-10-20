@@ -56,6 +56,7 @@ var RequestActions = window.RequestActions = require('./actions/RequestActions')
 var RequestStore = window.RequestStore = require('./stores/RequestStore');
 var UserStore = window.UserStore = require('./stores/UserStore');
 var InvitationReceivedActions = window.InvitationReceivedActions = require('./actions/InvitationReceivedActions');
+var InvitationSentActions = window.InvitationSentActions = require('./actions/InvitationSentActions');
 
 // Styles
 require('tideline/css/tideline.less');
@@ -116,8 +117,6 @@ var AppComponent = React.createClass({
     return _.assign({
       notification: null,
       page: null,
-      pendingInvites:null,
-      fetchingPendingInvites: true,
       bgPrefs: null,
       patientData: null,
       fetchingPatientData: true,
@@ -504,13 +503,10 @@ var AppComponent = React.createClass({
         return;
       }
 
-      self.setState({
-        pendingInvites: utils.concat(self.state.pendingInvites || [], invitation)
-      });
       if (cb) {
         cb(null, invitation);
       }
-      self.fetchPendingInvites();
+      InvitationSentActions.fetchForGroup(self.state.user.userid);
     });
   },
 
@@ -525,15 +521,10 @@ var AppComponent = React.createClass({
         return self.handleApiError(err, 'Something went wrong while canceling the invitation.');
       }
 
-      self.setState({
-        pendingInvites: _.reject(self.state.pendingInvites, function(i) {
-          return i.email === email;
-        })
-      });
       if (cb) {
         cb();
       }
-      self.fetchPendingInvites();
+      InvitationSentActions.fetchForGroup(self.state.user.userid);
     });
   },
   showPatient: function(patientId) {
@@ -547,8 +538,9 @@ var AppComponent = React.createClass({
       // (important to have this on next render)
       fetchingPatient: true
     });
-    this.fetchPendingInvites();
     _.defer(GroupActions.fetch.bind(GroupActions, this.patientId));
+    _.defer(InvitationSentActions.fetchForGroup.bind(InvitationSentActions,
+        this.state.user.userid));
     trackMetric('Viewed Profile');
   },
 
@@ -558,7 +550,6 @@ var AppComponent = React.createClass({
       <Patient
         patientId={this.patientId}
         onUpdatePatient={this.updatePatient}
-        pendingInvites={this.state.pendingInvites}
         onChangeMemberPermissions={this.handleChangeMemberPermissions}
         onRemoveMember={this.handleRemoveMember}
         onInviteMember={this.handleInviteMember}
@@ -717,37 +708,6 @@ var AppComponent = React.createClass({
   closeNotification: function() {
     RequestActions.dismissError();
     this.setState({notification: null});
-  },
-
-  fetchPendingInvites: function(cb) {
-    var self = this;
-
-    self.setState({fetchingPendingInvites: true});
-
-    api.invitation.getSent(function(err, invites) {
-      if (err) {
-        var message = 'Something went wrong while fetching pending invites';
-
-        self.setState({
-          fetchingPendingInvites: false
-        });
-
-        if (cb) {
-          cb(err);
-        }
-
-        return self.handleApiError(err, message);
-      }
-
-      self.setState({
-        pendingInvites: invites,
-        fetchingPendingInvites: false
-      });
-
-      if (cb) {
-        cb();
-      }
-    });
   },
 
   fetchPatientData: function(patientId) {

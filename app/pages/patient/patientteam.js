@@ -22,6 +22,7 @@ var InputGroup = require('../../components/inputgroup');
 
 var AuthStore = require('../../stores/AuthStore');
 var MemberStore = require('../../stores/MemberStore');
+var InvitationSentStore = require('../../stores/InvitationSentStore');
 
 var PermissionInputGroup = React.createClass({
   propTypes: {
@@ -324,7 +325,6 @@ var ConfirmDialog = React.createClass({
 var PatientTeam = React.createClass({
   propTypes: {
     patientId: React.PropTypes.string,
-    pendingInvites: React.PropTypes.array,
     onChangeMemberPermissions: React.PropTypes.func,
     onRemoveMember: React.PropTypes.func,
     onInviteMember: React.PropTypes.func,
@@ -343,18 +343,21 @@ var PatientTeam = React.createClass({
   getStateFromStores: function() {
     return {
       user: AuthStore.getLoggedInUser(),
-      members: MemberStore.getForGroup(this.props.patientId)
+      members: MemberStore.getForGroup(this.props.patientId),
+      pendingInvites: InvitationSentStore.getForGroup(this.props.patientId)
     };
   },
 
   componentDidMount: function() {
     AuthStore.addChangeListener(this.handleStoreChange);
     MemberStore.addChangeListener(this.handleStoreChange);
+    InvitationSentStore.addChangeListener(this.handleStoreChange);
   },
 
   componentWillUnmount: function() {
     AuthStore.removeChangeListener(this.handleStoreChange);
     MemberStore.removeChangeListener(this.handleStoreChange);
+    InvitationSentStore.removeChangeListener(this.handleStoreChange);
   },
 
   handleStoreChange: function() {
@@ -656,7 +659,7 @@ var PatientTeam = React.createClass({
 
     var editControls = this.renderEditControls();
     var members = _.map(this.state.members, this.renderTeamMember);
-    var pendingInvites = _.map(this.props.pendingInvites, this.renderPendingInvite);
+    var pendingInvites = _.map(this.state.pendingInvites, this.renderPendingInvite);
     var invite = this.state && this.state.invite ? this.renderInviteForm() : this.renderInvite();
 
     var emptyList = !(members || pendingInvites);
