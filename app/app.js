@@ -55,6 +55,7 @@ var MemberStore = window.MemberStore = require('./stores/MemberStore');
 var RequestActions = window.RequestActions = require('./actions/RequestActions');
 var RequestStore = window.RequestStore = require('./stores/RequestStore');
 var UserStore = window.UserStore = require('./stores/UserStore');
+var InvitationReceivedActions = window.InvitationReceivedActions = require('./actions/InvitationReceivedActions');
 
 // Styles
 require('tideline/css/tideline.less');
@@ -115,8 +116,6 @@ var AppComponent = React.createClass({
     return _.assign({
       notification: null,
       page: null,
-      invites: null,
-      fetchingInvites: true,
       pendingInvites:null,
       fetchingPendingInvites: true,
       bgPrefs: null,
@@ -410,7 +409,7 @@ var AppComponent = React.createClass({
     // NOTE: need this to not cause "dispatch while dispatch under way" error
     // should go away when we switch to `react-router`
     _.defer(GroupActions.fetchAll);
-    this.fetchInvites();
+    _.defer(InvitationReceivedActions.fetchAll);
     trackMetric('Viewed Care Team List');
   },
 
@@ -418,9 +417,7 @@ var AppComponent = React.createClass({
     /* jshint ignore:start */
     return (
       <Patients
-          invites={this.state.invites}
           uploadUrl={app.api.getUploadUrl()}
-          fetchingInvites={this.state.fetchingInvites}
           showingWelcomeMessage={this.state.showingWelcomeMessage}
           onSetAsCareGiver={this.setUserAsCareGiver}
           trackMetric={trackMetric}
@@ -433,49 +430,24 @@ var AppComponent = React.createClass({
   handleDismissInvitation: function(invitation) {
     var self = this;
 
-    this.setState({
-      invites: this.state.invites.filter(function(e){
-        return e.key !== invitation.key;
-      })
-    });
-
     app.api.invitation.dismiss(invitation.key, invitation.creator.userid, function(err) {
       if(err) {
-        self.fetchInvites();
+        InvitationReceivedActions.fetchAll();
 
         return self.handleApiError(err, 'Something went wrong while dismissing the invitation.');
       }
     });
   },
   handleAcceptInvitation: function(invitation) {
-    /* Set invitation to processing */
-    var invites = _.cloneDeep(this.state.invites);
     var self = this;
 
-    invites.map(function(invite) {
-      if (invite.key === invitation.key) {
-        invite.accepting = true;
-      }
-
-      return invite;
-    });
-
-    this.setState({
-      invites: invites
-    });
-
     app.api.invitation.accept(invitation.key, invitation.creator.userid, function(err) {
+      InvitationReceivedActions.fetchAll();
       GroupActions.fetchAll();
 
       if(err) {
         return self.handleApiError(err, 'Something went wrong while accepting the invitation.');
       }
-
-      self.setState({
-        invites: self.state.invites.filter(function(e){
-          return e.key !== invitation.key;
-        })
-      });
     });
   },
   handleChangeMemberPermissions: function(patientId, memberId, permissions, cb) {
@@ -775,29 +747,6 @@ var AppComponent = React.createClass({
       if (cb) {
         cb();
       }
-    });
-  },
-
-  fetchInvites: function() {
-    var self = this;
-
-    self.setState({fetchingInvites: true});
-
-    api.invitation.getReceived(function(err, invites) {
-      if (err) {
-        var message = 'Something went wrong while fetching invitations';
-
-        self.setState({
-          fetchingInvites: false
-        });
-
-        return self.handleApiError(err, message);
-      }
-
-      self.setState({
-        invites: invites,
-        fetchingInvites: false
-      });
     });
   },
 

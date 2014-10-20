@@ -27,11 +27,10 @@ var Invitation = require('../../components/invitation');
 var AuthStore = require('../../stores/AuthStore');
 var GroupActions = require('../../actions/GroupActions');
 var GroupStore = require('../../stores/GroupStore');
+var InvitationReceivedStore = require('../../stores/InvitationReceivedStore');
 
 var Patients = React.createClass({
   propTypes: {
-    invites: React.PropTypes.array,
-    fetchingInvites: React.PropTypes.bool,
     showingWelcomeMessage: React.PropTypes.bool,
     onSetAsCareGiver: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired,
@@ -49,18 +48,22 @@ var Patients = React.createClass({
     return {
       user: AuthStore.getLoggedInUser(),
       patients: GroupStore.getAll(),
-      fetchingPatients: GroupStore.isFetchingAll()
+      fetchingPatients: GroupStore.isFetchingAll(),
+      invites: InvitationReceivedStore.getAll(),
+      fetchingInvites: InvitationReceivedStore.isFetchingAll()
     };
   },
 
   componentDidMount: function() {
     AuthStore.addChangeListener(this.handleStoreChange);
     GroupStore.addChangeListener(this.handleStoreChange);
+    InvitationReceivedStore.addChangeListener(this.handleStoreChange);
   },
 
   componentWillUnmount: function() {
     AuthStore.removeChangeListener(this.handleStoreChange);
     GroupStore.removeChangeListener(this.handleStoreChange);
+    InvitationReceivedStore.removeChangeListener(this.handleStoreChange);
   },
 
   handleStoreChange: function() {
@@ -99,7 +102,7 @@ var Patients = React.createClass({
     /* jshint ignore:end */
   },
   renderInvitations: function() {
-    var invites = this.props.invites;
+    var invites = this.state.invites;
 
     if (_.isEmpty(invites)) {
        return null;
@@ -262,7 +265,7 @@ var Patients = React.createClass({
   },
 
   isResettingInvitesData: function() {
-    return (this.props.fetchingInvites && !this.props.invites);
+    return (this.state.fetchingInvites && _.isEmpty(this.state.invites));
   }
 });
 

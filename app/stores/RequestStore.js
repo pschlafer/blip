@@ -112,6 +112,15 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       RequestStore.emitChange();
       break;
 
+    case AppConstants.api.FAILED_GET_INVITATIONS_RECEIVED:
+      RequestStore._state.error = {
+        key: AppConstants.api.FAILED_GET_INVITATIONS_RECEIVED,
+        message: 'Something went wrong while trying to fetch received invitations',
+        original: payload.error
+      };
+      RequestStore.emitChange();
+      break;
+
     case AppConstants.api.COMPLETED_LOGOUT:
       RequestStore.reset();
       RequestStore.emitChange();
