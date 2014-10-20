@@ -359,19 +359,12 @@ api.patient.getAll = function(cb) {
 
   var userId = tidepool.getUserId();
 
-  // First, get a list of of patient ids in user's "patients" group
+  // First, get a list of of patient ids
   tidepool.getViewableUsers(userId, function(err, permissions) {
     if (err) {
       return cb(err);
     }
 
-    if (_.isEmpty(permissions)) {
-      return cb(null, []);
-    }
-
-    // A user is always able to view her own data:
-    // filter her id from set of permissions
-    permissions = _.omit(permissions, userId);
     // Convert to array of user ids
     var patientIds = Object.keys(permissions);
 

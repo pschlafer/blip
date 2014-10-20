@@ -121,15 +121,7 @@ var Patients = React.createClass({
     }
 
     var content;
-    var user = _.cloneDeep(this.state.user);
     var patients = _.clone(this.state.patients) || [];
-
-    if(personUtils.isPatient(user)) {
-      user.permissions = {
-        root: {}
-      };
-      patients.push(user);
-    }
 
     if (_.isEmpty(patients)) {
       /* jshint ignore:start */

@@ -43,16 +43,10 @@ var patch = function(mock, api) {
       }
 
       var userId = api.userId;
-      var groups = data.groups[userId];
-      if (_.isEmpty(groups)) {
-        return callback(null, []);
-      }
+      var groups = _.cloneDeep(data.groups[userId]) || [];
+      groups[userId] = {root: {}};
 
       var patients = _.reduce(groups, function(result, permissions, groupId) {
-        if (groupId === userId) {
-          return result;
-        }
-
         var person = data.users[groupId];
         if (!personUtils.isPatient(person)) {
           return result;
