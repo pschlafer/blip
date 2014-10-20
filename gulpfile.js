@@ -12,6 +12,11 @@ var jsFiles = [
 gulp.task('jshint', function() {
   var stream = gulp.src(jsFiles)
     .pipe(react())
+    .on('error', function(err) {
+      console.error('JSX ERROR in ' + err.fileName);
+      console.error(err.message);
+      this.end();
+    })
     .pipe(jshint())
     .pipe(jshint.reporter('jshint-stylish'));
 
