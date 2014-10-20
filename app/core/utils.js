@@ -57,6 +57,15 @@ utils.concat = function() {
   return Array.prototype.concat.apply([], args);
 };
 
+// toArray(1) -> [1]
+// toArray([1, 2]) -> [1, 2]
+utils.toArray = function (val) {
+  if (!Array.isArray(val)) {
+    val = [val];
+  }
+  return val;
+};
+
 utils.isChrome = function() {
   return navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
 };
