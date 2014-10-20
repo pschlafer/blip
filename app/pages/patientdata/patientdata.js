@@ -35,7 +35,7 @@ var PatientData = React.createClass({
   propTypes: {
     bgPrefs: React.PropTypes.object,
     patientData: React.PropTypes.object,
-    patient: React.PropTypes.object,
+    patientId: React.PropTypes.string,
     fetchingPatientData: React.PropTypes.bool,
     isUserPatient: React.PropTypes.bool,
     queryParams: React.PropTypes.object.isRequired,
@@ -290,7 +290,7 @@ var PatientData = React.createClass({
       return (
         <Messages
           createDatetime={this.state.createMessageDatetime}
-          patient={this.props.patient}
+          patientId={this.props.patientId}
           onClose={this.closeMessageCreation}
           onSave={this.props.onCreateMessage}
           onNewMessage={this.handleMessageCreation}
@@ -300,7 +300,7 @@ var PatientData = React.createClass({
       return (
         <Messages
           messages={this.state.messages}
-          patient={this.props.patient}
+          patientId={this.props.patientId}
           onClose={this.closeMessageThread}
           onSave={this.handleReplyToMessage}
           onEdit={this.handleEditMessage} />

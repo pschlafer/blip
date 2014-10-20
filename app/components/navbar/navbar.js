@@ -22,6 +22,7 @@ var personUtils = require('../../core/personutils');
 
 var AuthActions = require('../../actions/AuthActions');
 var AuthStore = require('../../stores/AuthStore');
+var GroupStore = require('../../stores/GroupStore');
 
 var logoSrc = require('./images/blip-logo-80x80.png');
 
@@ -29,8 +30,7 @@ var Navbar = React.createClass({
   propTypes: {
     version: React.PropTypes.string,
     currentPage: React.PropTypes.string,
-    patient: React.PropTypes.object,
-    fetchingPatient: React.PropTypes.bool,
+    patientId: React.PropTypes.string,
     getUploadUrl: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired
   },
@@ -41,16 +41,25 @@ var Navbar = React.createClass({
 
   getStateFromStores: function() {
     return {
-      user: AuthStore.getLoggedInUser()
+      user: AuthStore.getLoggedInUser(),
+      patient: GroupStore.get(this.props.patientId)
     };
   },
 
   componentDidMount: function() {
     AuthStore.addChangeListener(this.handleStoreChange);
+    GroupStore.addChangeListener(this.handleStoreChange);
   },
 
   componentWillUnmount: function() {
     AuthStore.removeChangeListener(this.handleStoreChange);
+    GroupStore.removeChangeListener(this.handleStoreChange);
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    this.setState({
+      patient: GroupStore.get(nextProps.patientId)
+    });
   },
 
   handleStoreChange: function() {
@@ -101,7 +110,7 @@ var Navbar = React.createClass({
   },
 
   renderPatientSection: function() {
-    var patient = this.props.patient;
+    var patient = this.state.patient;
 
     if (_.isEmpty(patient)) {
       return <div className="Navbar-patientSection"></div>;
@@ -211,11 +220,11 @@ var Navbar = React.createClass({
   },
 
   getPatientDisplayName: function() {
-    return personUtils.patientFullName(this.props.patient);
+    return personUtils.patientFullName(this.state.patient);
   },
 
   getPatientUrl: function() {
-    var patient = this.props.patient;
+    var patient = this.state.patient;
     if (!patient) {
       return;
     }
@@ -223,8 +232,8 @@ var Navbar = React.createClass({
   },
 
   isRootOrAdmin: function() {
-    return personUtils.hasPermissions('root', this.props.patient) ||
-           personUtils.hasPermissions('admin', this.props.patient);
+    return personUtils.hasPermissions('root', this.state.patient) ||
+           personUtils.hasPermissions('admin', this.state.patient);
   },
 
   handleLogout: function(e) {

@@ -260,11 +260,11 @@ var AppComponent = React.createClass({
 
   renderNavbar: function() {
     if (this.state.authenticated) {
-      var patient;
+      var patientId;
       var getUploadUrl;
 
       if (this.isPatientVisibleInNavbar()) {
-        patient = this.state.patient;
+        patientId = this.patientId;
         getUploadUrl = app.api.getUploadUrl.bind(app.api);
       }
 
@@ -273,8 +273,7 @@ var AppComponent = React.createClass({
         <div className="App-navbar">
           <Navbar
             version={config.VERSION}
-            patient={patient}
-            fetchingPatient={this.state.fetchingPatient}
+            patientId={patientId}
             currentPage={this.state.page}
             getUploadUrl={getUploadUrl}
             trackMetric={trackMetric}/>
@@ -586,8 +585,6 @@ var AppComponent = React.createClass({
     return (
       <Patient
         patientId={this.patientId}
-        patient={this.state.patient}
-        fetchingPatient={this.state.fetchingPatient}
         onUpdatePatient={this.updatePatient}
         pendingInvites={this.state.pendingInvites}
         onChangeMemberPermissions={this.handleChangeMemberPermissions}
@@ -684,7 +681,7 @@ var AppComponent = React.createClass({
     /* jshint ignore:start */
     return (
       <PatientData
-        patient={this.state.patient}
+        patientId={this.patientId}
         bgPrefs={this.state.bgPrefs}
         patientData={this.state.patientData}
         fetchingPatientData={this.state.fetchingPatientData}

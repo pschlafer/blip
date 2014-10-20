@@ -34,7 +34,7 @@ var Messages = React.createClass({
   propTypes: {
     messages : React.PropTypes.array,
     createDatetime : React.PropTypes.string,
-    patient : React.PropTypes.object,
+    patientId : React.PropTypes.string,
     onClose : React.PropTypes.func,
     onSave : React.PropTypes.func,
     onEdit : React.PropTypes.func,
@@ -245,7 +245,7 @@ var Messages = React.createClass({
 
       var message = {
         userid : this.state.user.userid,
-        groupid : this.props.patient.userid,
+        groupid : this.props.patientId,
         messagetext : formValues.text,
         timestamp : sundial.formatForStorage(formValues.timestamp,sundial.getOffset())
       };

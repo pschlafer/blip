@@ -22,11 +22,11 @@ var ModalOverlay = require('../../components/modaloverlay');
 var PatientInfo = require('./patientinfo');
 var PatientTeam = require('./patientteam');
 
+var GroupStore = require('../../stores/GroupStore');
+
 var Patient = React.createClass({
   propTypes: {
     patientId: React.PropTypes.string,
-    patient: React.PropTypes.object,
-    fetchingPatient: React.PropTypes.bool,
     onUpdatePatient: React.PropTypes.func,
     pendingInvites: React.PropTypes.array,
     onChangeMemberPermissions: React.PropTypes.func,
@@ -37,9 +37,35 @@ var Patient = React.createClass({
   },
 
   getInitialState: function() {
-    return {
+    return _.assign({
       showModalOverlay: false
+    }, this.getStateFromStores());
+  },
+
+  getStateFromStores: function() {
+    return {
+      patient: GroupStore.get(this.props.patientId),
+      fetchingPatient: GroupStore.isFetching(this.props.patientId)
     };
+  },
+
+  componentDidMount: function() {
+    GroupStore.addChangeListener(this.handleStoreChange);
+  },
+
+  componentWillUnmount: function() {
+    GroupStore.removeChangeListener(this.handleStoreChange);
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    this.setState({
+      patient: GroupStore.get(nextProps.patientId),
+      fetchingPatient: GroupStore.isFetching(nextProps.patientId)
+    });
+  },
+
+  handleStoreChange: function() {
+    this.setState(this.getStateFromStores());
   },
 
   render: function() {
@@ -82,7 +108,7 @@ var Patient = React.createClass({
   },
 
   renderBackButton: function() {
-    var patient = this.props.patient;
+    var patient = this.state.patient;
     if (this.props.fetchingPatient || !(patient && patient.userid)) {
       return null;
     }
@@ -106,8 +132,8 @@ var Patient = React.createClass({
   renderTitle: function() {
     var text = 'Profile';
 
-    if (!this.props.fetchingPatient) {
-      text = personUtils.patientFullName(this.props.patient) + '\'s Profile';
+    if (!this.state.fetchingPatient) {
+      text = personUtils.patientFullName(this.state.patient) + '\'s Profile';
     }
 
     return text;
@@ -118,8 +144,7 @@ var Patient = React.createClass({
       <div className="PatientPage-infoSection">
         <div className="PatientPage-sectionTitle">Info</div>
         <PatientInfo
-          patient={this.props.patient}
-          fetchingPatient={this.props.fetchingPatient}
+          patientId={this.props.patientId}
           onUpdatePatient={this.props.onUpdatePatient}
           trackMetric={this.props.trackMetric} />
       </div>
@@ -127,8 +152,8 @@ var Patient = React.createClass({
   },
 
   isRootOrAdmin: function() {
-    return personUtils.hasPermissions('root', this.props.patient) ||
-           personUtils.hasPermissions('admin', this.props.patient);
+    return personUtils.hasPermissions('root', this.state.patient) ||
+           personUtils.hasPermissions('admin', this.state.patient);
   },
 
   renderDeleteDialog: function() {
@@ -183,7 +208,6 @@ var Patient = React.createClass({
         <div className="PatientPage-sectionTitle">My Care Team <span className="PatientPage-sectionTitleMessage">These people can view your data.</span></div>
         <PatientTeam
           patientId={this.props.patientId}
-          patient={this.props.patient}
           pendingInvites={this.props.pendingInvites}
           onChangeMemberPermissions={this.props.onChangeMemberPermissions}
           onRemoveMember={this.props.onRemoveMember}

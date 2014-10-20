@@ -21,26 +21,51 @@ var moment = require('moment');
 var personUtils = require('../../core/personutils');
 var datetimeUtils = require('../../core/datetimeutils');
 
+var GroupStore = require('../../stores/GroupStore');
+
 var SERVER_DATE_FORMAT = 'YYYY-MM-DD';
 var FORM_DATE_FORMAT = 'MM/DD/YYYY';
 
 var PatientInfo = React.createClass({
   propTypes: {
-    patient: React.PropTypes.object,
-    fetchingPatient: React.PropTypes.bool,
+    patientId: React.PropTypes.string,
     onUpdatePatient: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired
   },
 
   getInitialState: function() {
-    return {
+    return _.assign({
       editing: false,
       notification: null
+    }, this.getStateFromStores());
+  },
+
+  getStateFromStores: function() {
+    return {
+      patient: GroupStore.get(this.props.patientId)
     };
   },
 
+  componentDidMount: function() {
+    GroupStore.addChangeListener(this.handleStoreChange);
+  },
+
+  componentWillUnmount: function() {
+    GroupStore.removeChangeListener(this.handleStoreChange);
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    this.setState({
+      patient: GroupStore.get(nextProps.patientId)
+    });
+  },
+
+  handleStoreChange: function() {
+    this.setState(this.getStateFromStores());
+  },
+
   render: function() {
-    if (this.props.fetchingPatient) {
+    if (_.isEmpty(this.state.patient)) {
       return this.renderSkeleton();
     }
 
@@ -48,7 +73,7 @@ var PatientInfo = React.createClass({
       return this.renderEditing();
     }
 
-    var patient = this.props.patient;
+    var patient = this.state.patient;
     var self = this;
     var handleClick = function(e) {
       e.preventDefault();
@@ -141,7 +166,7 @@ var PatientInfo = React.createClass({
   },
 
   renderEditing: function() {
-    var patient = this.props.patient;
+    var patient = this.state.patient;
     var formValues = this.formValuesFromPatient(patient);
 
     var self = this;
@@ -234,8 +259,8 @@ var PatientInfo = React.createClass({
   },
 
   isRootOrAdmin: function() {
-    return personUtils.hasPermissions('root', this.props.patient) ||
-           personUtils.hasPermissions('admin', this.props.patient);
+    return personUtils.hasPermissions('root', this.state.patient) ||
+           personUtils.hasPermissions('admin', this.state.patient);
   },
 
   getDisplayName: function(patient) {
@@ -329,7 +354,7 @@ var PatientInfo = React.createClass({
 
   validateFormValues: function(formValues) {
     // Legacy: revisit when proper "child accounts" are implemented
-    if (personUtils.patientIsOtherPerson(this.props.patient) &&
+    if (personUtils.patientIsOtherPerson(this.state.patient) &&
         !formValues.fullName) {
       return 'Full name is required';
     }
@@ -362,7 +387,7 @@ var PatientInfo = React.createClass({
 
   prepareFormValuesForSubmit: function(formValues) {
     // Legacy: revisit when proper "child accounts" are implemented
-    if (personUtils.patientIsOtherPerson(this.props.patient)) {
+    if (personUtils.patientIsOtherPerson(this.state.patient)) {
       formValues.isOtherPerson = true;
     }
 
@@ -380,11 +405,11 @@ var PatientInfo = React.createClass({
       delete formValues.about;
     }
 
-    var profile = _.assign({}, this.props.patient.profile, {
+    var profile = _.assign({}, this.state.patient.profile, {
       patient: formValues
     });
 
-    var result = _.assign({}, this.props.patient, {
+    var result = _.assign({}, this.state.patient, {
       profile: profile
     });
 

@@ -324,7 +324,6 @@ var ConfirmDialog = React.createClass({
 var PatientTeam = React.createClass({
   propTypes: {
     patientId: React.PropTypes.string,
-    patient: React.PropTypes.object,
     pendingInvites: React.PropTypes.array,
     onChangeMemberPermissions: React.PropTypes.func,
     onRemoveMember: React.PropTypes.func,
