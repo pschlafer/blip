@@ -23,6 +23,8 @@ var InputGroup = require('../../components/inputgroup');
 var personUtils = require('../../core/personutils');
 var datetimeUtils = require('../../core/datetimeutils');
 
+var AuthStore = require('../../stores/AuthStore');
+
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 var DISPLAY_DATE_FORMAT = 'MM-DD-YYYY';
 
@@ -65,13 +67,11 @@ var PatientEdit = React.createClass({
   IS_OTHER_PERSON: 'This is for someone I care for who has type 1 diabetes',
 
   getInitialState: function() {
-    return {
+    return _.assign({
       working: false,
-      isOtherPerson: personUtils.patientIsOtherPerson(this.props.patient),
-      formValues: this.formValuesFromPatient(this.props.patient),
       validationErrors: {},
       notification: null
-    };
+    }, this.getStateFromStores());
   },
 
   formValuesFromPatient: function(patient) {
@@ -103,17 +103,63 @@ var PatientEdit = React.createClass({
     return formValues;
   },
 
-  componentWillReceiveProps: function(nextProps) {
-    // Keep form values in sync with upstream changes
-    this.setState({formValues: this.formValuesFromPatient(nextProps.patient)});
+  getStateFromStores: function(props) {
+    props = props || this.props;
+    var user = AuthStore.getLoggedInUser();
+    var patient;
+    if (props.isNewPatient) {
+      patient = {
+        userid: user.userid,
+        profile: _.assign({}, user.profile, {patient: {}})
+      };
+    }
+    else {
+      patient = props.patient;
+    }
+    return {
+      user: user,
+      patient: patient,
+      isOtherPerson: personUtils.patientIsOtherPerson(patient),
+      formValues: this.formValuesFromPatient(patient)
+    };
+  },
+
+  componentDidMount: function() {
+    AuthStore.addChangeListener(this.handleStoreChange);
   },
 
   componentWillUnmount: function() {
+    AuthStore.removeChangeListener(this.handleStoreChange);
     clearTimeout(this.messageTimeoutId);
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    this.setState(this.getStateFromStores(nextProps));
+  },
+
+  handleStoreChange: function() {
+    this.setState(this.getStateFromStores());
   },
 
   render: function() {
     var subnav = this.renderSubnav();
+
+    if (this.props.isNewPatient && this.isUserAlreadyAPatient()) {
+      return (
+        <div className="patient-edit">
+          {subnav}
+          <div className="container-box-outer patient-edit-content-outer">
+            <div className="container-box-inner patient-edit-content-inner">
+              <div className="patient-edit-content">
+                <p>You already created a Care Team.</p>
+                <p>Click <a href={'#/patients/' + this.state.user.userid}>here</a> to access it.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     var options = this.renderOptions();
     var name = this.renderName();
     var form = this.renderForm();
@@ -161,7 +207,7 @@ var PatientEdit = React.createClass({
   renderBackButton: function() {
     var url = '#/';
     var text = 'Back';
-    var patient = this.props.patient;
+    var patient = this.state.patient;
 
     if (!this.props.isNewPatient && patient && patient.userid) {
       url = '#/patients/' + patient.userid;
@@ -225,7 +271,7 @@ var PatientEdit = React.createClass({
       <div className="patient-edit-name">
         {label}
         <div className="patient-edit-name-value">
-          {personUtils.fullName(this.props.patient)}
+          {personUtils.fullName(this.state.patient)}
         </div>
       </div>
     );
@@ -277,7 +323,11 @@ var PatientEdit = React.createClass({
   },
 
   isResettingPatientData: function() {
-    return (this.props.fetchingPatient && !this.props.patient);
+    return (this.props.fetchingPatient && !this.state.patient);
+  },
+
+  isUserAlreadyAPatient: function() {
+    return personUtils.isPatient(this.state.user);
   },
 
   handleOptionsChange: function(attributes) {
@@ -395,11 +445,11 @@ var PatientEdit = React.createClass({
   },
 
   prepareFormValuesForSubmit: function(formValues) {
-    var profile = _.assign({}, this.props.patient.profile, {
+    var profile = _.assign({}, this.state.patient.profile, {
       patient: formValues
     });
 
-    var result = _.assign({}, this.props.patient, {
+    var result = _.assign({}, this.state.patient, {
       profile: profile
     });
 
