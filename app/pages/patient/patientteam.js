@@ -266,6 +266,7 @@ var ConfirmDialog = React.createClass({
   propTypes: {
     message: React.PropTypes.renderable,
     buttonText: React.PropTypes.string,
+    dismissText: React.PropTypes.string,
     buttonTextWorking: React.PropTypes.string,
     onSubmit: React.PropTypes.func,
     onCancel: React.PropTypes.func
@@ -287,7 +288,7 @@ var ConfirmDialog = React.createClass({
         <div className="ModalOverlay-controls">
           <button className="PatientInfo-button PatientInfo-button--secondary" type="button"
             onClick={this.props.onCancel}
-            disabled={this.state.working}>Cancel</button>
+            disabled={this.state.working}>{this.props.dismissText || 'Cancel'}</button>
           <button className="PatientInfo-button PatientInfo-button--primary" type="submit"
             onClick={this.handleSubmit}
             disabled={this.state.working}>
@@ -501,9 +502,10 @@ var PatientTeam = React.createClass({
 
     return (
       <ConfirmDialog
-        message={'Are you sure you want to dismiss your invitation to ' + invite.email + '?'}
-        buttonText={'I\'m sure, dismiss it'}
-        buttonTextWorking={'Dismissing...'}
+        message={'Are you sure you want to cancel your invitation to ' + invite.email + '?'}
+        buttonText={'Yes, cancel it'}
+        dismissText={'Dismiss'}
+        buttonTextWorking={'Canceling invitation...'}
         onSubmit={handleSubmit}
         onCancel={handleCancel} />
     );
