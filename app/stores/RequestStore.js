@@ -113,6 +113,25 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       self.emitChange();
       break;
 
+    case AppConstants.api.FAILED_CREATE_GROUP:
+      self._state.error = {
+        key: AppConstants.api.FAILED_CREATE_GROUP,
+        message: 'Something went wrong while trying to create group',
+        original: payload.error
+      };
+      self.emitChange();
+      break;
+
+    case AppConstants.api.FAILED_UPDATE_GROUP:
+      self._state.error = {
+        key: AppConstants.api.FAILED_UPDATE_GROUP,
+        groupId: payload.group.userid,
+        message: 'Something went wrong while trying to update group ' + payload.groupId,
+        original: payload.error
+      };
+      self.emitChange();
+      break;
+
     case AppConstants.api.FAILED_GET_INVITATIONS_RECEIVED:
       self._state.error = {
         key: AppConstants.api.FAILED_GET_INVITATIONS_RECEIVED,

@@ -55,6 +55,46 @@ var GroupActions = {
         group: group
       });
     });
+  },
+
+  create: function(group) {
+    AppDispatcher.dispatch({type: AppConstants.api.STARTED_CREATE_GROUP});
+    api.patient.post(group, function(err, group) {
+      if (err) {
+        return AppDispatcher.dispatch({
+          type: AppConstants.api.FAILED_CREATE_GROUP,
+          error: err
+        });
+      }
+
+      AppDispatcher.dispatch({
+        type: AppConstants.api.COMPLETED_CREATE_GROUP,
+        group: group
+      });
+    });
+  },
+
+  update: function(group) {
+    var groupUpdates = group;
+
+    AppDispatcher.dispatch({
+      type: AppConstants.api.STARTED_UPDATE_GROUP,
+      group: group
+    });
+    api.patient.put(group, function(err, group) {
+      if (err) {
+        return AppDispatcher.dispatch({
+          type: AppConstants.api.FAILED_UPDATE_GROUP,
+          group: groupUpdates,
+          error: err
+        });
+      }
+
+      AppDispatcher.dispatch({
+        type: AppConstants.api.COMPLETED_UPDATE_GROUP,
+        group: group
+      });
+    });
   }
 
 };

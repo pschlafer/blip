@@ -87,6 +87,17 @@ UserStore.dispatchToken = AppDispatcher.register(function(payload) {
       self.emitChange();
       break;
 
+    case AppConstants.api.COMPLETED_CREATE_GROUP:
+      self._updateWithGroup(payload.group);
+      self.emitChange();
+      break;
+
+    case AppConstants.api.STARTED_UPDATE_GROUP:
+      // Optimistic update
+      self._updateWithGroup(payload.group);
+      self.emitChange();
+      break;
+
     case AppConstants.api.COMPLETED_LOGOUT:
       self.reset();
       self.emitChange();

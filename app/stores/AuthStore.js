@@ -56,6 +56,10 @@ var AuthStore = merge(EventEmitter.prototype, {
     return _.cloneDeep(this._state.user);
   },
 
+  getLoggedInUserId: function() {
+    return this._state.user ? this._state.user.userid : null;
+  },
+
   isLoadingSession: function() {
     return Boolean(this._state.requests.loadingSession);
   },
@@ -78,6 +82,10 @@ var AuthStore = merge(EventEmitter.prototype, {
 
   isLoggingOut: function() {
     return Boolean(this._state.requests.loggingOut);
+  },
+
+  _updateWithGroup: function(group) {
+    _.assign(this._state.user, {profile: group.profile});
   }
 
 });
@@ -148,6 +156,23 @@ AuthStore.dispatchToken = AppDispatcher.register(function(payload) {
     case AppConstants.api.FAILED_LOGOUT:
       self._state.requests.loggingOut = false;
       self.emitChange();
+      break;
+
+    case AppConstants.api.COMPLETED_CREATE_GROUP:
+      if (self.getLoggedInUserId() === payload.group.userid) {
+        self._updateWithGroup(payload.group);
+        self.emitChange();
+      }
+      // Else do nothing
+      break;
+
+    case AppConstants.api.STARTED_UPDATE_GROUP:
+      // Optimistic update
+      if (self.getLoggedInUserId() === payload.group.userid) {
+        self._updateWithGroup(payload.group);
+        self.emitChange();
+      }
+      // Else do nothing
       break;
 
     case AppConstants.api.COMPLETED_LOGOUT:

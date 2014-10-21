@@ -69,12 +69,21 @@ var GroupStore = merge(EventEmitter.prototype, {
 
   isFetching: function(groupId) {
     return Boolean(utils.getIn(this._state.requests, [groupId, 'fetching']));
+  },
+
+  isCreating: function() {
+    return Boolean(this._state.requests.creating);
+  },
+
+  isUpdating: function(groupId) {
+    return Boolean(utils.getIn(this._state.requests, [groupId, 'updating']));
   }
 
 });
 
 GroupStore.dispatchToken = AppDispatcher.register(function(payload) {
   var self = GroupStore;
+  var group;
   switch(payload.type) {
 
     case AppConstants.api.STARTED_GET_GROUPS:
@@ -110,10 +119,47 @@ GroupStore.dispatchToken = AppDispatcher.register(function(payload) {
 
     case AppConstants.api.COMPLETED_GET_GROUP:
       AppDispatcher.waitFor([UserStore.dispatchToken]);
-      var group = payload.group;
+      group = payload.group;
       self._state.requests[group.userid] = {fetching: false};
       self._state.permissionsByGroupId[group.userid] =
         _.cloneDeep(group.permissions);
+      self.emitChange();
+      break;
+
+    case AppConstants.api.STARTED_CREATE_GROUP:
+      self._state.requests.creating = true;
+      self.emitChange();
+      break;
+
+    case AppConstants.api.FAILED_CREATE_GROUP:
+      self._state.requests.creating = false;
+      self.emitChange();
+      break;
+
+    case AppConstants.api.COMPLETED_CREATE_GROUP:
+      AppDispatcher.waitFor([UserStore.dispatchToken]);
+      self._state.requests.creating = false;
+      // Currently can only create group for logged-in user,
+      // so "root" permissions (will change with "child accounts")
+      self._state.permissionsByGroupId[payload.group.userid] =
+        {root: {}};
+      self.emitChange();
+      break;
+
+    case AppConstants.api.STARTED_UPDATE_GROUP:
+      self._state.requests[payload.group.userid] = {updating: true};
+      self.emitChange();
+      break;
+
+    case AppConstants.api.FAILED_UPDATE_GROUP:
+      self._state.requests[payload.group.userid] = {updating: false};
+      self.emitChange();
+      break;
+
+    case AppConstants.api.STARTED_UPDATE_GROUP:
+      // Optimistic update
+      AppDispatcher.waitFor([UserStore.dispatchToken]);
+      self._state.requests[payload.group.userid] = {updating: false};
       self.emitChange();
       break;
 

@@ -23,7 +23,9 @@ var InputGroup = require('../../components/inputgroup');
 var personUtils = require('../../core/personutils');
 var datetimeUtils = require('../../core/datetimeutils');
 
+var GroupActions = require('../../actions/GroupActions');
 var AuthStore = require('../../stores/AuthStore');
+var GroupStore = require('../../stores/GroupStore');
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 var DISPLAY_DATE_FORMAT = 'MM-DD-YYYY';
@@ -33,8 +35,7 @@ var PatientEdit = React.createClass({
     patient: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool,
     isNewPatient: React.PropTypes.bool,
-    onSubmit: React.PropTypes.func.isRequired,
-    onSubmitSuccess: React.PropTypes.func,
+    onPatientCreationSuccess: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired
   },
 
@@ -67,11 +68,27 @@ var PatientEdit = React.createClass({
   IS_OTHER_PERSON: 'This is for someone I care for who has type 1 diabetes',
 
   getInitialState: function() {
-    return _.assign({
-      working: false,
+    var user = AuthStore.getLoggedInUser();
+    var patient;
+    if (this.props.isNewPatient) {
+      patient = {
+        userid: user.userid,
+        profile: _.assign({}, user.profile, {patient: {}})
+      };
+    }
+    else {
+      patient = this.props.patient;
+    }
+
+    return {
+      user: user,
+      patient: patient,
+      isOtherPerson: personUtils.patientIsOtherPerson(patient),
+      formValues: this.formValuesFromPatient(patient),
       validationErrors: {},
-      notification: null
-    }, this.getStateFromStores());
+      notification: null,
+      working: false
+    };
   },
 
   formValuesFromPatient: function(patient) {
@@ -103,41 +120,28 @@ var PatientEdit = React.createClass({
     return formValues;
   },
 
-  getStateFromStores: function(props) {
-    props = props || this.props;
-    var user = AuthStore.getLoggedInUser();
-    var patient;
-    if (props.isNewPatient) {
-      patient = {
-        userid: user.userid,
-        profile: _.assign({}, user.profile, {patient: {}})
-      };
-    }
-    else {
-      patient = props.patient;
-    }
+  getStateFromStores: function() {
     return {
-      user: user,
-      patient: patient,
-      isOtherPerson: personUtils.patientIsOtherPerson(patient),
-      formValues: this.formValuesFromPatient(patient)
+      working: GroupStore.isCreating()
     };
   },
 
   componentDidMount: function() {
     AuthStore.addChangeListener(this.handleStoreChange);
+    GroupStore.addChangeListener(this.handleStoreChange);
   },
 
   componentWillUnmount: function() {
     AuthStore.removeChangeListener(this.handleStoreChange);
+    GroupStore.addChangeListener(this.handleStoreChange);
     clearTimeout(this.messageTimeoutId);
   },
 
-  componentWillReceiveProps: function(nextProps) {
-    this.setState(this.getStateFromStores(nextProps));
-  },
-
   handleStoreChange: function() {
+    // A bit of a hack for now
+    if (this.state.working && !GroupStore.isCreating()) {
+      return this.props.onPatientCreationSuccess();
+    }
     this.setState(this.getStateFromStores());
   },
 
@@ -364,7 +368,7 @@ var PatientEdit = React.createClass({
     if (this.props.isNewPatient) {
       working = true;
     }
-
+    console.log('Resetting formValues', this.state.formValues, formValues);
     this.setState({
       working: working,
       formValues: formValues,
@@ -464,40 +468,11 @@ var PatientEdit = React.createClass({
   },
 
   submitFormValuesForUpdate: function(formValues) {
-    var self = this;
-    var submit = this.props.onSubmit;
-
-    // Save optimistically
-    submit(formValues);
-    this.setState({
-      notification: {type: 'success', message: 'All changes saved.'}
-    });
-
-    this.messageTimeoutId = setTimeout(function() {
-      self.setState({notification: null});
-    }, this.MESSAGE_TIMEOUT);
+    throw new Error('DEPRECATED');
   },
 
   submitFormValuesForCreation: function(formValues) {
-    var self = this;
-    var submit = this.props.onSubmit;
-    var submitSuccess = this.props.onSubmitSuccess;
-
-    submit(formValues, function(err, result) {
-      if (err) {
-        self.setState({
-          working: false,
-          notification: {
-            type: 'error',
-            message: 'An error occured while creating your patient profile.'
-          }
-        });
-        return;
-      }
-      if (submitSuccess) {
-        submitSuccess(result);
-      }
-    });
+    GroupActions.create(formValues);
   }
 });
 

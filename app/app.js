@@ -45,16 +45,22 @@ var PatientEdit = require('./pages/patientedit');
 var PatientData = require('./pages/patientdata');
 
 var AuthActions = window.AuthActions = require('./actions/AuthActions');
-var AuthStore = window.AuthStore = require('./stores/AuthStore');
 var GroupActions = window.GroupActions = require('./actions/GroupActions');
-var GroupStore = window.GroupStore = require('./stores/GroupStore');
-var MemberStore = window.MemberStore = require('./stores/MemberStore');
-var RequestActions = window.RequestActions = require('./actions/RequestActions');
-var RequestStore = window.RequestStore = require('./stores/RequestStore');
-var UserStore = window.UserStore = require('./stores/UserStore');
+var HealthDataActions = window.HealthDataActions = require('./actions/HealthDataActions');
 var InvitationReceivedActions = window.InvitationReceivedActions = require('./actions/InvitationReceivedActions');
 var InvitationSentActions = window.InvitationSentActions = require('./actions/InvitationSentActions');
-var HealthDataActions = window.HealthDataActions = require('./actions/HealthDataActions');
+var MessageThreadActions = window.MessageThreadActions = require('./actions/MessageThreadActions');
+var RequestActions = window.RequestActions = require('./actions/RequestActions');
+
+var AuthStore = window.AuthStore = require('./stores/AuthStore');
+var GroupStore = window.GroupStore = require('./stores/GroupStore');
+var InvitationReceivedStore = window.InvitationReceivedStore = require('./stores/InvitationReceivedStore');
+var InvitationSentStore = window.InvitationSentStore = require('./stores/InvitationSentStore');
+var MemberStore = window.MemberStore = require('./stores/MemberStore');
+var MessageThreadStore = window.MessageThreadStore = require('./stores/MessageThreadStore');
+var RequestStore = window.RequestStore = require('./stores/RequestStore');
+var TidelineDataStore = window.TidelineDataStore = require('./stores/TidelineDataStore');
+var UserStore = window.UserStore = require('./stores/UserStore');
 
 // Styles
 require('tideline/css/tideline.less');
@@ -544,7 +550,6 @@ var AppComponent = React.createClass({
     return (
       <Patient
         patientId={this.patientId}
-        onUpdatePatient={this.updatePatient}
         onChangeMemberPermissions={this.handleChangeMemberPermissions}
         onRemoveMember={this.handleRemoveMember}
         onInviteMember={this.handleInviteMember}
@@ -568,8 +573,7 @@ var AppComponent = React.createClass({
     return (
       <PatientEdit
           isNewPatient={true}
-          onSubmit={this.createPatient}
-          onSubmitSuccess={this.handlePatientCreationSuccess}
+          onPatientCreationSuccess={this.handlePatientCreationSuccess}
           trackMetric={trackMetric} />
     );
   },
@@ -710,41 +714,10 @@ var AppComponent = React.createClass({
     });
   },
 
-  createPatient: function(patient, cb) {
-    app.api.patient.post(patient, cb);
-  },
-
   handlePatientCreationSuccess: function(patient) {
     trackMetric('Created Profile');
-    this.setState({
-      user: _.extend({}, this.state.user, {
-        profile: _.cloneDeep(patient.profile)
-      }),
-      patient: patient
-    });
     var route = '/patients/' + patient.userid + '/data';
     app.router.setRoute(route);
-  },
-
-  updatePatient: function(patient) {
-    var self = this;
-    var previousPatient = this.state.patient;
-
-    // Optimistic update
-    self.setState({patient: patient});
-
-    app.api.patient.put(patient, function(err, patient) {
-      if (err) {
-        var message = 'An error occured while saving patient';
-        // Rollback
-        self.setState({patient: previousPatient});
-        return self.handleApiError(err, message);
-      }
-      self.setState({
-        patient: _.assign({}, previousPatient, {profile: patient.profile})
-      });
-      trackMetric('Updated Profile');
-    });
   },
 
   handleApiError: function(error, message) {

@@ -22,6 +22,7 @@ var personUtils = require('../../core/personutils');
 var datetimeUtils = require('../../core/datetimeutils');
 
 var GroupStore = require('../../stores/GroupStore');
+var GroupActions = require('../../actions/GroupActions');
 
 var SERVER_DATE_FORMAT = 'YYYY-MM-DD';
 var FORM_DATE_FORMAT = 'MM/DD/YYYY';
@@ -29,7 +30,6 @@ var FORM_DATE_FORMAT = 'MM/DD/YYYY';
 var PatientInfo = React.createClass({
   propTypes: {
     patientId: React.PropTypes.string,
-    onUpdatePatient: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired
   },
 
@@ -412,7 +412,8 @@ var PatientInfo = React.createClass({
     var self = this;
 
     // Save optimistically
-    this.props.onUpdatePatient(formValues);
+    GroupActions.update(formValues);
+    this.props.trackMetric('Updated Profile');
     this.toggleEdit();
   },
 
