@@ -22,6 +22,7 @@ var bows = require('bows');
 var config = require('../../config');
 
 var utils = require('../../core/utils');
+var personUtils = require('../../core/personutils');
 var Header = require('../../components/chart').header;
 var Daily = require('../../components/chart').daily;
 var Weekly = require('../../components/chart').weekly;
@@ -31,12 +32,13 @@ var nurseShark = require('tideline/plugins/nurseshark/');
 
 var Messages = require('../../components/messages');
 
+var AuthStore = require('../../stores/AuthStore');
+var GroupStore = require('../../stores/GroupStore');
 var TidelineDataStore = require('../../stores/TidelineDataStore');
 
 var PatientData = React.createClass({
   propTypes: {
     patientId: React.PropTypes.string,
-    isUserPatient: React.PropTypes.bool,
     queryParams: React.PropTypes.object.isRequired,
     uploadUrl: React.PropTypes.string,
     onRefresh: React.PropTypes.func,
@@ -71,6 +73,9 @@ var PatientData = React.createClass({
     props = props || this.props;
     var patientData = TidelineDataStore.getForGroup(props.patientId);
     return {
+      user: AuthStore.getLoggedInUser(),
+      patient: GroupStore.get(props.patientId),
+      fetchingPatient: GroupStore.isFetching(props.patientId),
       patientData: patientData,
       fetchingPatientData: TidelineDataStore.isFetchingForGroup(props.patientId),
       bgPrefs: {
@@ -97,10 +102,14 @@ var PatientData = React.createClass({
   },
 
   componentDidMount: function() {
+    AuthStore.addChangeListener(this.handleStoreChange);
+    GroupStore.addChangeListener(this.handleStoreChange);
     TidelineDataStore.addChangeListener(this.handleStoreChange);
   },
 
   componentWillUnmount: function() {
+    AuthStore.removeChangeListener(this.handleStoreChange);
+    GroupStore.removeChangeListener(this.handleStoreChange);
     TidelineDataStore.removeChangeListener(this.handleStoreChange);
   },
 
@@ -129,7 +138,7 @@ var PatientData = React.createClass({
   },
 
   renderPatientData: function() {
-    if (this.state.fetchingPatientData) {
+    if (this.isLoading()) {
       return this.renderLoading();
     }
 
@@ -138,6 +147,10 @@ var PatientData = React.createClass({
     }
 
     return this.renderChart();
+  },
+
+  isLoading: function() {
+    return this.state.fetchingPatient || this.state.fetchingPatientData;
   },
 
   renderEmptyHeader: function() {
@@ -182,7 +195,7 @@ var PatientData = React.createClass({
       self.props.trackMetric('Clicked No Data Upload');
     };
 
-    if (this.props.isUserPatient) {
+    if (this.isRootOrAdmin()) {
       /* jshint ignore:start */
       content = (
         <div>
@@ -248,6 +261,11 @@ var PatientData = React.createClass({
       return true;
     }
     return false;
+  },
+
+  isRootOrAdmin: function() {
+    return personUtils.hasPermissions('root', this.state.patient) ||
+           personUtils.hasPermissions('admin', this.state.patient);
   },
 
   renderChart: function() {

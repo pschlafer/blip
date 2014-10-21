@@ -606,10 +606,6 @@ var AppComponent = React.createClass({
     return personUtils.isPatient(this.state.user);
   },
 
-  isSamePersonUserAndPatient: function() {
-    return personUtils.isSame(this.state.user, this.state.patient);
-  },
-
   showPatientData: function(patientId) {
     this.renderPage = this.renderPatientData;
     this.patientId = patientId;
@@ -633,7 +629,6 @@ var AppComponent = React.createClass({
     return (
       <PatientData
         patientId={this.patientId}
-        isUserPatient={this.isSamePersonUserAndPatient()}
         queryParams={this.state.queryParams}
         uploadUrl={app.api.getUploadUrl()}
         onRefresh={this.fetchCurrentPatientData}
