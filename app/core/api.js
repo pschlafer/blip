@@ -193,7 +193,7 @@ api.user.put = function(user, cb) {
   });
 };
 
-api.user.createChildAccount = function(child, callback) {
+api.user.createChildAccount = function(profile, callback) {
   api.log('POST /user/child [NOT IMPLEMENTED]');
   callback(null, {});
 };

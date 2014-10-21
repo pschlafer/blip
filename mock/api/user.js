@@ -278,9 +278,9 @@ var patch = function(mock, api) {
     }, getDelayFor('api.user.put'));
   };
 
-  api.user.createChildAccount = function(child, callback) {
+  api.user.createChildAccount = function(profile, callback) {
     api.log('[mock] POST /user/child');
-    child = _.cloneDeep(child);
+    var child = {profile: _.cloneDeep(profile)};
 
     setTimeout(function() {
       var loggedInUserId = api.userId;
