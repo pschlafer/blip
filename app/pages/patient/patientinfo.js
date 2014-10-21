@@ -82,7 +82,7 @@ var PatientInfo = React.createClass({
     var nameNode;
     var ageNode;
     var diagnosisNode;
-    if (this.isSamePersonUserAndPatient()) {
+    if (this.isRootOrAdmin()) {
       nameNode = (
         <a href="" onClick={handleClick} className="PatientInfo-block PatientInfo-block--withArrow">
           {this.getDisplayName(patient)}
