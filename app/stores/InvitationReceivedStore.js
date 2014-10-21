@@ -59,27 +59,28 @@ var InvitationReceivedStore = merge(EventEmitter.prototype, {
 });
 
 InvitationReceivedStore.dispatchToken = AppDispatcher.register(function(payload) {
+  var self = InvitationReceivedStore;
   switch(payload.type) {
 
     case AppConstants.api.STARTED_GET_INVITATIONS_RECEIVED:
-      InvitationReceivedStore._state.requests.fetchingAll = true;
-      InvitationReceivedStore.emitChange();
+      self._state.requests.fetchingAll = true;
+      self.emitChange();
       break;
 
     case AppConstants.api.FAILED_GET_INVITATIONS_RECEIVED:
-      InvitationReceivedStore._state.requests.fetchingAll = false;
-      InvitationReceivedStore.emitChange();
+      self._state.requests.fetchingAll = false;
+      self.emitChange();
       break;
 
     case AppConstants.api.COMPLETED_GET_INVITATIONS_RECEIVED:
-      InvitationReceivedStore._state.requests.fetchingAll = false;
-      InvitationReceivedStore._state.invitations = _.cloneDeep(payload.invitations);
-      InvitationReceivedStore.emitChange();
+      self._state.requests.fetchingAll = false;
+      self._state.invitations = _.cloneDeep(payload.invitations);
+      self.emitChange();
       break;
 
     case AppConstants.api.COMPLETED_LOGOUT:
-      InvitationReceivedStore.reset();
-      InvitationReceivedStore.emitChange();
+      self.reset();
+      self.emitChange();
       break;
 
     default:

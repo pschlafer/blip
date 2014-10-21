@@ -78,28 +78,29 @@ var TidelineDataStore = merge(EventEmitter.prototype, {
 });
 
 TidelineDataStore.dispatchToken = AppDispatcher.register(function(payload) {
+  var self = TidelineDataStore;
   switch(payload.type) {
 
     case AppConstants.api.STARTED_GET_HEALTH_DATA:
-      TidelineDataStore._state.requests[payload.groupId] = true;
-      TidelineDataStore.emitChange();
+      self._state.requests[payload.groupId] = true;
+      self.emitChange();
       break;
 
     case AppConstants.api.FAILED_GET_HEALTH_DATA:
-      TidelineDataStore._state.requests[payload.groupId] = false;
-      TidelineDataStore.emitChange();
+      self._state.requests[payload.groupId] = false;
+      self.emitChange();
       break;
 
     case AppConstants.api.COMPLETED_GET_HEALTH_DATA:
-      TidelineDataStore._state.requests[payload.groupId] = false;
-      TidelineDataStore._state.tidelineDataByGroupId[payload.groupId] =
-        TidelineDataStore._preprocessHealthData(payload.healthData);
-      TidelineDataStore.emitChange();
+      self._state.requests[payload.groupId] = false;
+      self._state.tidelineDataByGroupId[payload.groupId] =
+        self._preprocessHealthData(payload.healthData);
+      self.emitChange();
       break;
 
     case AppConstants.api.COMPLETED_LOGOUT:
-      TidelineDataStore.reset();
-      TidelineDataStore.emitChange();
+      self.reset();
+      self.emitChange();
       break;
 
     default:

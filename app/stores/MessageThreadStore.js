@@ -60,28 +60,29 @@ var MessageThreadStore = merge(EventEmitter.prototype, {
 });
 
 MessageThreadStore.dispatchToken = AppDispatcher.register(function(payload) {
+  var self = MessageThreadStore;
   switch(payload.type) {
 
     case AppConstants.api.STARTED_GET_MESSAGE_THREAD:
-      MessageThreadStore._state.requests[payload.threadId] = true;
-      MessageThreadStore.emitChange();
+      self._state.requests[payload.threadId] = true;
+      self.emitChange();
       break;
 
     case AppConstants.api.FAILED_GET_MESSAGE_THREAD:
-      MessageThreadStore._state.requests[payload.threadId] = false;
-      MessageThreadStore.emitChange();
+      self._state.requests[payload.threadId] = false;
+      self.emitChange();
       break;
 
     case AppConstants.api.COMPLETED_GET_MESSAGE_THREAD:
-      MessageThreadStore._state.requests[payload.threadId] = false;
-      MessageThreadStore._state.threadsById[payload.threadId] =
+      self._state.requests[payload.threadId] = false;
+      self._state.threadsById[payload.threadId] =
         _.cloneDeep(payload.messages);
-      MessageThreadStore.emitChange();
+      self.emitChange();
       break;
 
     case AppConstants.api.COMPLETED_LOGOUT:
-      MessageThreadStore.reset();
-      MessageThreadStore.emitChange();
+      self.reset();
+      self.emitChange();
       break;
 
     default:

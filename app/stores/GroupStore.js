@@ -74,51 +74,52 @@ var GroupStore = merge(EventEmitter.prototype, {
 });
 
 GroupStore.dispatchToken = AppDispatcher.register(function(payload) {
+  var self = GroupStore;
   switch(payload.type) {
 
     case AppConstants.api.STARTED_GET_GROUPS:
-      GroupStore._state.requests.fetchingAll = true;
-      GroupStore.emitChange();
+      self._state.requests.fetchingAll = true;
+      self.emitChange();
       break;
 
     case AppConstants.api.FAILED_GET_GROUPS:
-      GroupStore._state.requests.fetchingAll = false;
-      GroupStore.emitChange();
+      self._state.requests.fetchingAll = false;
+      self.emitChange();
       break;
 
     case AppConstants.api.COMPLETED_GET_GROUPS:
       AppDispatcher.waitFor([UserStore.dispatchToken]);
-      GroupStore._state.requests.fetchingAll = false;
-      GroupStore._state.permissionsByGroupId = _.reduce(payload.groups,
+      self._state.requests.fetchingAll = false;
+      self._state.permissionsByGroupId = _.reduce(payload.groups,
       function(acc, group) {
         acc[group.userid] = _.cloneDeep(group.permissions);
         return acc;
       }, {});
-      GroupStore.emitChange();
+      self.emitChange();
       break;
 
     case AppConstants.api.STARTED_GET_GROUP:
-      GroupStore._state.requests[payload.groupId] = {fetching: true};
-      GroupStore.emitChange();
+      self._state.requests[payload.groupId] = {fetching: true};
+      self.emitChange();
       break;
 
     case AppConstants.api.FAILED_GET_GROUP:
-      GroupStore._state.requests[payload.groupId] = {fetching: false};
-      GroupStore.emitChange();
+      self._state.requests[payload.groupId] = {fetching: false};
+      self.emitChange();
       break;
 
     case AppConstants.api.COMPLETED_GET_GROUP:
       AppDispatcher.waitFor([UserStore.dispatchToken]);
       var group = payload.group;
-      GroupStore._state.requests[group.userid] = {fetching: false};
-      GroupStore._state.permissionsByGroupId[group.userid] =
+      self._state.requests[group.userid] = {fetching: false};
+      self._state.permissionsByGroupId[group.userid] =
         _.cloneDeep(group.permissions);
-      GroupStore.emitChange();
+      self.emitChange();
       break;
 
     case AppConstants.api.COMPLETED_LOGOUT:
-      GroupStore.reset();
-      GroupStore.emitChange();
+      self.reset();
+      self.emitChange();
       break;
 
     default:

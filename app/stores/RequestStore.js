@@ -53,107 +53,108 @@ var RequestStore = merge(EventEmitter.prototype, {
 });
 
 RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
+  var self = RequestStore;
   switch(payload.type) {
 
     case AppConstants.request.DISMISSED_REQUEST_ERROR:
-      RequestStore._state.error = null;
-      RequestStore.emitChange();
+      self._state.error = null;
+      self.emitChange();
       break;
 
     case AppConstants.api.FAILED_LOGIN:
       // Don't handle wrong credentials globally
       if (payload.error && payload.error.status !== 401) {
-        RequestStore._state.error = {
+        self._state.error = {
           key: AppConstants.api.FAILED_LOGIN,
           message: 'Something went wrong while logging in',
           original: payload.error
         };
       }
-      RequestStore.emitChange();
+      self.emitChange();
       break;
 
     case AppConstants.api.FAILED_SIGNUP:
       // Don't handle "username already taken" globally
       if (payload.error && payload.error.status !== 400) {
-        RequestStore._state.error = {
+        self._state.error = {
           key: AppConstants.api.FAILED_SIGNUP,
           message: 'Something went wrong while signing up',
           original: payload.error
         };
       }
-      RequestStore.emitChange();
+      self.emitChange();
       break;
 
     case AppConstants.api.FAILED_LOGOUT:
-      RequestStore._state.error = {
+      self._state.error = {
         key: AppConstants.api.FAILED_LOGOUT,
         message: 'Something went wrong while logging out',
         original: payload.error
       };
-      RequestStore.emitChange();
+      self.emitChange();
       break;
 
     case AppConstants.api.FAILED_GET_GROUPS:
-      RequestStore._state.error = {
+      self._state.error = {
         key: AppConstants.api.FAILED_GET_GROUPS,
         message: 'Something went wrong while trying to fetch groups user has access to',
         original: payload.error
       };
-      RequestStore.emitChange();
+      self.emitChange();
       break;
 
     case AppConstants.api.FAILED_GET_GROUP:
-      RequestStore._state.error = {
+      self._state.error = {
         key: AppConstants.api.FAILED_GET_GROUP,
         groupId: payload.groupId,
         message: 'Something went wrong while trying to fetch group ' + payload.groupId,
         original: payload.error
       };
-      RequestStore.emitChange();
+      self.emitChange();
       break;
 
     case AppConstants.api.FAILED_GET_INVITATIONS_RECEIVED:
-      RequestStore._state.error = {
+      self._state.error = {
         key: AppConstants.api.FAILED_GET_INVITATIONS_RECEIVED,
         message: 'Something went wrong while trying to fetch received invitations',
         original: payload.error
       };
-      RequestStore.emitChange();
+      self.emitChange();
       break;
 
     case AppConstants.api.FAILED_GET_INVITATIONS_SENT:
-      RequestStore._state.error = {
+      self._state.error = {
         key: AppConstants.api.FAILED_GET_INVITATIONS_SENT,
         groupId: payload.groupId,
         message: 'Something went wrong while trying to fetch sent invitations for group ' + payload.groupId,
         original: payload.error
       };
-      RequestStore.emitChange();
+      self.emitChange();
       break;
 
     case AppConstants.api.FAILED_GET_HEALTH_DATA:
-      RequestStore._state.error = {
+      self._state.error = {
         key: AppConstants.api.FAILED_GET_HEALTH_DATA,
         groupId: payload.groupId,
         message: 'Something went wrong while trying to fetch health data for group ' + payload.groupId,
         original: payload.error
       };
-      RequestStore.emitChange();
+      self.emitChange();
       break;
 
     case AppConstants.api.FAILED_GET_MESSAGE_THREAD:
-      RequestStore._state.error = {
+      self._state.error = {
         key: AppConstants.api.FAILED_GET_MESSAGE_THREAD,
         threadId: payload.threadId,
         message: 'Something went wrong while trying to fetch message thread ' + payload.threadId,
         original: payload.error
       };
-      RequestStore.emitChange();
+      self.emitChange();
       break;
 
     case AppConstants.api.COMPLETED_LOGOUT:
-      RequestStore.reset();
-      RequestStore.emitChange();
+      self.reset();
+      self.emitChange();
       break;
 
     default:

@@ -83,75 +83,76 @@ var AuthStore = merge(EventEmitter.prototype, {
 });
 
 AuthStore.dispatchToken = AppDispatcher.register(function(payload) {
+  var self = AuthStore;
   switch(payload.type) {
 
     case AppConstants.api.STARTED_LOAD_SESSION:
-      AuthStore._state.requests.loadingSession = true;
-      AuthStore.emitChange();
+      self._state.requests.loadingSession = true;
+      self.emitChange();
       break;
 
     case AppConstants.api.FAILED_LOAD_SESSION:
-      AuthStore._state.requests.loadingSession = false;
-      AuthStore.emitChange();
+      self._state.requests.loadingSession = false;
+      self.emitChange();
       break;
 
     case AppConstants.api.COMPLETED_LOAD_SESSION:
-      AuthStore._state.requests.loadingSession = false;
-      AuthStore._state.user = _.cloneDeep(payload.user);
-      AuthStore.emitChange();
+      self._state.requests.loadingSession = false;
+      self._state.user = _.cloneDeep(payload.user);
+      self.emitChange();
       break;
 
     case AppConstants.api.STARTED_LOGIN:
-      AuthStore._state.requests.loggingIn = true;
-      AuthStore._state.requests.loginError = null;
-      AuthStore.emitChange();
+      self._state.requests.loggingIn = true;
+      self._state.requests.loginError = null;
+      self.emitChange();
       break;
 
     case AppConstants.api.FAILED_LOGIN:
-      AuthStore._state.requests.loggingIn = false;
-      AuthStore._state.requests.loginError = _.cloneDeep(payload.error);
-      AuthStore.emitChange();
+      self._state.requests.loggingIn = false;
+      self._state.requests.loginError = _.cloneDeep(payload.error);
+      self.emitChange();
       break;
 
     case AppConstants.api.COMPLETED_LOGIN:
-      AuthStore._state.requests.loggingIn = false;
-      AuthStore._state.requests.loginError = null;
-      AuthStore._state.user = _.cloneDeep(payload.user);
-      AuthStore.emitChange();
+      self._state.requests.loggingIn = false;
+      self._state.requests.loginError = null;
+      self._state.user = _.cloneDeep(payload.user);
+      self.emitChange();
       break;
 
     case AppConstants.api.STARTED_SIGNUP:
-      AuthStore._state.requests.signingUp = true;
-      AuthStore._state.requests.signupError = null;
-      AuthStore.emitChange();
+      self._state.requests.signingUp = true;
+      self._state.requests.signupError = null;
+      self.emitChange();
       break;
 
     case AppConstants.api.FAILED_SIGNUP:
-      AuthStore._state.requests.signingUp = false;
-      AuthStore._state.requests.signupError = _.cloneDeep(payload.error);
-      AuthStore.emitChange();
+      self._state.requests.signingUp = false;
+      self._state.requests.signupError = _.cloneDeep(payload.error);
+      self.emitChange();
       break;
 
     case AppConstants.api.COMPLETED_SIGNUP:
-      AuthStore._state.requests.signingUp = false;
-      AuthStore._state.requests.signupError = null;
-      AuthStore._state.user = _.cloneDeep(payload.user);
-      AuthStore.emitChange();
+      self._state.requests.signingUp = false;
+      self._state.requests.signupError = null;
+      self._state.user = _.cloneDeep(payload.user);
+      self.emitChange();
       break;
 
     case AppConstants.api.STARTED_LOGOUT:
-      AuthStore._state.requests.loggingOut = true;
-      AuthStore.emitChange();
+      self._state.requests.loggingOut = true;
+      self.emitChange();
       break;
 
     case AppConstants.api.FAILED_LOGOUT:
-      AuthStore._state.requests.loggingOut = false;
-      AuthStore.emitChange();
+      self._state.requests.loggingOut = false;
+      self.emitChange();
       break;
 
     case AppConstants.api.COMPLETED_LOGOUT:
-      AuthStore.reset();
-      AuthStore.emitChange();
+      self.reset();
+      self.emitChange();
       break;
 
     default:

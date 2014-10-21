@@ -66,33 +66,34 @@ var MemberStore = merge(EventEmitter.prototype, {
 });
 
 MemberStore.dispatchToken = AppDispatcher.register(function(payload) {
+  var self = MemberStore;
   switch(payload.type) {
 
     case AppConstants.api.STARTED_GET_GROUP:
-      MemberStore._state.requests[payload.groupId] = {fetching: true};
-      MemberStore.emitChange();
+      self._state.requests[payload.groupId] = {fetching: true};
+      self.emitChange();
       break;
 
     case AppConstants.api.FAILED_GET_GROUP:
-      MemberStore._state.requests[payload.groupId] = {fetching: false};
-      MemberStore.emitChange();
+      self._state.requests[payload.groupId] = {fetching: false};
+      self.emitChange();
       break;
 
     case AppConstants.api.COMPLETED_GET_GROUP:
       AppDispatcher.waitFor([UserStore.dispatchToken]);
       var group = payload.group;
-      MemberStore._state.requests[group.userid] = {fetching: false};
-      MemberStore._state.membersByGroupId[group.userid] =
+      self._state.requests[group.userid] = {fetching: false};
+      self._state.membersByGroupId[group.userid] =
         _.reduce(group.team, function(acc, member) {
           acc[member.userid] = _.cloneDeep(member.permissions);
           return acc;
         }, {});
-      MemberStore.emitChange();
+      self.emitChange();
       break;
 
     case AppConstants.api.COMPLETED_LOGOUT:
-      MemberStore.reset();
-      MemberStore.emitChange();
+      self.reset();
+      self.emitChange();
       break;
 
     default:
