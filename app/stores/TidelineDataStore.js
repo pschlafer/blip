@@ -82,17 +82,17 @@ TidelineDataStore.dispatchToken = AppDispatcher.register(function(payload) {
   switch(payload.type) {
 
     case AppConstants.api.STARTED_GET_HEALTH_DATA:
-      self._state.requests[payload.groupId] = true;
+      self._state.requests[payload.groupId] = {fetching: true};
       self.emitChange();
       break;
 
     case AppConstants.api.FAILED_GET_HEALTH_DATA:
-      self._state.requests[payload.groupId] = false;
+      self._state.requests[payload.groupId] = {fetching: false};
       self.emitChange();
       break;
 
     case AppConstants.api.COMPLETED_GET_HEALTH_DATA:
-      self._state.requests[payload.groupId] = false;
+      self._state.requests[payload.groupId] = {fetching: false};
       self._state.tidelineDataByGroupId[payload.groupId] =
         self._preprocessHealthData(payload.healthData);
       self.emitChange();

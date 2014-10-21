@@ -64,17 +64,17 @@ MessageThreadStore.dispatchToken = AppDispatcher.register(function(payload) {
   switch(payload.type) {
 
     case AppConstants.api.STARTED_GET_MESSAGE_THREAD:
-      self._state.requests[payload.threadId] = true;
+      self._state.requests[payload.threadId] = {fetching: true};
       self.emitChange();
       break;
 
     case AppConstants.api.FAILED_GET_MESSAGE_THREAD:
-      self._state.requests[payload.threadId] = false;
+      self._state.requests[payload.threadId] = {fetching: false};
       self.emitChange();
       break;
 
     case AppConstants.api.COMPLETED_GET_MESSAGE_THREAD:
-      self._state.requests[payload.threadId] = false;
+      self._state.requests[payload.threadId] = {fetching: false};
       self._state.threadsById[payload.threadId] =
         _.cloneDeep(payload.messages);
       self.emitChange();
