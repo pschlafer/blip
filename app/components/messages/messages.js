@@ -58,7 +58,8 @@ var Messages = React.createClass({
     props = props || this.props;
     return {
       user: AuthStore.getLoggedInUser(),
-      messages: props.threadId ? MessageThreadStore.get(props.threadId) : null
+      messages: props.threadId ? MessageThreadStore.get(props.threadId) : null,
+      fetchingMessages: props.threadId ? MessageThreadStore.isFetching(props.threadId) : false
     };
   },
 
@@ -184,15 +185,24 @@ var Messages = React.createClass({
     return (<a className='messages-close' onClick={this.handleClose}>Close</a>);
     /* jshint ignore:end */
   },
+  renderLoading: function() {
+    // Show loading indicator only if there is nothing else to show
+    if (_.isEmpty(this.state.messages) && this.state.fetchingMessages) {
+      return <div className="messages-loading">Loading message thread...</div>;
+    }
+    return null;
+  },
   render: function() {
 
     var thread = this.renderThread();
     var form = this.renderNewThreadForm() ;
     var close;
+    var loading;
 
     //If we are closing an existing thread then have close and render the comment form
     if(thread){
       close = this.renderClose();
+      loading = this.renderLoading();
       form = this.renderCommentOnThreadForm();
     }
 
@@ -204,6 +214,7 @@ var Messages = React.createClass({
           {close}
         </div>
         <div>
+          {loading}
           {thread}
           {form}
         </div>
