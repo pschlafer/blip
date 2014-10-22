@@ -395,11 +395,8 @@ var AppComponent = React.createClass({
 
   renderProfile: function() {
     return (
-      /* jshint ignore:start */
       <Profile
-          onSubmit={this.updateUser}
           trackMetric={trackMetric}/>
-      /* jshint ignore:end */
     );
   },
 
@@ -414,18 +411,15 @@ var AppComponent = React.createClass({
   },
 
   renderPatients: function() {
-    /* jshint ignore:start */
     return (
       <Patients
           uploadUrl={app.api.getUploadUrl()}
           showingWelcomeMessage={this.state.showingWelcomeMessage}
-          onSetAsCareGiver={this.setUserAsCareGiver}
           trackMetric={trackMetric}
           onAcceptInvitation={this.handleAcceptInvitation}
           onDismissInvitation={this.handleDismissInvitation}
           onRemovePatient={this.handleRemovePatient}/>
     );
-    /* jshint ignore:end */
   },
   handleDismissInvitation: function(invitation) {
     var self = this;
@@ -673,44 +667,6 @@ var AppComponent = React.createClass({
     this.setState({
       patient: null,
       patientData: null
-    });
-  },
-
-  updateUser: function(formValues) {
-    var self = this;
-    var previousUser = this.state.user;
-
-    var user = _.assign(
-      {},
-      _.omit(previousUser, 'profile'),
-      _.omit(formValues, 'profile'),
-      {profile: _.assign({}, previousUser.profile, formValues.profile)}
-    );
-
-    // Optimistic update
-    self.setState({user: _.omit(user, 'password')});
-
-    // If username hasn't changed, don't try to update
-    // or else backend will respond with "already taken" error
-    if (user.username === previousUser.username) {
-      user = _.omit(user, 'username', 'emails');
-    }
-
-    app.api.user.put(user, function(err, user) {
-      if (err) {
-        var message = 'An error occured while updating user account';
-        // Rollback
-        self.setState({user: previousUser});
-        return self.handleApiError(err, message);
-      }
-      self.setState({user: user});
-      trackMetric('Updated Account');
-    });
-  },
-
-  setUserAsCareGiver: function() {
-    this.updateUser({
-      profile: {isOnlyCareGiver: true}
     });
   },
 

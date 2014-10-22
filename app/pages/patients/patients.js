@@ -32,7 +32,6 @@ var InvitationReceivedStore = require('../../stores/InvitationReceivedStore');
 var Patients = React.createClass({
   propTypes: {
     showingWelcomeMessage: React.PropTypes.bool,
-    onSetAsCareGiver: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired,
     onAcceptInvitation: React.PropTypes.func,
     onDismissInvitation: React.PropTypes.func,
@@ -228,17 +227,6 @@ var Patients = React.createClass({
 
   handleClickCreateProfile: function() {
     this.props.trackMetric('Clicked Create Profile');
-  },
-
-  handleClickSetAsCareGiver: function(e) {
-    if (e) {
-      e.preventDefault();
-    }
-    var action = this.props.onSetAsCareGiver;
-    if (action) {
-      action();
-    }
-    this.props.trackMetric('Clicked Care Giver Only');
   },
 
   addLinkToPatients: function(patients) {

@@ -22,11 +22,11 @@ var SimpleForm = require('../../components/simpleform');
 var PeopleList = require('../../components/peoplelist');
 var PersonCard = require('../../components/personcard');
 
+var AuthActions = require('../../actions/AuthActions');
 var AuthStore = require('../../stores/AuthStore');
 
 var Profile = React.createClass({
   propTypes: {
-    onSubmit: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired
   },
 
@@ -235,10 +235,10 @@ var Profile = React.createClass({
 
   submitFormValues: function(formValues) {
     var self = this;
-    var submit = this.props.onSubmit;
-
     // Save optimistically
-    submit(formValues);
+    AuthActions.updateUser(formValues);
+    this.props.trackMetric('Updated Account');
+
     this.setState({
       notification: {type: 'success', message: 'All changes saved.'}
     });

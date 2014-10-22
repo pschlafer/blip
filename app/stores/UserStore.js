@@ -18,6 +18,7 @@ var AppDispatcher = require('../AppDispatcher');
 var AppConstants = require('../AppConstants');
 var EventEmitter = require('events').EventEmitter;
 var merge = require('react/lib/merge');
+var AuthStore = require('./AuthStore');
 
 var CHANGE_EVENT = 'change';
 
@@ -95,6 +96,13 @@ UserStore.dispatchToken = AppDispatcher.register(function(payload) {
     case AppConstants.api.STARTED_UPDATE_GROUP:
       // Optimistic update
       self._updateWithGroup(payload.group);
+      self.emitChange();
+      break;
+
+    case AppConstants.api.STARTED_UPDATE_USER:
+      // Optimistic update
+      AppDispatcher.waitFor([AuthStore.dispatchToken]);
+      self._updateWithUser(AuthStore.getLoggedInUser());
       self.emitChange();
       break;
 

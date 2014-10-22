@@ -94,6 +94,16 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       self.emitChange();
       break;
 
+    case AppConstants.api.FAILED_UPDATE_USER:
+      self._state.error = {
+        key: AppConstants.api.FAILED_UPDATE_USER,
+        message: 'Something went wrong while updating user',
+        original: payload.error,
+        user: payload.user
+      };
+      self.emitChange();
+      break;
+
     case AppConstants.api.FAILED_GET_GROUPS:
       self._state.error = {
         key: AppConstants.api.FAILED_GET_GROUPS,

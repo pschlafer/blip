@@ -13,10 +13,12 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+var _ = require('lodash');
 var async = require('async');
 var AppDispatcher = require('../AppDispatcher');
 var AppConstants = require('../AppConstants');
 var api = require('../core/api');
+var AuthStore = require('../stores/AuthStore');
 
 var AuthActions = {
 
@@ -96,6 +98,42 @@ var AuthActions = {
       }
 
       AppDispatcher.dispatch({type: AppConstants.api.COMPLETED_LOGOUT});
+    });
+  },
+
+  updateUser: function(userUpdates) {
+    var previousUser = AuthStore.getLoggedInUser();
+    userUpdates = _.assign(
+      _.omit(previousUser, 'profile'),
+      _.omit(userUpdates, 'profile'),
+      {profile: _.assign({}, previousUser.profile, userUpdates.profile)}
+    );
+
+
+    AppDispatcher.dispatch({
+      type: AppConstants.api.STARTED_UPDATE_USER,
+      user: _.omit(userUpdates, 'password')
+    });
+
+    // If username hasn't changed, don't try to update
+    // or else backend will respond with "already taken" error
+    if (userUpdates.username === previousUser.username) {
+      userUpdates = _.omit(userUpdates, 'username', 'emails');
+    }
+
+    api.user.put(userUpdates, function(err, user) {
+      if (err) {
+        return AppDispatcher.dispatch({
+          type: AppConstants.api.FAILED_UPDATE_USER,
+          error: err,
+          user: _.omit(userUpdates, 'password')
+        });
+      }
+
+      AppDispatcher.dispatch({
+        type: AppConstants.api.COMPLETED_UPDATE_USER,
+        user: user
+      });
     });
   }
 

@@ -38,6 +38,10 @@ var AppConstants = {
     COMPLETED_LOGOUT: null,
     FAILED_LOGOUT: null,
 
+    STARTED_UPDATE_USER: null,
+    COMPLETED_UPDATE_USER: null,
+    FAILED_UPDATE_USER: null,
+
     STARTED_GET_GROUPS: null,
     COMPLETED_GET_GROUPS: null,
     FAILED_GET_GROUPS: null,

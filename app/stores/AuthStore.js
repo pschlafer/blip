@@ -175,6 +175,12 @@ AuthStore.dispatchToken = AppDispatcher.register(function(payload) {
       // Else do nothing
       break;
 
+    case AppConstants.api.STARTED_UPDATE_USER:
+      // Optimistic update
+      self._state.user = _.cloneDeep(payload.user);
+      self.emitChange();
+      break;
+
     case AppConstants.api.COMPLETED_LOGOUT:
       self.reset();
       self.emitChange();
