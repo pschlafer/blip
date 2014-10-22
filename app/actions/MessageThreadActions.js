@@ -13,6 +13,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+var _ = require('lodash');
 var async = require('async');
 var AppDispatcher = require('../AppDispatcher');
 var AppConstants = require('../AppConstants');
@@ -43,6 +44,71 @@ var MessageThreadActions = {
         type: AppConstants.api.COMPLETED_GET_MESSAGE_THREAD,
         threadId: threadId,
         messages: messages
+      });
+    });
+  },
+
+  create: function(message) {
+    AppDispatcher.dispatch({
+      type: AppConstants.api.STARTED_CREATE_MESSAGE_THREAD
+    });
+
+    api.team.startMessageThread(message, function(err, messageId) {
+      if (err) {
+        return AppDispatcher.dispatch({
+          type: AppConstants.api.FAILED_CREATE_MESSAGE_THREAD,
+          error: err
+        });
+      }
+
+      AppDispatcher.dispatch({
+        type: AppConstants.api.COMPLETED_CREATE_MESSAGE_THREAD,
+        message: _.assign({}, message, {id: messageId})
+      });
+    });
+  },
+
+  comment: function(threadId, message) {
+    AppDispatcher.dispatch({
+      type: AppConstants.api.STARTED_ADD_COMMENT,
+      threadId: threadId
+    });
+
+    api.team.replyToMessageThread(message, function(err, messageId) {
+      if (err) {
+        return AppDispatcher.dispatch({
+          type: AppConstants.api.FAILED_ADD_COMMENT,
+          error: err,
+          threadId: threadId
+        });
+      }
+
+      AppDispatcher.dispatch({
+        type: AppConstants.api.COMPLETED_ADD_COMMENT,
+        threadId: threadId,
+        message: _.assign({}, message, {id: messageId})
+      });
+    });
+  },
+
+  editMessage: function(message) {
+    AppDispatcher.dispatch({
+      type: AppConstants.api.STARTED_EDIT_MESSAGE,
+      message: message
+    });
+
+    api.team.editMessage(message, function(err) {
+      if (err) {
+        return AppDispatcher.dispatch({
+          type: AppConstants.api.FAILED_EDIT_MESSAGE,
+          error: err,
+          message: message
+        });
+      }
+
+      AppDispatcher.dispatch({
+        type: AppConstants.api.COMPLETED_EDIT_MESSAGE,
+        message: message
       });
     });
   }

@@ -19,6 +19,7 @@ var AppConstants = require('../AppConstants');
 var EventEmitter = require('events').EventEmitter;
 var merge = require('react/lib/merge');
 var utils = require('../core/utils');
+var AuthStore = require('./AuthStore');
 
 var CHANGE_EVENT = 'change';
 
@@ -55,6 +56,24 @@ var MessageThreadStore = merge(EventEmitter.prototype, {
 
   isFetching: function(threadId) {
     return Boolean(utils.getIn(this._state.requests, [threadId, 'fetching']));
+  },
+
+  isCreating: function() {
+    return Boolean(this._state.requests.creating);
+  },
+
+  isUpdating: function(threadId) {
+    return Boolean(utils.getIn(this._state.requests, [threadId, 'updating']));
+  },
+
+  _addUserToMessage: function(message) {
+    return _.assign({}, message, {user: AuthStore.getLoggedInUser().profile});
+  },
+
+  // To be deprecated
+  // (probably moved to a dedicated store for the "new thread" form)
+  getNewThread: function() {
+    return _.cloneDeep(this._state.newThread);
   }
 
 });
@@ -77,6 +96,57 @@ MessageThreadStore.dispatchToken = AppDispatcher.register(function(payload) {
       self._state.requests[payload.threadId] = {fetching: false};
       self._state.threadsById[payload.threadId] =
         _.cloneDeep(payload.messages);
+      self.emitChange();
+      break;
+
+    case AppConstants.api.STARTED_CREATE_MESSAGE_THREAD:
+      self._state.requests.creating = true;
+      self.emitChange();
+      break;
+
+    case AppConstants.api.FAILED_CREATE_MESSAGE_THREAD:
+      self._state.requests.creating = false;
+      self.emitChange();
+      break;
+
+    case AppConstants.api.COMPLETED_CREATE_MESSAGE_THREAD:
+      self._state.requests.creating = false;
+      var thread = [self._addUserToMessage(payload.message)];
+      self._state.threadsById[payload.message.id] = thread;
+      self._state.newThread = thread;
+      self.emitChange();
+      break;
+
+    case AppConstants.api.STARTED_ADD_COMMENT:
+      self._state.requests[payload.threadId] = {updating: true};
+      self.emitChange();
+      break;
+
+    case AppConstants.api.FAILED_ADD_COMMENT:
+      self._state.requests[payload.threadId] = {updating: false};
+      self.emitChange();
+      break;
+
+    case AppConstants.api.COMPLETED_ADD_COMMENT:
+      self._state.requests[payload.threadId] = {updating: false};
+      self._state.threadsById[payload.threadId] =
+        self._state.threadsById[payload.threadId].concat(
+          self._addUserToMessage(payload.message)
+        );
+      self.emitChange();
+      break;
+
+    case AppConstants.api.STARTED_EDIT_MESSAGE:
+      // Optimistic update
+      var updatedMessage = payload.message;
+      var threadId = updatedMessage.parentmessage || updatedMessage.id;
+      self._state.requests[threadId] = _.map(self._state.requests[threadId],
+      function(message) {
+        if (message.id === updatedMessage.id) {
+          return updatedMessage;
+        }
+        return message;
+      });
       self.emitChange();
       break;
 

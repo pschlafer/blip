@@ -38,9 +38,9 @@ var Messages = React.createClass({
     createDatetime : React.PropTypes.string,
     patientId : React.PropTypes.string,
     onClose : React.PropTypes.func,
-    onSave : React.PropTypes.func,
-    onEdit : React.PropTypes.func,
-    onNewMessage : React.PropTypes.func
+    onEditMessage : React.PropTypes.func,
+    onCreateThread : React.PropTypes.func,
+    onAddComment : React.PropTypes.func
   },
 
   getDefaultProps: function () {
@@ -59,7 +59,9 @@ var Messages = React.createClass({
     return {
       user: AuthStore.getLoggedInUser(),
       messages: props.threadId ? MessageThreadStore.get(props.threadId) : null,
-      fetchingMessages: props.threadId ? MessageThreadStore.isFetching(props.threadId) : false
+      fetchingMessages: props.threadId ? MessageThreadStore.isFetching(props.threadId) : false,
+      creatingThread: MessageThreadStore.isCreating(),
+      addingComment: props.threadId ? MessageThreadStore.isUpdating(props.threadId) : false
     };
   },
 
@@ -77,6 +79,19 @@ var Messages = React.createClass({
   componentWillReceiveProps: function(nextProps) {
     this.setState(this.getStateFromStores(nextProps));
     this.fetchMessageThreadIfNeeded(nextProps);
+  },
+
+  componentDidUpdate: function(prevProps, prevState) {
+    if (prevState.creatingThread && !this.state.creatingThread) {
+      // Not very clean here, but Tideline needs the new note with its id
+      this.props.onCreateThread(MessageThreadStore.getNewThread()[0]);
+      // Close modal after new thread creation
+      this.props.onClose();
+    }
+    else if (prevState.addingComment && !this.state.addingComment) {
+      this.props.onAddComment(this.state.messages[this.state.messages.length - 1]);
+      this.refs.commentForm.resetAfterCommentAdded();
+    }
   },
 
   handleStoreChange: function() {
@@ -154,9 +169,11 @@ var Messages = React.createClass({
     return (
       <div className='messages-form'>
         <MessageForm
+          ref='commentForm'
           messagePrompt={this.props.COMMENT_PROMPT}
           saveBtnText={submitButtonText}
-          onSubmit={this.handleAddComment}/>
+          onSubmit={this.handleAddComment}
+          working={this.state.addingComment} />
       </div>
     );
     /* jshint ignore:end */
@@ -174,7 +191,8 @@ var Messages = React.createClass({
             messagePrompt={this.props.NOTE_PROMPT}
             saveBtnText={submitButtonText}
             onSubmit={this.handleCreateNote}
-            onCancel={this.handleClose}/>
+            onCancel={this.handleClose}
+            working={this.state.creatingThread} />
       </div>
     );
       /* jshint ignore:end */
@@ -244,23 +262,7 @@ var Messages = React.createClass({
         timestamp : formValues.timestamp
       };
 
-      addComment(comment, function(error,commentId){
-
-        if (commentId) {
-          if(cb){
-            //let the form know all is good
-            cb();
-          }
-          //set so we can display right away
-          comment.id = commentId;
-          comment.user = this.state.user.profile;
-          var withReply = this.state.messages;
-          withReply.push(comment);
-          this.setState({
-            messages: withReply
-          });
-        }
-      }.bind(this));
+      MessageThreadActions.comment(comment.parentmessage, comment);
     }
   },
   handleCreateNote: function (formValues,cb){
@@ -276,38 +278,13 @@ var Messages = React.createClass({
         timestamp : sundial.formatForStorage(formValues.timestamp,sundial.getOffset())
       };
 
-      createNote(message, function(error,messageId){
-
-        if (messageId) {
-          if(cb){
-            //let the form know all is good
-            cb();
-          }
-          //set so we can display right away
-          message.id = messageId;
-          message.user = this.state.user.profile;
-          //give this message to anyone that needs it
-          this.props.onNewMessage(message);
-
-          // Close the modal if we can, else clear form and display new message
-          var close = this.props.onClose;
-          if (close) {
-            close();
-          }
-          else {
-            this.setState({
-              messages: [message]
-            });
-          }
-        }
-
-      }.bind(this));
+      MessageThreadActions.create(message);
     }
   },
   handleEditNote: function (updated){
     if(_.isEmpty(updated) === false){
-      this.props.onEdit(updated, function(error,details){
-      });
+      MessageThreadActions.editMessage(updated);
+      this.props.onEditMessage(updated);
     }
   },
   handleClose: function(e) {

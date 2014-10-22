@@ -58,7 +58,10 @@ var GroupActions = {
   },
 
   create: function(group) {
-    AppDispatcher.dispatch({type: AppConstants.api.STARTED_CREATE_GROUP});
+    AppDispatcher.dispatch({
+      type: AppConstants.api.STARTED_CREATE_GROUP
+    });
+
     api.patient.post(group, function(err, group) {
       if (err) {
         return AppDispatcher.dispatch({
@@ -74,14 +77,13 @@ var GroupActions = {
     });
   },
 
-  update: function(group) {
-    var groupUpdates = group;
-
+  update: function(groupUpdates) {
     AppDispatcher.dispatch({
       type: AppConstants.api.STARTED_UPDATE_GROUP,
-      group: group
+      group: groupUpdates
     });
-    api.patient.put(group, function(err, group) {
+
+    api.patient.put(groupUpdates, function(err, group) {
       if (err) {
         return AppDispatcher.dispatch({
           type: AppConstants.api.FAILED_UPDATE_GROUP,

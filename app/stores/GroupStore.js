@@ -73,10 +73,6 @@ var GroupStore = merge(EventEmitter.prototype, {
 
   isCreating: function() {
     return Boolean(this._state.requests.creating);
-  },
-
-  isUpdating: function(groupId) {
-    return Boolean(utils.getIn(this._state.requests, [groupId, 'updating']));
   }
 
 });
@@ -147,19 +143,8 @@ GroupStore.dispatchToken = AppDispatcher.register(function(payload) {
       break;
 
     case AppConstants.api.STARTED_UPDATE_GROUP:
-      self._state.requests[payload.group.userid] = {updating: true};
-      self.emitChange();
-      break;
-
-    case AppConstants.api.FAILED_UPDATE_GROUP:
-      self._state.requests[payload.group.userid] = {updating: false};
-      self.emitChange();
-      break;
-
-    case AppConstants.api.STARTED_UPDATE_GROUP:
       // Optimistic update
       AppDispatcher.waitFor([UserStore.dispatchToken]);
-      self._state.requests[payload.group.userid] = {updating: false};
       self.emitChange();
       break;
 

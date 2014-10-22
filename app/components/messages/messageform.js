@@ -33,7 +33,8 @@ var MessageForm = React.createClass({
     saveBtnText : React.PropTypes.string,
     cancelBtnText : React.PropTypes.string,
     onCancel : React.PropTypes.func,
-    onSubmit : React.PropTypes.func
+    onSubmit : React.PropTypes.func,
+    working : React.PropTypes.bool
   },
   getInitialState: function() {
     return this.initialState();
@@ -100,7 +101,6 @@ var MessageForm = React.createClass({
       time: null,
       offset : null,
       editing : false,
-      saving : false,
       changeDateTime : false
     };
   },
@@ -153,19 +153,16 @@ var MessageForm = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    this.setState({ saving : true});
 
     if (this.props.onSubmit) {
 
       this.props.onSubmit({
         text: this.state.msg,
         timestamp: this.getUtcTimestamp()
-      },function(){
-        this.handleSaved();
-      }.bind(this));
+      });
     }
   },
-  handleSaved : function(){
+  resetAfterCommentAdded : function(){
     this.refs.messageText.getDOMNode().rows = 1;
     this.setState(this.initialState());
   },
@@ -247,7 +244,7 @@ var MessageForm = React.createClass({
 
     var saveBtnText = this.props.saveBtnText;
 
-    if(this.state.saving){
+    if(this.props.working){
       saveBtnText = this.props.SENDING_TEXT;
     }
 

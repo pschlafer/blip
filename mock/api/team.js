@@ -112,6 +112,7 @@ var patch = function(mock, api) {
       var note = _.cloneDeep(message);
       var noteId = generateMessageId();
       note.id = noteId;
+      note.parentmessage = null;
 
       var notes = data.messagenotes[note.groupid] || [];
       notes.unshift(note);

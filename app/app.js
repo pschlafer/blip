@@ -591,26 +591,14 @@ var AppComponent = React.createClass({
   },
 
   renderPatientData: function() {
-    /* jshint ignore:start */
     return (
       <PatientData
         patientId={this.patientId}
         queryParams={this.state.queryParams}
         uploadUrl={app.api.getUploadUrl()}
         onRefresh={this.fetchCurrentPatientData}
-        onSaveComment={app.api.team.replyToMessageThread.bind(app.api.team)}
-        onCreateMessage={app.api.team.startMessageThread.bind(app.api.team)}
-        onEditMessage={app.api.team.editMessage.bind(app.api.team)}
-        onUpdatePatientData={this.handleUpdatePatientData}
         trackMetric={trackMetric}/>
     );
-    /* jshint ignore:end */
-  },
-
-  handleUpdatePatientData: function(data) {
-    this.setState({
-      patientData: data
-    });
   },
 
   handleLoginSuccess: function() {

@@ -42,10 +42,6 @@ var PatientData = React.createClass({
     queryParams: React.PropTypes.object.isRequired,
     uploadUrl: React.PropTypes.string,
     onRefresh: React.PropTypes.func,
-    onSaveComment: React.PropTypes.func,
-    onEditMessage: React.PropTypes.func,
-    onCreateMessage: React.PropTypes.func,
-    onUpdatePatientData: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired
   },
 
@@ -337,9 +333,8 @@ var PatientData = React.createClass({
           createDatetime={this.state.createMessageDatetime}
           patientId={this.props.patientId}
           onClose={this.closeMessageCreation}
-          onSave={this.props.onCreateMessage}
-          onNewMessage={this.handleMessageCreation}
-          onEdit={this.handleEditMessage} />
+          onCreateThread={this.handleMessageCreation}
+          onEditMessage={this.handleEditMessage} />
       );
     } else if(this.state.showingThreadWithId) {
       return (
@@ -347,8 +342,8 @@ var PatientData = React.createClass({
           threadId={this.state.showingThreadWithId}
           patientId={this.props.patientId}
           onClose={this.closeMessageThread}
-          onSave={this.handleReplyToMessage}
-          onEdit={this.handleEditMessage} />
+          onAddComment={this.handleReplyToMessage}
+          onEditMessage={this.handleEditMessage} />
       );
     }
     /* jshint ignore:end */
@@ -367,26 +362,19 @@ var PatientData = React.createClass({
   },
 
   handleMessageCreation: function(message){
-    var data = this.refs.tideline.createMessageThread(nurseShark.reshapeMessage(message));
-    this.props.onUpdatePatientData(data);
+    // Note: this also mutates the TidelineData contained in the TidelineDataStore
+    // so no need to do anything to update it
+    // Not super elegant, but works for now
+    this.refs.tideline.createMessageThread(nurseShark.reshapeMessage(message));
     this.props.trackMetric('Created New Message');
   },
 
-  handleReplyToMessage: function(comment, cb) {
-    var reply = this.props.onSaveComment;
-    if (reply) {
-      reply(comment, cb);
-    }
+  handleReplyToMessage: function(comment) {
     this.props.trackMetric('Replied To Message');
   },
 
-  handleEditMessage: function(message, cb) {
-    var edit = this.props.onEditMessage;
-    if (edit) {
-      edit(message, cb);
-    }
-    var data = this.refs.tideline.editMessageThread(nurseShark.reshapeMessage(message));
-    this.props.onUpdatePatientData(data);
+  handleEditMessage: function(message) {
+    this.refs.tideline.editMessageThread(nurseShark.reshapeMessage(message));
     this.props.trackMetric('Edit To Message');
   },
 

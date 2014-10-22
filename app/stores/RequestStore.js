@@ -181,6 +181,35 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       self.emitChange();
       break;
 
+    case AppConstants.api.FAILED_CREATE_MESSAGE_THREAD:
+      self._state.error = {
+        key: AppConstants.api.FAILED_CREATE_MESSAGE_THREAD,
+        message: 'Something went wrong while trying to create message thread',
+        original: payload.error
+      };
+      self.emitChange();
+      break;
+
+    case AppConstants.api.FAILED_ADD_COMMENT:
+      self._state.error = {
+        key: AppConstants.api.FAILED_ADD_COMMENT,
+        threadId: payload.threadId,
+        message: 'Something went wrong while trying to comment on message thread ' + payload.threadId,
+        original: payload.error
+      };
+      self.emitChange();
+      break;
+
+    case AppConstants.api.FAILED_EDIT_MESSAGE:
+      self._state.error = {
+        key: AppConstants.api.FAILED_EDIT_MESSAGE,
+        messageId: payload.message.id,
+        message: 'Something went wrong while trying to edit message ' + payload.message.id,
+        original: payload.error
+      };
+      self.emitChange();
+      break;
+
     case AppConstants.api.COMPLETED_LOGOUT:
       self.reset();
       self.emitChange();
