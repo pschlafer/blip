@@ -18,6 +18,7 @@ var AppDispatcher = require('../AppDispatcher');
 var AppConstants = require('../AppConstants');
 var EventEmitter = require('events').EventEmitter;
 var merge = require('react/lib/merge');
+var utils = require('../core/utils');
 
 var CHANGE_EVENT = 'change';
 
@@ -54,6 +55,10 @@ var InvitationReceivedStore = merge(EventEmitter.prototype, {
 
   isFetchingAll: function() {
     return Boolean(this._state.requests.fetchingAll);
+  },
+
+  isAccepting: function(key) {
+    return Boolean(utils.getIn(this._state.requests, [key, 'accepting']));
   }
 
 });
@@ -75,6 +80,41 @@ InvitationReceivedStore.dispatchToken = AppDispatcher.register(function(payload)
     case AppConstants.api.COMPLETED_GET_INVITATIONS_RECEIVED:
       self._state.requests.fetchingAll = false;
       self._state.invitations = _.cloneDeep(payload.invitations);
+      self.emitChange();
+      break;
+
+    case AppConstants.api.STARTED_ACCEPT_INVITATION:
+      self._state.requests[payload.invitation.key] = {accepting: true};
+      self.emitChange();
+      break;
+
+    case AppConstants.api.FAILED_ACCEPT_INVITATION:
+      self._state.requests[payload.invitation.key] = {accepting: false};
+      self.emitChange();
+      break;
+
+    case AppConstants.api.COMPLETED_ACCEPT_INVITATION:
+      self._state.requests[payload.invitation.key] = {accepting: false};
+      self._state.invitations = _.reject(self._state.invitations,
+      function(invitation) {
+        return invitation.key === payload.invitation.key;
+      });
+      self.emitChange();
+      break;
+
+    case AppConstants.api.STARTED_DISMISS_INVITATION:
+      // Optimistic update
+      self._state.invitations = _.reject(self._state.invitations,
+      function(invitation) {
+        return invitation.key === payload.invitation.key;
+      });
+      self.emitChange();
+      break;
+
+    case AppConstants.api.FAILED_DISMISS_INVITATION:
+      // Put it back
+      self._state.invitations =
+        self._state.invitations.concat(payload.invitation);
       self.emitChange();
       break;
 

@@ -22,20 +22,14 @@ var utils = require('../../core/utils');
 var Invitation = React.createClass({
   propTypes: {
     invitation: React.PropTypes.object,
-    patientsComponent: React.PropTypes.component,
-    onAcceptInvitation: React.PropTypes.func,
-    onDismissInvitation: React.PropTypes.func
-  },
-  handleAccept: function() {
-    this.props.onAcceptInvitation(this.props.invitation);
-  },
-  handleDismiss: function() {
-    this.props.onDismissInvitation(this.props.invitation);
+    accepting: React.PropTypes.bool,
+    onAccept: React.PropTypes.func,
+    onDismiss: React.PropTypes.func
   },
   render: function() {
     var name = utils.getIn(this.props.invitation, ['creator', 'profile', 'fullName']);
 
-    if (this.props.invitation.accepting) {
+    if (this.props.accepting) {
       /* jshint ignore:start */
       return (
         <li className='invitation'>
@@ -52,13 +46,13 @@ var Invitation = React.createClass({
         <div className='invitation-action'>
           <button
             className='invitation-action-submit btn btn-primary js-form-submit'
-            onClick={this.handleAccept}
-            disabled={this.state ? this.state.enable : false}
+            onClick={this.props.onAccept}
+            disabled={this.props.accepting}
             ref="submitButton">{'Join the team!'}</button>
           <button
             className="invitation-action-ignore btn js-form-submit"
-            onClick={this.handleDismiss}
-            disabled={this.state ? this.state.enable : false}
+            onClick={this.props.onDismiss}
+            disabled={this.props.accepting}
             ref="ignoreButton">{'Ignore'}</button>
         </div>
       </li>

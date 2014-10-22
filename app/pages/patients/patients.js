@@ -27,14 +27,13 @@ var Invitation = require('../../components/invitation');
 var AuthStore = require('../../stores/AuthStore');
 var GroupActions = require('../../actions/GroupActions');
 var GroupStore = require('../../stores/GroupStore');
+var InvitationReceivedActions = require('../../actions/InvitationReceivedActions');
 var InvitationReceivedStore = require('../../stores/InvitationReceivedStore');
 
 var Patients = React.createClass({
   propTypes: {
     showingWelcomeMessage: React.PropTypes.bool,
     trackMetric: React.PropTypes.func.isRequired,
-    onAcceptInvitation: React.PropTypes.func,
-    onDismissInvitation: React.PropTypes.func,
     onRemovePatient: React.PropTypes.func,
     uploadUrl: React.PropTypes.string
   },
@@ -88,17 +87,15 @@ var Patients = React.createClass({
     );
     /* jshint ignore:end */
   },
-  renderInvitation: function(invitation, index) {
-    /* jshint ignore:start */
+  renderInvitation: function(invitation) {
     return (
       <Invitation
         key={invitation.key}
         invitation={invitation}
-        patientsComponent={this}
-        onAcceptInvitation={this.props.onAcceptInvitation}
-        onDismissInvitation={this.props.onDismissInvitation}
-      ></Invitation>);
-    /* jshint ignore:end */
+        accepting={InvitationReceivedStore.isAccepting(invitation.key)}
+        onAccept={InvitationReceivedActions.accept.bind(InvitationReceivedActions, invitation)}
+        onDismiss={InvitationReceivedActions.dismiss.bind(InvitationReceivedActions, invitation)} />
+    );
   },
   renderInvitations: function() {
     var invites = this.state.invites;

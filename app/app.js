@@ -416,33 +416,8 @@ var AppComponent = React.createClass({
           uploadUrl={app.api.getUploadUrl()}
           showingWelcomeMessage={this.state.showingWelcomeMessage}
           trackMetric={trackMetric}
-          onAcceptInvitation={this.handleAcceptInvitation}
-          onDismissInvitation={this.handleDismissInvitation}
           onRemovePatient={this.handleRemovePatient}/>
     );
-  },
-  handleDismissInvitation: function(invitation) {
-    var self = this;
-
-    app.api.invitation.dismiss(invitation.key, invitation.creator.userid, function(err) {
-      if(err) {
-        InvitationReceivedActions.fetchAll();
-
-        return self.handleApiError(err, 'Something went wrong while dismissing the invitation.');
-      }
-    });
-  },
-  handleAcceptInvitation: function(invitation) {
-    var self = this;
-
-    app.api.invitation.accept(invitation.key, invitation.creator.userid, function(err) {
-      InvitationReceivedActions.fetchAll();
-      GroupActions.fetchAll();
-
-      if(err) {
-        return self.handleApiError(err, 'Something went wrong while accepting the invitation.');
-      }
-    });
   },
   handleChangeMemberPermissions: function(patientId, memberId, permissions, cb) {
     var self = this;

@@ -210,6 +210,26 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       self.emitChange();
       break;
 
+    case AppConstants.api.FAILED_ACCEPT_INVITATION:
+      self._state.error = {
+        key: AppConstants.api.FAILED_ACCEPT_INVITATION,
+        invitation: payload.invitation,
+        message: 'Something went wrong while trying to accept invitation from user ' + payload.invitation.creator.userid,
+        original: payload.error
+      };
+      self.emitChange();
+      break;
+
+    case AppConstants.api.FAILED_DISMISS_INVITATION:
+      self._state.error = {
+        key: AppConstants.api.FAILED_DISMISS_INVITATION,
+        invitation: payload.invitation,
+        message: 'Something went wrong while trying to dismiss invitation from user ' + payload.invitation.creator.userid,
+        original: payload.error
+      };
+      self.emitChange();
+      break;
+
     case AppConstants.api.COMPLETED_LOGOUT:
       self.reset();
       self.emitChange();

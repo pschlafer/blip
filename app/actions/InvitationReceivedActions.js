@@ -34,6 +34,52 @@ var InvitationReceivedActions = {
         invitations: invitations
       });
     });
+  },
+
+  accept: function(invitation) {
+    AppDispatcher.dispatch({
+      type: AppConstants.api.STARTED_ACCEPT_INVITATION,
+      invitation: invitation
+    });
+
+    api.invitation.accept(invitation.key, invitation.creator.userid,
+    function(err) {
+      if (err) {
+        return AppDispatcher.dispatch({
+          type: AppConstants.api.FAILED_ACCEPT_INVITATION,
+          error: err,
+          invitation: invitation
+        });
+      }
+
+      AppDispatcher.dispatch({
+        type: AppConstants.api.COMPLETED_ACCEPT_INVITATION,
+        invitation: invitation
+      });
+    });
+  },
+
+  dismiss: function(invitation) {
+    AppDispatcher.dispatch({
+      type: AppConstants.api.STARTED_DISMISS_INVITATION,
+      invitation: invitation
+    });
+
+    api.invitation.dismiss(invitation.key, invitation.creator.userid,
+    function(err) {
+      if (err) {
+        return AppDispatcher.dispatch({
+          type: AppConstants.api.FAILED_DISMISS_INVITATION,
+          error: err,
+          invitation: invitation
+        });
+      }
+
+      AppDispatcher.dispatch({
+        type: AppConstants.api.COMPLETED_DISMISS_INVITATION,
+        invitation: invitation
+      });
+    });
   }
 
 };

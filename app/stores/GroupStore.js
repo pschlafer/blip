@@ -148,6 +148,13 @@ GroupStore.dispatchToken = AppDispatcher.register(function(payload) {
       self.emitChange();
       break;
 
+    case AppConstants.api.COMPLETED_ACCEPT_INVITATION:
+      AppDispatcher.waitFor([UserStore.dispatchToken]);
+      self._state.permissionsByGroupId[payload.invitation.creator.userid] =
+        _.cloneDeep(payload.invitation.permissions);
+      self.emitChange();
+      break;
+
     case AppConstants.api.COMPLETED_LOGOUT:
       self.reset();
       self.emitChange();

@@ -106,6 +106,11 @@ UserStore.dispatchToken = AppDispatcher.register(function(payload) {
       self.emitChange();
       break;
 
+    case AppConstants.api.COMPLETED_ACCEPT_INVITATION:
+      self._updateWithUser(payload.invitation.creator);
+      self.emitChange();
+      break;
+
     case AppConstants.api.COMPLETED_LOGOUT:
       self.reset();
       self.emitChange();
