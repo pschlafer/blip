@@ -277,6 +277,18 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       self.emitChange();
       break;
 
+    case AppConstants.api.FAILED_SET_MEMBER_PERMISSIONS:
+      self._state.error = {
+        key: AppConstants.api.FAILED_SET_MEMBER_PERMISSIONS,
+        groupId: payload.groupId,
+        memberId: payload.memberId,
+        permissions: payload.permissions,
+        message: 'Something went wrong while trying to set permissions for member ' + payload.memberId,
+        original: payload.error
+      };
+      self.emitChange();
+      break;
+
     case AppConstants.api.COMPLETED_LOGOUT:
       self.reset();
       self.emitChange();

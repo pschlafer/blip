@@ -195,31 +195,53 @@ var MemberInviteForm = React.createClass({
 var ChangePermissionsForm = React.createClass({
   propTypes: {
     member: React.PropTypes.object,
-    onSubmit: React.PropTypes.func,
+    onPermissionsSet: React.PropTypes.func,
     onCancel: React.PropTypes.func
   },
 
   getInitialState: function() {
-    return this.initialStateFromProps(this.props);
+    return _.assign(
+      this.getStateFromProps(this.props),
+      this.getStateFromStores()
+    );
   },
 
-  componentDidMount: function() {
-  },
-
-  componentWillReceiveProps: function(nextProps) {
-    this.setState(this.initialStateFromProps(nextProps));
-  },
-
-  initialStateFromProps: function(props) {
+  getStateFromStores: function() {
     return {
-      allowUpload: this.isMemberAllowedToUpload(props.member),
-      working: false,
-      error: null
+      working: MemberStore.isSettingPermissions(),
     };
   },
 
+  getStateFromProps: function(props) {
+    return {
+      allowUpload: this.isMemberAllowedToUpload(props.member),
+    };
+  },
+
+  componentDidMount: function() {
+    MemberStore.addChangeListener(this.handleStoreChange);
+  },
+
+  componentWillUnmount: function() {
+    MemberStore.removeChangeListener(this.handleStoreChange);
+  },
+
+  componentDidUpdate: function(prevProps, prevState) {
+    if (prevState.working && !this.state.working) {
+      this.props.onPermissionsSet();
+    }
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    this.setState(this.getStateFromProps(nextProps));
+  },
+
+  handleStoreChange: function() {
+    this.setState(this.getStateFromStores());
+  },
+
   isMemberAllowedToUpload: function(member) {
-    return ((_.isEmpty(member.permissions) === false && member.permissions.admin) ||
+    return Boolean((_.isEmpty(member.permissions) === false && member.permissions.admin) ||
             (_.isEmpty(member.permissions) === false && member.permissions.upload));
   },
 
@@ -246,7 +268,6 @@ var ChangePermissionsForm = React.createClass({
             disabled={this.state.working}>
             {this.state.working ? 'Saving...' : 'Save'}</button>
         </div>
-        <div className="PatientTeam-validationError">{this.state.error}</div>
       </div>
     );
   },
@@ -266,22 +287,8 @@ var ChangePermissionsForm = React.createClass({
       permissions.upload = {};
     }
 
-    this.setState({
-      allowUpload: allowUpload,
-      working: true,
-      error: null
-    });
-    var self = this;
-    this.props.onSubmit(permissions, function(err) {
-      if (err) {
-        self.setState({
-          working: false,
-          error: 'Sorry! Something went wrong...'
-        });
-        return;
-      }
-      self.setState({working: false});
-    });
+    this.setState({allowUpload: allowUpload});
+    MemberActions.setPermissions(this.props.member.userid, permissions);
   }
 });
 
@@ -428,8 +435,7 @@ var CancelInvitationDialog = React.createClass({
 
 var PatientTeam = React.createClass({
   propTypes: {
-    patientId: React.PropTypes.string,
-    onChangeMemberPermissions: React.PropTypes.func
+    patientId: React.PropTypes.string
   },
 
   getInitialState: function() {
@@ -466,26 +472,11 @@ var PatientTeam = React.createClass({
   },
 
   renderChangeTeamMemberPermissionsDialog: function(member) {
-    var self = this;
-
-    var handleCancel = this.overlayClickHandler;
-    var handleSubmit = function(permissions, cb) {
-      self.props.onChangeMemberPermissions(self.state.user.userid, member.userid, permissions, function(err) {
-        if (err) {
-          return cb(err);
-        }
-        cb();
-        self.setState({
-          showModalOverlay: false,
-        });
-      });
-    };
-
     return (
       <ChangePermissionsForm
         member={member}
-        onSubmit={handleSubmit}
-        onCancel={handleCancel} />
+        onPermissionsSet={this.overlayClickHandler}
+        onCancel={this.overlayClickHandler} />
     );
   },
 

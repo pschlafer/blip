@@ -65,6 +65,10 @@ var MemberStore = merge(EventEmitter.prototype, {
 
   isRemoving: function() {
     return Boolean(this._state.requests.removing);
+  },
+
+  isSettingPermissions: function() {
+    return Boolean(this._state.requests.settingPermissions);
   }
 
 });
@@ -109,6 +113,23 @@ MemberStore.dispatchToken = AppDispatcher.register(function(payload) {
       self._state.requests.removing = false;
       self._state.membersByGroupId[payload.groupId] =
         _.omit(self._state.membersByGroupId[payload.groupId], payload.memberId);
+      self.emitChange();
+      break;
+
+    case AppConstants.api.STARTED_SET_MEMBER_PERMISSIONS:
+      self._state.requests.settingPermissions = true;
+      self.emitChange();
+      break;
+
+    case AppConstants.api.FAILED_SET_MEMBER_PERMISSIONS:
+      self._state.requests.settingPermissions = false;
+      self.emitChange();
+      break;
+
+    case AppConstants.api.COMPLETED_SET_MEMBER_PERMISSIONS:
+      self._state.requests.settingPermissions = false;
+      self._state.membersByGroupId[payload.groupId][payload.memberId] =
+        _.cloneDeep(payload.permissions);
       self.emitChange();
       break;
 

@@ -47,6 +47,36 @@ var MemberActions = {
         memberId: memberId
       });
     });
+  },
+
+  setPermissions: function(memberId, permissions) {
+    var groupId = AuthStore.getLoggedInUserId();
+
+    AppDispatcher.dispatch({
+      type: AppConstants.api.STARTED_SET_MEMBER_PERMISSIONS,
+      groupId: groupId,
+      memberId: memberId,
+      permissions: permissions
+    });
+
+    api.access.setMemberPermissions(memberId, permissions, function(err) {
+      if (err) {
+        return AppDispatcher.dispatch({
+          type: AppConstants.api.FAILED_SET_MEMBER_PERMISSIONS,
+          groupId: groupId,
+          memberId: memberId,
+          permissions: permissions,
+          error: err
+        });
+      }
+
+      AppDispatcher.dispatch({
+        type: AppConstants.api.COMPLETED_SET_MEMBER_PERMISSIONS,
+        groupId: groupId,
+        memberId: memberId,
+        permissions: permissions
+      });
+    });
   }
 
 };

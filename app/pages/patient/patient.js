@@ -27,7 +27,6 @@ var GroupStore = require('../../stores/GroupStore');
 var Patient = React.createClass({
   propTypes: {
     patientId: React.PropTypes.string,
-    onChangeMemberPermissions: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired
   },
 
@@ -200,9 +199,7 @@ var Patient = React.createClass({
     return (
       <div className="PatientPage-teamSection">
         <div className="PatientPage-sectionTitle">My Care Team <span className="PatientPage-sectionTitleMessage">These people can view your data.</span></div>
-        <PatientTeam
-          patientId={this.props.patientId}
-          onChangeMemberPermissions={this.props.onChangeMemberPermissions} />
+        <PatientTeam patientId={this.props.patientId} />
       </div>
     );
   }

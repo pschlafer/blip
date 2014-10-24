@@ -430,20 +430,6 @@ var AppComponent = React.createClass({
     this.setState({showingWelcomeSetup: false});
   },
 
-  handleChangeMemberPermissions: function(patientId, memberId, permissions, cb) {
-    var self = this;
-
-    api.access.setMemberPermissions(memberId, permissions, function(err) {
-      if(err) {
-        cb(err);
-        return self.handleApiError(err, 'Something went wrong while changing member perimissions.');
-      }
-
-      GroupActions.fetch(patientId);
-      cb();
-    });
-  },
-
   showPatient: function(patientId) {
     this.renderPage = this.renderPatient;
     this.patientId = patientId;
@@ -462,14 +448,11 @@ var AppComponent = React.createClass({
   },
 
   renderPatient: function() {
-    /* jshint ignore:start */
     return (
       <Patient
         patientId={this.patientId}
-        onChangeMemberPermissions={this.handleChangeMemberPermissions}
         trackMetric={trackMetric}/>
     );
-    /* jshint ignore:end */
   },
 
   showPatientNew: function() {
