@@ -26,6 +26,7 @@ var datetimeUtils = require('../../core/datetimeutils');
 var GroupActions = require('../../actions/GroupActions');
 var AuthStore = require('../../stores/AuthStore');
 var GroupStore = require('../../stores/GroupStore');
+var LogActions = require('../../actions/LogActions');
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 var DISPLAY_DATE_FORMAT = 'MM-DD-YYYY';
@@ -35,8 +36,7 @@ var PatientEdit = React.createClass({
     patient: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool,
     isNewPatient: React.PropTypes.bool,
-    onPatientCreationSuccess: React.PropTypes.func,
-    trackMetric: React.PropTypes.func.isRequired
+    onPatientCreationSuccess: React.PropTypes.func
   },
 
   formInputs: [
@@ -219,7 +219,7 @@ var PatientEdit = React.createClass({
 
     var self = this;
     var handleClick = function() {
-      self.props.trackMetric('Clicked Back To Profile');
+      LogActions.trackMetric('Clicked Back To Profile');
     };
 
     /* jshint ignore:start */

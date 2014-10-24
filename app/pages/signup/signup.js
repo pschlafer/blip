@@ -30,8 +30,7 @@ var AuthStore = require('../../stores/AuthStore');
 var Signup = React.createClass({
   propTypes: {
     onSignupSuccess: React.PropTypes.func.isRequired,
-    inviteEmail: React.PropTypes.string,
-    trackMetric: React.PropTypes.func.isRequired
+    inviteEmail: React.PropTypes.string
   },
 
   formInputs: function() {
@@ -123,8 +122,7 @@ var Signup = React.createClass({
       <div className="signup">
         <LoginNav
           page="signup"
-          inviteEmail={this.props.inviteEmail}
-          trackMetric={this.props.trackMetric} />
+          inviteEmail={this.props.inviteEmail} />
         <LoginLogo />
         {inviteIntro}
         <div className="container-small-outer signup-form">

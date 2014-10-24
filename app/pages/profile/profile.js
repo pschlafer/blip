@@ -25,12 +25,9 @@ var PersonCard = require('../../components/personcard');
 
 var AuthActions = require('../../actions/AuthActions');
 var AuthStore = require('../../stores/AuthStore');
+var LogActions = require('../../actions/LogActions');
 
 var Profile = React.createClass({
-  propTypes: {
-    trackMetric: React.PropTypes.func.isRequired
-  },
-
   formInputs: [
     {name: 'fullName', label: 'Full name'},
     {name: 'username', label: 'Email', type: 'email'},
@@ -81,7 +78,7 @@ var Profile = React.createClass({
     var form = this.renderForm();
     var self = this;
     var handleClickBack = function() {
-      self.props.trackMetric('Clicked Back To Care Team List');
+      LogActions.trackMetric('Clicked Back To Care Team List');
     };
 
     /* jshint ignore:start */
@@ -180,7 +177,7 @@ var Profile = React.createClass({
 
     return formValues;
   },
-  
+
   validateFormValues: function(formValues) {
     var validationErrors = {};
     var IS_REQUIRED = 'This field is required.';
@@ -248,7 +245,7 @@ var Profile = React.createClass({
     var self = this;
     // Save optimistically
     AuthActions.updateUser(formValues);
-    this.props.trackMetric('Updated Account');
+    LogActions.trackMetric('Updated Account');
 
     this.setState({
       notification: {type: 'success', message: 'All changes saved.'}

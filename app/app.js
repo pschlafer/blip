@@ -49,6 +49,7 @@ var GroupActions = window.GroupActions = require('./actions/GroupActions');
 var HealthDataActions = window.HealthDataActions = require('./actions/HealthDataActions');
 var InvitationReceivedActions = window.InvitationReceivedActions = require('./actions/InvitationReceivedActions');
 var InvitationSentActions = window.InvitationSentActions = require('./actions/InvitationSentActions');
+var LogActions = window.LogActions = require('./actions/LogActions');
 var MemberActions = window.MemberActions = require('./actions/MemberActions');
 var MessageThreadActions = window.MessageThreadActions = require('./actions/MessageThreadActions');
 var RequestActions = window.RequestActions = require('./actions/RequestActions');
@@ -110,11 +111,6 @@ function objectDifference(destination, source) {
   });
 
   return result;
-}
-
-function trackMetric() {
-  var args = Array.prototype.slice.call(arguments);
-  return app.api.metrics.track.apply(app.api.metrics, args);
 }
 
 var AppComponent = React.createClass({
@@ -250,8 +246,7 @@ var AppComponent = React.createClass({
       /* jshint ignore:start */
       return (
         <TermsOverlay
-          onSubmit={this.handleAcceptedTerms}
-          trackMetric={trackMetric} />
+          onSubmit={this.handleAcceptedTerms} />
       );
       /* jshint ignore:end */
     }
@@ -276,8 +271,7 @@ var AppComponent = React.createClass({
             version={config.VERSION}
             patientId={patientId}
             currentPage={this.state.page}
-            getUploadUrl={getUploadUrl}
-            trackMetric={trackMetric}/>
+            getUploadUrl={getUploadUrl} />
         </div>
         /* jshint ignore:end */
       );
@@ -317,7 +311,7 @@ var AppComponent = React.createClass({
   },
 
   logSupportContact: function(){
-    trackMetric('Clicked Give Feedback');
+    LogActions.trackMetric('Clicked Give Feedback');
   },
 
   renderFooter: function() {
@@ -356,8 +350,7 @@ var AppComponent = React.createClass({
       /* jshint ignore:start */
       <Login
         inviteEmail={this.getInviteEmail()}
-        onLoginSuccess={this.handleLoginSuccess}
-        trackMetric={trackMetric} />
+        onLoginSuccess={this.handleLoginSuccess} />
       /* jshint ignore:end */
     );
   },
@@ -383,8 +376,7 @@ var AppComponent = React.createClass({
       /* jshint ignore:start */
       <Signup
         inviteEmail={this.getInviteEmail()}
-        onSignupSuccess={this.handleSignupSuccess}
-        trackMetric={trackMetric} />
+        onSignupSuccess={this.handleSignupSuccess} />
       /* jshint ignore:end */
     );
   },
@@ -392,13 +384,12 @@ var AppComponent = React.createClass({
   showProfile: function() {
     this.renderPage = this.renderProfile;
     this.setState({page: 'profile'});
-    trackMetric('Viewed Account Edit');
+    LogActions.trackMetric('Viewed Account Edit');
   },
 
   renderProfile: function() {
     return (
-      <Profile
-          trackMetric={trackMetric}/>
+      <Profile />
     );
   },
 
@@ -409,7 +400,7 @@ var AppComponent = React.createClass({
     // should go away when we switch to `react-router`
     _.defer(GroupActions.fetchAll);
     _.defer(InvitationReceivedActions.fetchAll);
-    trackMetric('Viewed Care Team List');
+    LogActions.trackMetric('Viewed Care Team List');
   },
 
   renderPatients: function() {
@@ -418,8 +409,7 @@ var AppComponent = React.createClass({
           uploadUrl={app.api.getUploadUrl()}
           showingWelcomeTitle={this.state.showingWelcomeTitle}
           showingWelcomeSetup={this.state.showingWelcomeSetup}
-          onHideWelcomeSetup={this.handleHideWelcomeSetup}
-          trackMetric={trackMetric} />
+          onHideWelcomeSetup={this.handleHideWelcomeSetup} />
     );
   },
 
@@ -444,14 +434,12 @@ var AppComponent = React.createClass({
     _.defer(GroupActions.fetch.bind(GroupActions, this.patientId));
     _.defer(InvitationSentActions.fetchForGroup.bind(InvitationSentActions,
         this.state.user.userid));
-    trackMetric('Viewed Profile');
+    LogActions.trackMetric('Viewed Profile');
   },
 
   renderPatient: function() {
     return (
-      <Patient
-        patientId={this.patientId}
-        trackMetric={trackMetric}/>
+      <Patient patientId={this.patientId} />
     );
   },
 
@@ -462,15 +450,14 @@ var AppComponent = React.createClass({
       patient: null,
       fetchingPatient: false
     });
-    trackMetric('Viewed Profile Create');
+    LogActions.trackMetric('Viewed Profile Create');
   },
 
   renderPatientNew: function() {
     return (
       <PatientEdit
           isNewPatient={true}
-          onPatientCreationSuccess={this.handlePatientCreationSuccess}
-          trackMetric={trackMetric} />
+          onPatientCreationSuccess={this.handlePatientCreationSuccess} />
     );
   },
 
@@ -489,7 +476,7 @@ var AppComponent = React.createClass({
     _.defer(GroupActions.fetch.bind(GroupActions, this.patientId));
     _.defer(HealthDataActions.fetchForGroup.bind(HealthDataActions, this.patientId));
 
-    trackMetric('Viewed Data');
+    LogActions.trackMetric('Viewed Data');
   },
 
   renderPatientData: function() {
@@ -498,14 +485,13 @@ var AppComponent = React.createClass({
         patientId={this.patientId}
         queryParams={this.state.queryParams}
         uploadUrl={app.api.getUploadUrl()}
-        onRefresh={this.fetchCurrentPatientData}
-        trackMetric={trackMetric}/>
+        onRefresh={this.fetchCurrentPatientData} />
     );
   },
 
   handleLoginSuccess: function() {
     this.redirectToDefaultRoute();
-    trackMetric('Logged In');
+    LogActions.trackMetric('Logged In');
   },
 
   handleSignupSuccess: function(user) {
@@ -515,7 +501,7 @@ var AppComponent = React.createClass({
       showingWelcomeSetup: true
     });
     this.redirectToDefaultRoute();
-    trackMetric('Signed Up');
+    LogActions.trackMetric('Signed Up');
   },
 
   handleAcceptedTerms: function() {
@@ -562,7 +548,7 @@ var AppComponent = React.createClass({
   },
 
   handlePatientCreationSuccess: function(patient) {
-    trackMetric('Created Profile');
+    LogActions.trackMetric('Created Profile');
     var route = '/patients/' + patient.userid + '/data';
     app.router.setRoute(route);
   },
@@ -634,7 +620,7 @@ var AppComponent = React.createClass({
     }
 
     // Send error to backend tracking
-    app.api.errors.log(this.stringifyApiError(error), message);
+    LogActions.logError(this.stringifyApiError(error), message);
 
     this.setState({
       notification: {

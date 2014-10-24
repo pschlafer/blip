@@ -18,11 +18,12 @@ var React = require('react');
 
 var logoSrc = require('./images/tidepool-logo-370x40.png');
 
+var LogActions = require('../../actions/LogActions');
+
 var LoginNav = React.createClass({
   propTypes: {
     page: React.PropTypes.string,
-    inviteEmail: React.PropTypes.string,
-    trackMetric: React.PropTypes.func.isRequired
+    inviteEmail: React.PropTypes.string
   },
 
   render: function() {
@@ -74,7 +75,7 @@ var LoginNav = React.createClass({
     var icon = 'icon-add';
     var text = 'Sign up';
     var handleClick = function() {
-      self.props.trackMetric('Clicked Sign Up Link');
+      LogActions.trackMetric('Clicked Sign Up Link');
     };
 
     if (page === 'signup') {
@@ -83,7 +84,7 @@ var LoginNav = React.createClass({
       icon = 'icon-login';
       text = 'Log in';
       handleClick = function() {
-        self.props.trackMetric('Clicked Log In Link');
+        LogActions.trackMetric('Clicked Log In Link');
       };
     }
 

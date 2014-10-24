@@ -29,13 +29,13 @@ var GroupActions = require('../../actions/GroupActions');
 var GroupStore = require('../../stores/GroupStore');
 var InvitationReceivedActions = require('../../actions/InvitationReceivedActions');
 var InvitationReceivedStore = require('../../stores/InvitationReceivedStore');
+var LogActions = require('../../actions/LogActions');
 
 var Patients = React.createClass({
   propTypes: {
     showingWelcomeTitle: React.PropTypes.bool,
     showingWelcomeSetup: React.PropTypes.bool,
     onHideWelcomeSetup: React.PropTypes.func,
-    trackMetric: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string
   },
 
@@ -267,7 +267,7 @@ var Patients = React.createClass({
   },
 
   handleClickCreateProfile: function() {
-    this.props.trackMetric('Clicked Create Profile');
+    LogActions.trackMetric('Clicked Create Profile');
   },
 
   addLinkToPatients: function(patients) {
@@ -282,10 +282,10 @@ var Patients = React.createClass({
 
   handleClickPatient: function(patient) {
     if (personUtils.isSame(this.state.user, patient)) {
-      this.props.trackMetric('Clicked Own Care Team');
+      LogActions.trackMetric('Clicked Own Care Team');
     }
     else {
-      this.props.trackMetric('Clicked Other Care Team');
+      LogActions.trackMetric('Clicked Other Care Team');
     }
   },
 

@@ -10,6 +10,8 @@ var chartSettingsFactory = tidelineBlip.settings;
 var Header = require('./header');
 var Footer = require('./footer');
 
+var LogActions = require('../../actions/LogActions');
+
 var tideline = {
   log: bows('Settings')
 };
@@ -25,7 +27,6 @@ var Settings = React.createClass({
     onSwitchToDaily: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired
   },
   getInitialState: function() {
@@ -78,7 +79,7 @@ var Settings = React.createClass({
   renderMissingSettingsMessage: function() {
     var self = this;
     var handleClickUpload = function() {
-      self.props.trackMetric('Clicked Partial Data Upload, No Settings');
+      LogActions.trackMetric('Clicked Partial Data Upload, No Settings');
     };
     /* jshint ignore:start */
     return (

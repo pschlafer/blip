@@ -16,10 +16,11 @@
 
 var React = require('react');
 
+var LogActions = require('../../actions/LogActions');
+
 var TermsOverlay = React.createClass({
   propTypes: {
-    onSubmit: React.PropTypes.func,
-    trackMetric: React.PropTypes.func.isRequired
+    onSubmit: React.PropTypes.func
   },
 
   getInitialState: function() {
@@ -94,7 +95,7 @@ var TermsOverlay = React.createClass({
       e.preventDefault();
     }
 
-    this.props.trackMetric('Agreed To Terms Of Use');
+    LogActions.trackMetric('Agreed To Terms Of Use');
 
     var submit = this.props.onSubmit;
     if (submit) {

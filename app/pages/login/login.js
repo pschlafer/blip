@@ -26,12 +26,12 @@ var MailTo = require('../../components/mailto');
 
 var AuthActions = require('../../actions/AuthActions');
 var AuthStore = require('../../stores/AuthStore');
+var LogActions = require('../../actions/LogActions');
 
 var Login = React.createClass({
   propTypes: {
     inviteEmail: React.PropTypes.string,
-    onLoginSuccess: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired
+    onLoginSuccess: React.PropTypes.func.isRequired
   },
 
   formInputs: function() {
@@ -107,8 +107,7 @@ var Login = React.createClass({
       <div className="login">
         <LoginNav
           page="login"
-          inviteEmail={this.props.inviteEmail}
-          trackMetric={this.props.trackMetric} />
+          inviteEmail={this.props.inviteEmail} />
         <LoginLogo />
         {inviteIntro}
         <div className="container-small-outer login-form">
@@ -152,7 +151,7 @@ var Login = React.createClass({
   },
 
   logPasswordReset : function() {
-    this.props.trackMetric('Clicked Forgot Password');
+    LogActions.trackMetric('Clicked Forgot Password');
   },
 
   renderPasswordMailTo: function() {

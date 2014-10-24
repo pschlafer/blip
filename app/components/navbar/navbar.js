@@ -24,6 +24,8 @@ var AuthActions = require('../../actions/AuthActions');
 var AuthStore = require('../../stores/AuthStore');
 var GroupStore = require('../../stores/GroupStore');
 
+var LogActions = require('../../actions/LogActions');
+
 var logoSrc = require('./images/blip-logo-80x80.png');
 
 var Navbar = React.createClass({
@@ -31,8 +33,7 @@ var Navbar = React.createClass({
     version: React.PropTypes.string,
     currentPage: React.PropTypes.string,
     patientId: React.PropTypes.string,
-    getUploadUrl: React.PropTypes.func,
-    trackMetric: React.PropTypes.func.isRequired
+    getUploadUrl: React.PropTypes.func
   },
 
   getInitialState: function() {
@@ -88,7 +89,7 @@ var Navbar = React.createClass({
   renderLogo: function() {
     var self = this;
     var handleClick = function() {
-      self.props.trackMetric('Clicked Navbar Logo');
+      LogActions.trackMetric('Clicked Navbar Logo');
     };
 
     return (
@@ -122,7 +123,7 @@ var Navbar = React.createClass({
     var shareLink = this.renderShareLink();
     var self = this;
     var handleClick = function() {
-      self.props.trackMetric('Clicked Navbar View Profile');
+      LogActions.trackMetric('Clicked Navbar View Profile');
     };
 
     return (
@@ -160,7 +161,7 @@ var Navbar = React.createClass({
         e.preventDefault();
       }
       window.open(uploadUrl, '_blank');
-      self.props.trackMetric('Clicked Navbar Upload Data');
+      LogActions.trackMetric('Clicked Navbar Upload Data');
     };
 
     return (
@@ -182,7 +183,7 @@ var Navbar = React.createClass({
     var patientUrl = this.getPatientUrl();
 
     var handleClick = function() {
-      self.props.trackMetric('Clicked Navbar Share');
+      LogActions.trackMetric('Clicked Navbar Share');
     };
 
     return (
@@ -203,11 +204,11 @@ var Navbar = React.createClass({
     var displayName = this.getUserDisplayName();
     var self = this;
     var handleClickUser = function() {
-      self.props.trackMetric('Clicked Navbar Logged In User');
+      LogActions.trackMetric('Clicked Navbar Logged In User');
     };
 
     var handleCareteam = function() {
-      self.props.trackMetric('Clicked Navbar CareTeam');
+      LogActions.trackMetric('Clicked Navbar CareTeam');
     };
 
     var patientsClasses = cx({

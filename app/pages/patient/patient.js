@@ -23,11 +23,11 @@ var PatientInfo = require('./patientinfo');
 var PatientTeam = require('./patientteam');
 
 var GroupStore = require('../../stores/GroupStore');
+var LogActions = require('../../actions/LogActions');
 
 var Patient = React.createClass({
   propTypes: {
-    patientId: React.PropTypes.string,
-    trackMetric: React.PropTypes.func.isRequired
+    patientId: React.PropTypes.string
   },
 
   getInitialState: function() {
@@ -112,7 +112,7 @@ var Patient = React.createClass({
 
     var self = this;
     var handleClick = function() {
-      self.props.trackMetric('Clicked Back To Data');
+      LogActions.trackMetric('Clicked Back To Data');
     };
 
     return (
@@ -136,9 +136,7 @@ var Patient = React.createClass({
   renderInfo: function() {
     return (
       <div className="PatientPage-infoSection">
-        <PatientInfo
-          patientId={this.props.patientId}
-          trackMetric={this.props.trackMetric} />
+        <PatientInfo patientId={this.props.patientId} />
       </div>
     );
   },

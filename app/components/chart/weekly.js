@@ -11,6 +11,8 @@ var chartWeeklyFactory = tidelineBlip.twoweek;
 var Header = require('./header');
 var Footer = require('./footer');
 
+var LogActions = require('../../actions/LogActions');
+
 var tideline = {
   log: bows('Two Weeks')
 };
@@ -28,7 +30,6 @@ var Weekly = React.createClass({
     onSwitchToDaily: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
     updateChartPrefs: React.PropTypes.func.isRequired,
     updateDatetimeLocation: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired
@@ -121,7 +122,7 @@ var Weekly = React.createClass({
   renderMissingSMBGMessage: function() {
     var self = this;
     var handleClickUpload = function() {
-      self.props.trackMetric('Clicked Partial Data Upload, No SMBG');
+      LogActions.trackMetric('Clicked Partial Data Upload, No SMBG');
     };
     /* jshint ignore:start */
     return (

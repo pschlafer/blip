@@ -35,14 +35,14 @@ var Messages = require('../../components/messages');
 var AuthStore = require('../../stores/AuthStore');
 var GroupStore = require('../../stores/GroupStore');
 var TidelineDataStore = require('../../stores/TidelineDataStore');
+var LogActions = require('../../actions/LogActions');
 
 var PatientData = React.createClass({
   propTypes: {
     patientId: React.PropTypes.string,
     queryParams: React.PropTypes.object.isRequired,
     uploadUrl: React.PropTypes.string,
-    onRefresh: React.PropTypes.func,
-    trackMetric: React.PropTypes.func.isRequired
+    onRefresh: React.PropTypes.func
   },
 
   getInitialState: function() {
@@ -188,7 +188,7 @@ var PatientData = React.createClass({
 
     var self = this;
     var handleClickUpload = function() {
-      self.props.trackMetric('Clicked No Data Upload');
+      LogActions.trackMetric('Clicked No Data Upload');
     };
 
     if (this.isRootOrAdmin()) {
@@ -297,7 +297,6 @@ var PatientData = React.createClass({
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
-            trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={this.props.uploadUrl}
@@ -315,7 +314,6 @@ var PatientData = React.createClass({
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
-            trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
             ref="tideline" />
           );
@@ -350,13 +348,13 @@ var PatientData = React.createClass({
   closeMessageThread: function(){
     this.setState({ showingThreadWithId: null });
     this.refs.tideline.closeMessageThread();
-    this.props.trackMetric('Closed Message Thread Modal');
+    LogActions.trackMetric('Closed Message Thread Modal');
   },
 
   closeMessageCreation: function(){
     this.setState({ createMessageDatetime: null });
     this.refs.tideline.closeMessageThread();
-    this.props.trackMetric('Closed New Message Modal');
+    LogActions.trackMetric('Closed New Message Modal');
   },
 
   handleMessageCreation: function(message){
@@ -364,27 +362,27 @@ var PatientData = React.createClass({
     // so no need to do anything to update it
     // Not super elegant, but works for now
     this.refs.tideline.createMessageThread(nurseShark.reshapeMessage(message));
-    this.props.trackMetric('Created New Message');
+    LogActions.trackMetric('Created New Message');
   },
 
   handleReplyToMessage: function(comment) {
-    this.props.trackMetric('Replied To Message');
+    LogActions.trackMetric('Replied To Message');
   },
 
   handleEditMessage: function(message) {
     this.refs.tideline.editMessageThread(nurseShark.reshapeMessage(message));
-    this.props.trackMetric('Edit To Message');
+    LogActions.trackMetric('Edit To Message');
   },
 
   handleShowMessageThread: function(threadId) {
     this.setState({showingThreadWithId: threadId});
 
-    this.props.trackMetric('Clicked Message Icon');
+    LogActions.trackMetric('Clicked Message Icon');
   },
 
   handleShowMessageCreation: function(datetime) {
     this.setState({ createMessageDatetime : datetime });
-    this.props.trackMetric('Clicked Message Pool Background');
+    LogActions.trackMetric('Clicked Message Pool Background');
   },
 
   handleSwitchToDaily: function(datetime) {
@@ -392,7 +390,7 @@ var PatientData = React.createClass({
       chartType: 'daily',
       initialDatetimeLocation: datetime || this.state.datetimeLocation
     });
-    this.props.trackMetric('Clicked Switch To One Day', {
+    LogActions.trackMetric('Clicked Switch To One Day', {
       fromChart: this.state.chartType
     });
   },
@@ -402,7 +400,7 @@ var PatientData = React.createClass({
       chartType: 'weekly',
       initialDatetimeLocation: datetime || this.state.datetimeLocation
     });
-    this.props.trackMetric('Clicked Switch To Two Week', {
+    LogActions.trackMetric('Clicked Switch To Two Week', {
       fromChart: this.state.chartType
     });
   },
@@ -414,14 +412,14 @@ var PatientData = React.createClass({
     this.setState({
       chartType: 'settings'
     });
-    this.props.trackMetric('Clicked Switch To Settings', {
+    LogActions.trackMetric('Clicked Switch To Settings', {
       fromChart: this.state.chartType
     });
   },
 
   handleClickRefresh: function(e) {
     this.handleRefresh(e);
-    this.props.trackMetric('Clicked No Data Refresh');
+    LogActions.trackMetric('Clicked No Data Refresh');
   },
 
   handleRefresh: function(e) {
