@@ -194,16 +194,14 @@ var PatientData = React.createClass({
     if (this.isRootOrAdmin()) {
       /* jshint ignore:start */
       content = (
-        <div>
-          <p>{'It looks like you don\'t have any data yet!'}</p>
+        <div className="patient-data-message-no-data">
+          <p>{'There is no data in here yet!'}</p>
+          <a
+            href={this.props.uploadUrl}
+            target="_blank"
+            onClick={handleClickUpload}>Upload data</a>
           <p>
-            <a
-              href={this.props.uploadUrl}
-              target="_blank"
-              onClick={handleClickUpload}>Upload your data</a>
-            {' or if you already have, try '}
-            <a href="" onClick={this.handleClickRefresh}>refreshing</a>
-            {'.'}
+            {'Or try '}<a href="" onClick={this.handleClickRefresh}>refreshing</a>{' the page.'}
           </p>
         </div>
       );
@@ -217,7 +215,7 @@ var PatientData = React.createClass({
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              <div className="patient-data-message patient-data-message-loading">
+              <div className="patient-data-message">
                 {content}
               </div>
             </div>

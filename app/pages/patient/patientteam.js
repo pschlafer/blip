@@ -19,8 +19,10 @@ var _ = require('lodash');
 var cx = require('react/lib/cx');
 var ModalOverlay = require('../../components/modaloverlay');
 var InputGroup = require('../../components/inputgroup');
+var personUtils = require('../../core/personutils');
 
 var AuthStore = require('../../stores/AuthStore');
+var GroupStore = require('../../stores/GroupStore');
 var MemberActions = require('../../actions/MemberActions');
 var MemberStore = require('../../stores/MemberStore');
 var InvitationSentActions = require('../../actions/InvitationSentActions');
@@ -450,6 +452,7 @@ var PatientTeam = React.createClass({
   getStateFromStores: function() {
     return {
       user: AuthStore.getLoggedInUser(),
+      patient: GroupStore.get(this.props.patientId),
       members: MemberStore.getForGroup(this.props.patientId),
       pendingInvites: InvitationSentStore.getForGroup(this.props.patientId)
     };
@@ -457,12 +460,14 @@ var PatientTeam = React.createClass({
 
   componentDidMount: function() {
     AuthStore.addChangeListener(this.handleStoreChange);
+    GroupStore.addChangeListener(this.handleStoreChange);
     MemberStore.addChangeListener(this.handleStoreChange);
     InvitationSentStore.addChangeListener(this.handleStoreChange);
   },
 
   componentWillUnmount: function() {
     AuthStore.removeChangeListener(this.handleStoreChange);
+    GroupStore.removeChangeListener(this.handleStoreChange);
     MemberStore.removeChangeListener(this.handleStoreChange);
     InvitationSentStore.removeChangeListener(this.handleStoreChange);
   },
@@ -675,10 +680,10 @@ var PatientTeam = React.createClass({
 
   renderEditControls: function() {
     var key = 'edit';
-    var text = 'Show controls';
+    var text = 'Edit';
     if (this.state.editing) {
       key = 'cancel';
-      text = 'Hide controls';
+      text = 'Done';
     }
 
     return (
@@ -710,10 +715,18 @@ var PatientTeam = React.createClass({
       'PatientTeam-list': true,
       'PatientTeam-list--single': emptyList,
     });
+    var patientName = personUtils.patientFullName(this.state.patient);
 
     return (
       <div className={classes}>
+        <div className="PatientPage-sectionTitle">
+          {'Care Team'}
+          <span className="PatientPage-sectionTitleMessage">
+            {'These people can view ' + patientName + '\'s data'}
+          </span>
+        </div>
         {editControls}
+        <div className="clear"></div>
         <ul className={listClass}>
           {members}
           {pendingInvites}

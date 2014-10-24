@@ -136,7 +136,6 @@ var Patient = React.createClass({
   renderInfo: function() {
     return (
       <div className="PatientPage-infoSection">
-        <div className="PatientPage-sectionTitle">Info</div>
         <PatientInfo
           patientId={this.props.patientId}
           trackMetric={this.props.trackMetric} />
@@ -198,7 +197,6 @@ var Patient = React.createClass({
 
     return (
       <div className="PatientPage-teamSection">
-        <div className="PatientPage-sectionTitle">My Care Team <span className="PatientPage-sectionTitleMessage">These people can view your data.</span></div>
         <PatientTeam patientId={this.props.patientId} />
       </div>
     );
