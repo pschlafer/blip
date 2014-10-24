@@ -40,9 +40,10 @@ var PatientInfo = React.createClass({
     }, this.getStateFromStores());
   },
 
-  getStateFromStores: function() {
+  getStateFromStores: function(props) {
+    props = props || this.props;
     return {
-      patient: GroupStore.get(this.props.patientId)
+      patient: GroupStore.get(props.patientId)
     };
   },
 
@@ -55,9 +56,7 @@ var PatientInfo = React.createClass({
   },
 
   componentWillReceiveProps: function(nextProps) {
-    this.setState({
-      patient: GroupStore.get(nextProps.patientId)
-    });
+    this.setState(this.getStateFromStores(nextProps));
   },
 
   handleStoreChange: function() {

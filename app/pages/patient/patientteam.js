@@ -449,12 +449,13 @@ var PatientTeam = React.createClass({
     }, this.getStateFromStores());
   },
 
-  getStateFromStores: function() {
+  getStateFromStores: function(props) {
+    props = props || this.props;
     return {
       user: AuthStore.getLoggedInUser(),
-      patient: GroupStore.get(this.props.patientId),
-      members: MemberStore.getForGroup(this.props.patientId),
-      pendingInvites: InvitationSentStore.getForGroup(this.props.patientId)
+      patient: GroupStore.get(props.patientId),
+      members: MemberStore.getForGroup(props.patientId),
+      pendingInvites: InvitationSentStore.getForGroup(props.patientId)
     };
   },
 
@@ -470,6 +471,10 @@ var PatientTeam = React.createClass({
     GroupStore.removeChangeListener(this.handleStoreChange);
     MemberStore.removeChangeListener(this.handleStoreChange);
     InvitationSentStore.removeChangeListener(this.handleStoreChange);
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    this.setState(this.getStateFromStores(nextProps));
   },
 
   handleStoreChange: function() {
