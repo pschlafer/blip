@@ -108,11 +108,12 @@ var AuthActions = {
       _.omit(userUpdates, 'profile'),
       {profile: _.assign({}, previousUser.profile, userUpdates.profile)}
     );
+    var newUser = _.omit(_.cloneDeep(userUpdates), 'password');
 
 
     AppDispatcher.dispatch({
       type: AppConstants.api.STARTED_UPDATE_USER,
-      user: _.omit(userUpdates, 'password')
+      user: newUser
     });
 
     // If username hasn't changed, don't try to update
@@ -126,13 +127,13 @@ var AuthActions = {
         return AppDispatcher.dispatch({
           type: AppConstants.api.FAILED_UPDATE_USER,
           error: err,
-          user: _.omit(userUpdates, 'password')
+          user: newUser
         });
       }
 
       AppDispatcher.dispatch({
         type: AppConstants.api.COMPLETED_UPDATE_USER,
-        user: user
+        user: newUser
       });
     });
   }
