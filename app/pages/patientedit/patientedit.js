@@ -42,7 +42,7 @@ var PatientEdit = React.createClass({
   formInputs: [
     {
       name: 'fullName',
-      label: 'New Care Team for: *',
+      label: 'New data storage for: *',
       placeholder: 'ex: Jessica Carter'
     },
     {
@@ -234,7 +234,7 @@ var PatientEdit = React.createClass({
 
   getTitle: function() {
     if (this.props.isNewPatient) {
-      return 'Create Care Team';
+      return 'Setup data storage';
     }
     return 'Edit profile';
   },
@@ -265,9 +265,9 @@ var PatientEdit = React.createClass({
       return null;
     }
 
-    var label = 'Care Team for:';
+    var label = 'Data storage for:';
     if (this.props.isNewPatient) {
-      label = 'New ' + label;
+      label = 'New data storage for:';
     }
 
     /* jshint ignore:start */
@@ -318,9 +318,9 @@ var PatientEdit = React.createClass({
   getSubmitButtonText: function() {
     var text = 'Save';
     if (this.props.isNewPatient) {
-      text = 'Create Care Team';
+      text = 'Create data storage';
       if (this.state.working) {
-        text = 'Creating Care Team...';
+        text = 'Creating data storage...';
       }
     }
     return text;

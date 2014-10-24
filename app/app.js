@@ -123,7 +123,8 @@ var AppComponent = React.createClass({
       page: null,
       fetchingMessageData: true,
       showingAcceptTerms: false,
-      showingWelcomeMessage: false,
+      showingWelcomeTitle: false,
+      showingWelcomeSetup: false,
       dismissedBrowserWarning: false,
       queryParams: queryString.parseTypes(window.location.search)
     }, this.getStateFromStores());
@@ -414,11 +415,21 @@ var AppComponent = React.createClass({
     return (
       <Patients
           uploadUrl={app.api.getUploadUrl()}
-          showingWelcomeMessage={this.state.showingWelcomeMessage}
+          showingWelcomeTitle={this.state.showingWelcomeTitle}
+          showingWelcomeSetup={this.state.showingWelcomeSetup}
+          onHideWelcomeSetup={this.handleHideWelcomeSetup}
           trackMetric={trackMetric}
           onRemovePatient={this.handleRemovePatient}/>
     );
   },
+
+  handleHideWelcomeSetup: function(options) {
+    if (options && options.route) {
+      app.router.setRoute(options.route);
+    }
+    this.setState({showingWelcomeSetup: false});
+  },
+
   handleChangeMemberPermissions: function(patientId, memberId, permissions, cb) {
     var self = this;
 
@@ -584,7 +595,8 @@ var AppComponent = React.createClass({
   handleSignupSuccess: function(user) {
     this.setState({
       showingAcceptTerms: config.SHOW_ACCEPT_TERMS ? true : false,
-      showingWelcomeMessage: true
+      showingWelcomeTitle: true,
+      showingWelcomeSetup: true
     });
     this.redirectToDefaultRoute();
     trackMetric('Signed Up');

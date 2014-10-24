@@ -32,7 +32,9 @@ var InvitationReceivedStore = require('../../stores/InvitationReceivedStore');
 
 var Patients = React.createClass({
   propTypes: {
-    showingWelcomeMessage: React.PropTypes.bool,
+    showingWelcomeTitle: React.PropTypes.bool,
+    showingWelcomeSetup: React.PropTypes.bool,
+    onHideWelcomeSetup: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired,
     onRemovePatient: React.PropTypes.func,
     uploadUrl: React.PropTypes.string
@@ -70,41 +72,97 @@ var Patients = React.createClass({
 
   render: function() {
     var welcomeTitle = this.renderWelcomeTitle();
-    var loadingIndicator = this.renderLoadingIndicator();
-    var patients = this.renderPatients();
-    var invites = this.renderInvitations();
 
-    /* jshint ignore:start */
+    if (this.isLoading()) {
+      return (
+        <div className="container-box-outer">
+          <div className="patients js-patients-page">
+            {welcomeTitle}
+            {this.renderLoadingIndicator()}
+          </div>
+        </div>
+      );
+    }
+
+    var welcomeSetup = this.renderWelcomeSetup();
+    var noPatientsOrInvites = this.renderNoPatientsOrInvitationsMessage();
+    var invites = this.renderInvitations();
+    var noPatientsSetupStorage = this.renderNoPatientsSetupStorageLink();
+    var patients = this.renderPatients();
+
     return (
       <div className="container-box-outer">
         <div className="patients js-patients-page">
           {welcomeTitle}
-          {loadingIndicator}
+          {welcomeSetup}
+          {noPatientsOrInvites}
           {invites}
+          {noPatientsSetupStorage}
           {patients}
         </div>
       </div>
     );
-    /* jshint ignore:end */
   },
-  renderInvitation: function(invitation) {
+
+  renderWelcomeSetup: function() {
+    if (!this.isShowingWelcomeSetup()) {
+      return null;
+    }
+
+    var self = this;
+    var handleClickYes = function(e) {
+      e.preventDefault();
+      self.props.onHideWelcomeSetup({route: '/patients/new'});
+    };
+    var handleClickNo = function(e) {
+      e.preventDefault();
+      self.props.onHideWelcomeSetup();
+    };
+
+    return (
+      <div className="patients-message">
+        <div>
+          {"Tidepool provides free, secure data storage for diabetes data."}
+          <br />
+          {"Would you like to set up data storage for someone’s diabetes data?"}
+        </div>
+        <div className="patients-welcomesetup-actions">
+          <div><button className="btn btn-primary" onClick={handleClickYes}>{"Yes, let's set it up"}</button></div>
+          <div><button className="btn btn-secondary" onClick={handleClickNo}>{"No, not now"}</button></div>
+          <div className="patients-welcomesetup-actions-help">{"(You can always create one later)"}</div>
+        </div>
+      </div>
+    );
+  },
+
+  renderInvitation: function(invitation, index) {
+    /* jshint ignore:start */
     return (
       <Invitation
         key={invitation.key}
         invitation={invitation}
         accepting={InvitationReceivedStore.isAccepting(invitation.key)}
-        onAccept={InvitationReceivedActions.accept.bind(InvitationReceivedActions, invitation)}
-        onDismiss={InvitationReceivedActions.dismiss.bind(InvitationReceivedActions, invitation)} />
+        onAccept={this.handleAcceptInvitation.bind(this, invitation)}
+        onDismiss={this.handleDismissInvitation.bind(this, invitation)} />
     );
   },
-  renderInvitations: function() {
-    var invites = this.state.invites;
 
-    if (_.isEmpty(invites)) {
-       return null;
+  handleAcceptInvitation: function(invitation) {
+    this.props.onHideWelcomeSetup();
+    InvitationReceivedActions.accept(invitation);
+  },
+
+  handleDismissInvitation: function(invitation) {
+    this.props.onHideWelcomeSetup();
+    InvitationReceivedActions.dismiss(invitation);
+  },
+
+  renderInvitations: function() {
+    if (!this.hasInvites()) {
+      return null;
     }
 
-    var invitations = _.map(invites, this.renderInvitation);
+    var invitations = _.map(this.state.invites, this.renderInvitation);
 
     /* jshint ignore:start */
     return (
@@ -114,57 +172,68 @@ var Patients = React.createClass({
     );
     /* jshint ignore:end */
   },
-  renderPatients: function() {
-    if (this.isResettingPatientsData()) {
+
+  renderNoPatientsOrInvitationsMessage: function() {
+    if (this.isShowingWelcomeSetup() || this.hasPatients() || this.hasInvites()) {
       return null;
     }
 
-    var content;
-    var patients = _.clone(this.state.patients) || [];
+    return (
+      <div className="patients-message">
+        {"Looks like you don’t have access to any data yet."}
+        <br />
+        {"Please ask people to invite you to see their data in Blip."}
+      </div>
+    );
+  },
 
-    if (_.isEmpty(patients)) {
-      /* jshint ignore:start */
-      content = (
-        <div className="patients-message">
-          <p>{"You do not have access to see anyone's data yet."}</p>
-          <p>{"You need to ask the people you care for to add you to their team."}</p>
-          <p>{"Or "} <a href="#/patients/new">create a new account</a> {" for them."}</p>
-        </div>
-      );
-      /* jshint ignore:end */
-    }
-    else {
-      patients = this.addLinkToPatients(patients);
-
-      content = (
-        <PeopleList
-          people={patients}
-          isPatientList={true}
-          uploadUrl={this.props.uploadUrl}
-          onClickPerson={this.handleClickPatient}
-          onRemovePatient= {this.props.onRemovePatient}
-          />
-      );
+  renderNoPatientsSetupStorageLink: function() {
+    if (this.isShowingWelcomeSetup() || this.hasPatients()) {
+      return null;
     }
 
-    var title = this.renderSectionTitle('View data for:');
-    var addAccount = this.renderAddAccount();
+    return (
+      <div className="patients-message">
+        {"You can also "}
+        <a href="#/patients/new">{"setup data storage"}</a>
+        {" for someone’s diabetes data."}
+      </div>
+    );
+  },
 
-    /* jshint ignore:start */
+  renderPatients: function() {
+    if (!this.hasPatients()) {
+      return null;
+    }
+
+    var patients = _.clone(this.state.patients);
+    patients = this.addLinkToPatients(patients);
+
+    var addDataStorage = this.renderAddDataStorage();
+
     return (
       <div className="container-box-inner patients-section js-patients-shared">
-        {title}
+        <div className="patients-section-title-wrapper">
+          <div className="patients-section-title">{"View data for:"}</div>
+        </div>
         <div className="patients-section-content">
-          {addAccount}
+          {addDataStorage}
           <div className='clear'></div>
-          {content}
+          <PeopleList
+            people={patients}
+            isPatientList={true}
+            uploadUrl={this.props.uploadUrl}
+            onClickPerson={this.handleClickPatient}
+            onRemovePatient= {this.props.onRemovePatient} />
         </div>
       </div>
     );
-    /* jshint ignore:end */
   },
-  renderAddAccount: function() {
-    if(personUtils.isPatient(this.state.user)) {
+
+  renderAddDataStorage: function() {
+    // Until the "child accounts" feature,
+    // don't allow additional data accounts once the primary one has been setup
+    if (personUtils.isPatient(this.state.user)) {
       return null;
     }
 
@@ -173,53 +242,30 @@ var Patients = React.createClass({
         className="patients-new-account"
         href="#/patients/new"
         onClick={this.handleClickCreateProfile}>
-        Add account
+        Setup data storage
         <i className="icon-add"></i>
       </a>
     );
-    /* jshint ignore:end */
   },
+
   renderWelcomeTitle: function() {
-    if (!this.props.showingWelcomeMessage) {
+    if (!this.isShowingWelcomeTitle()) {
       return null;
     }
 
-    /* jshint ignore:start */
     return (
       <div className="patients-welcome-title">
         {'Welcome to Blip!'}
       </div>
     );
-    /* jshint ignore:end */
   },
+
   renderLoadingIndicator: function() {
-    if (this.isResettingPatientsData() && this.isResettingInvitesData()) {
-      /* jshint ignore:start */
-      return (
-        <div className="patients-section">
-          <div className="patients-message patients-message-center patients-message-loading">
-            Loading...
-          </div>
-        </div>
-      );
-      /* jshint ignore:end */
-    }
-
-    return null;
-  },
-
-  renderSectionTitle: function(text) {
-    if (this.props.showingWelcomeMessage) {
-      return null;
-    }
-
-    /* jshint ignore:start */
     return (
-      <div className="patients-section-title-wrapper">
-        <div className="patients-section-title">{text}</div>
+      <div className="patients-message patients-message-loading">
+        Loading...
       </div>
     );
-    /* jshint ignore:end */
   },
 
   handleClickCreateProfile: function() {
@@ -236,10 +282,6 @@ var Patients = React.createClass({
     });
   },
 
-  isResettingPatientsData: function() {
-    return (this.state.fetchingPatients && _.isEmpty(this.state.patients));
-  },
-
   handleClickPatient: function(patient) {
     if (personUtils.isSame(this.state.user, patient)) {
       this.props.trackMetric('Clicked Own Care Team');
@@ -249,8 +291,24 @@ var Patients = React.createClass({
     }
   },
 
-  isResettingInvitesData: function() {
-    return (this.state.fetchingInvites && _.isEmpty(this.state.invites));
+  isLoading: function() {
+    return this.state.fetchingInvites || this.state.fetchingPatients;
+  },
+
+  isShowingWelcomeTitle: function() {
+    return this.props.showingWelcomeTitle;
+  },
+
+  hasInvites: function() {
+    return !_.isEmpty(this.state.invites);
+  },
+
+  isShowingWelcomeSetup: function() {
+    return this.props.showingWelcomeSetup && !this.hasInvites();
+  },
+
+  hasPatients: function() {
+    return !_.isEmpty(this.state.patients) || personUtils.isPatient(this.state.user);
   }
 });
 
