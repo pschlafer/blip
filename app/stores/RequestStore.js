@@ -266,6 +266,17 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       self.emitChange();
       break;
 
+    case AppConstants.api.FAILED_REMOVE_MEMBER:
+      self._state.error = {
+        key: AppConstants.api.FAILED_REMOVE_MEMBER,
+        groupId: payload.groupId,
+        memberId: payload.memberId,
+        message: 'Something went wrong while trying to remove member ' + payload.memberId,
+        original: payload.error
+      };
+      self.emitChange();
+      break;
+
     case AppConstants.api.COMPLETED_LOGOUT:
       self.reset();
       self.emitChange();

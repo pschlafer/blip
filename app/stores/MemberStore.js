@@ -61,6 +61,10 @@ var MemberStore = merge(EventEmitter.prototype, {
 
   isFetchingForGroup: function(groupId) {
     return Boolean(utils.getIn(this._state.requests, [groupId, 'fetching']));
+  },
+
+  isRemoving: function() {
+    return Boolean(this._state.requests.removing);
   }
 
 });
@@ -88,6 +92,23 @@ MemberStore.dispatchToken = AppDispatcher.register(function(payload) {
           acc[member.userid] = _.cloneDeep(member.permissions);
           return acc;
         }, {});
+      self.emitChange();
+      break;
+
+    case AppConstants.api.STARTED_REMOVE_MEMBER:
+      self._state.requests.removing = true;
+      self.emitChange();
+      break;
+
+    case AppConstants.api.FAILED_REMOVE_MEMBER:
+      self._state.requests.removing = false;
+      self.emitChange();
+      break;
+
+    case AppConstants.api.COMPLETED_REMOVE_MEMBER:
+      self._state.requests.removing = false;
+      self._state.membersByGroupId[payload.groupId] =
+        _.omit(self._state.membersByGroupId[payload.groupId], payload.memberId);
       self.emitChange();
       break;
 

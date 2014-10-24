@@ -49,6 +49,7 @@ var GroupActions = window.GroupActions = require('./actions/GroupActions');
 var HealthDataActions = window.HealthDataActions = require('./actions/HealthDataActions');
 var InvitationReceivedActions = window.InvitationReceivedActions = require('./actions/InvitationReceivedActions');
 var InvitationSentActions = window.InvitationSentActions = require('./actions/InvitationSentActions');
+var MemberActions = window.MemberActions = require('./actions/MemberActions');
 var MessageThreadActions = window.MessageThreadActions = require('./actions/MessageThreadActions');
 var RequestActions = window.RequestActions = require('./actions/RequestActions');
 
@@ -443,20 +444,6 @@ var AppComponent = React.createClass({
     });
   },
 
-  handleRemoveMember: function(patientId, memberId, cb) {
-    var self = this;
-
-    api.access.removeMember(memberId, function(err) {
-      if(err) {
-        cb(err);
-        return self.handleApiError(err, 'Something went wrong while removing member.');
-      }
-
-      GroupActions.fetch(patientId);
-      cb();
-    });
-  },
-
   showPatient: function(patientId) {
     this.renderPage = this.renderPatient;
     this.patientId = patientId;
@@ -480,7 +467,6 @@ var AppComponent = React.createClass({
       <Patient
         patientId={this.patientId}
         onChangeMemberPermissions={this.handleChangeMemberPermissions}
-        onRemoveMember={this.handleRemoveMember}
         trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */

@@ -21,6 +21,7 @@ var ModalOverlay = require('../../components/modaloverlay');
 var InputGroup = require('../../components/inputgroup');
 
 var AuthStore = require('../../stores/AuthStore');
+var MemberActions = require('../../actions/MemberActions');
 var MemberStore = require('../../stores/MemberStore');
 var InvitationSentActions = require('../../actions/InvitationSentActions');
 var InvitationSentStore = require('../../stores/InvitationSentStore');
@@ -322,6 +323,57 @@ var ConfirmDialog = React.createClass({
   }
 });
 
+var RemoveMemberDialog = React.createClass({
+  propTypes: {
+    member: React.PropTypes.object,
+    onMemberRemoved: React.PropTypes.func,
+    onCancel: React.PropTypes.func
+  },
+
+  getInitialState: function() {
+    return {
+      working: false
+    };
+  },
+
+  getStateFromStores: function() {
+    return {
+      working: MemberStore.isRemoving(),
+    };
+  },
+
+  componentDidMount: function() {
+    MemberStore.addChangeListener(this.handleStoreChange);
+  },
+
+  componentWillUnmount: function() {
+    MemberStore.removeChangeListener(this.handleStoreChange);
+  },
+
+  componentDidUpdate: function(prevProps, prevState) {
+    if (prevState.working && !this.state.working) {
+      this.props.onMemberRemoved();
+    }
+  },
+
+  handleStoreChange: function() {
+    this.setState(this.getStateFromStores());
+  },
+
+  render: function() {
+    return <ConfirmDialog
+      message={'Are you sure you want to remove this person? They will no longer be able to see or comment on your data.'}
+      submitText={this.state.working ? 'Removing...' : 'I\'m sure, remove them'}
+      working={this.state.working}
+      onSubmit={this.handleSubmit}
+      onCancel={this.props.onCancel} />;
+  },
+
+  handleSubmit: function() {
+    MemberActions.remove(this.props.member.userid);
+  }
+});
+
 var CancelInvitationDialog = React.createClass({
   propTypes: {
     invitation: React.PropTypes.object,
@@ -377,8 +429,7 @@ var CancelInvitationDialog = React.createClass({
 var PatientTeam = React.createClass({
   propTypes: {
     patientId: React.PropTypes.string,
-    onChangeMemberPermissions: React.PropTypes.func,
-    onRemoveMember: React.PropTypes.func
+    onChangeMemberPermissions: React.PropTypes.func
   },
 
   getInitialState: function() {
@@ -453,28 +504,11 @@ var PatientTeam = React.createClass({
   },
 
   renderRemoveTeamMemberDialog: function(member) {
-    var self = this;
-
-    var handleCancel = this.overlayClickHandler;
-    var handleSubmit = function(cb) {
-      self.props.onRemoveMember(self.state.user.userid, member.userid, function(err) {
-        if (err) {
-          return cb(err);
-        }
-        cb();
-        self.setState({
-          showModalOverlay: false,
-        });
-      });
-    };
-
     return (
-      <ConfirmDialog
-        message={'Are you sure you want to remove this person? They will no longer be able to see or comment on your data.'}
-        buttonText={'I\'m sure, remove them'}
-        buttonTextWorking={'Removing...'}
-        onSubmit={handleSubmit}
-        onCancel={handleCancel} />
+      <RemoveMemberDialog
+        member={member}
+        onMemberRemoved={this.overlayClickHandler}
+        onCancel={this.overlayClickHandler} />
     );
   },
 
