@@ -16,17 +16,20 @@
 var AppDispatcher = require('../AppDispatcher');
 var AppConstants = require('../AppConstants');
 var api = require('../core/api');
+var AuthStore = require('../stores/AuthStore');
 
 var InvitationSentActions = {
 
-  fetchForGroup: function(groupId) {
+  fetchForGroup: function() {
+    // NOTE: Currently we only support fetching for logged-in user
+    // will change when "child account" feature is implemented
+    var groupId = AuthStore.getLoggedInUserId();
+
     AppDispatcher.dispatch({
       type: AppConstants.api.STARTED_GET_INVITATIONS_SENT,
       groupId: groupId
     });
 
-    // NOTE: Currently we only support fetching for logged-in user
-    // will change when "child account" feature is implemented
     api.invitation.getSent(function(err, invitations) {
       if (err) {
         return AppDispatcher.dispatch({
@@ -40,6 +43,35 @@ var InvitationSentActions = {
         type: AppConstants.api.COMPLETED_GET_INVITATIONS_SENT,
         groupId: groupId,
         invitations: invitations
+      });
+    });
+  },
+
+  send: function(email, permissions) {
+    var groupId = AuthStore.getLoggedInUserId();
+
+    AppDispatcher.dispatch({
+      type: AppConstants.api.STARTED_SEND_INVITATION,
+      groupId: groupId,
+      email: email,
+      permissions: permissions
+    });
+
+    api.invitation.send(email, permissions, function(err, invitation) {
+      if (err) {
+        return AppDispatcher.dispatch({
+          type: AppConstants.api.FAILED_SEND_INVITATION,
+          groupId: groupId,
+          email: email,
+          permissions: permissions,
+          error: err
+        });
+      }
+
+      AppDispatcher.dispatch({
+        type: AppConstants.api.COMPLETED_SEND_INVITATION,
+        groupId: groupId,
+        invitation: invitation
       });
     });
   }

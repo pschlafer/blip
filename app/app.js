@@ -457,27 +457,6 @@ var AppComponent = React.createClass({
     });
   },
 
-  handleInviteMember: function(email, permissions, cb) {
-    var self = this;
-
-    api.invitation.send(email, permissions, function(err, invitation) {
-      if(err) {
-        if (cb) {
-          cb(err);
-        }
-        if (err.status === 500) {
-          return self.handleApiError(err, 'Something went wrong while inviting member.');
-        }
-        return;
-      }
-
-      if (cb) {
-        cb(null, invitation);
-      }
-      InvitationSentActions.fetchForGroup(self.state.user.userid);
-    });
-  },
-
   handleCancelInvite: function(email, cb) {
     var self = this;
 
@@ -519,7 +498,6 @@ var AppComponent = React.createClass({
         patientId={this.patientId}
         onChangeMemberPermissions={this.handleChangeMemberPermissions}
         onRemoveMember={this.handleRemoveMember}
-        onInviteMember={this.handleInviteMember}
         onCancelInvite={this.handleCancelInvite}
         trackMetric={trackMetric}/>
     );

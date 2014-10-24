@@ -22,12 +22,13 @@ var InputGroup = require('../../components/inputgroup');
 
 var AuthStore = require('../../stores/AuthStore');
 var MemberStore = require('../../stores/MemberStore');
+var InvitationSentActions = require('../../actions/InvitationSentActions');
 var InvitationSentStore = require('../../stores/InvitationSentStore');
 
 var PermissionInputGroup = React.createClass({
   propTypes: {
     name: React.PropTypes.string,
-    value: React.PropTypes.string
+    value: React.PropTypes.bool
   },
   getDefaultProps: function() {
     return {
@@ -65,21 +66,61 @@ var PermissionInputGroup = React.createClass({
 
 var MemberInviteForm = React.createClass({
   propTypes: {
-    onSubmit: React.PropTypes.func,
+    onInvitationSent: React.PropTypes.func,
     onCancel: React.PropTypes.func
   },
   getInitialState: function() {
-    return {
-      working: false,
+    return _.assign({
       allowUpload: false,
       error: null
+    }, this.getInitialStateFromStores());
+  },
+
+  getInitialStateFromStores: function() {
+    return {
+      working: InvitationSentStore.isSending(),
     };
   },
+
+  getStateFromStores: function() {
+    var state = this.getInitialStateFromStores();
+    var sendError = InvitationSentStore.getSendError();
+    if (sendError) {
+      var message = 'Sorry! Something went wrong...';
+      if (sendError.status === 409) {
+        message = 'Looks like you\'ve already sent an invitation to that email';
+      }
+
+      state.error = message;
+    }
+    else {
+      state.error = null;
+    }
+    return state;
+  },
+
   componentDidMount: function() {
+    InvitationSentStore.addChangeListener(this.handleStoreChange);
     // When invite form appears, automatically focus so user can start
     // typing email without clicking a second time
     this.refs.email.getDOMNode().focus();
   },
+
+  componentWillUnmount: function() {
+    InvitationSentStore.removeChangeListener(this.handleStoreChange);
+  },
+
+  componentDidUpdate: function(prevProps, prevState) {
+    if (prevState.working && !this.state.working && !this.state.error) {
+      // Close modal after invitation was successfully sent
+      this.props.onInvitationSent();
+    }
+  },
+
+  handleStoreChange: function() {
+    this.setState(this.getStateFromStores());
+  },
+
   render: function() {
     return (
       <li className="PatientTeam-member PatientTeam-member--first">
@@ -131,7 +172,7 @@ var MemberInviteForm = React.createClass({
       return;
     } else {
       this.setState({
-        validationError: false
+        error: null
       });
     }
 
@@ -144,28 +185,9 @@ var MemberInviteForm = React.createClass({
       permissions.upload = {};
     }
 
-    this.setState({
-      working: true,
-      allowUpload: allowUpload,
-      error: null
-    });
-    var self = this;
-    this.props.onSubmit(email, permissions, function(err) {
-      if (err) {
-        if (err.status === 409) {
-          return self.setState({
-            working: false,
-            error: 'Looks like you\'ve already sent an invitation to that email'
-          });
-        }
+    this.setState({allowUpload: allowUpload});
 
-        return self.setState({
-          working: false,
-          error: 'Sorry! Something went wrong...'
-        });
-      }
-      self.setState({working: false});
-    });
+    InvitationSentActions.send(email, permissions);
   }
 });
 
@@ -328,8 +350,7 @@ var PatientTeam = React.createClass({
     patientId: React.PropTypes.string,
     onChangeMemberPermissions: React.PropTypes.func,
     onRemoveMember: React.PropTypes.func,
-    onInviteMember: React.PropTypes.func,
-    onCancelInvite: React.PropTypes.func,
+    onCancelInvite: React.PropTypes.func
   },
 
   getInitialState: function() {
@@ -549,31 +570,16 @@ var PatientTeam = React.createClass({
 
   renderInviteForm: function() {
     var self = this;
-
-    var handleSubmit = function(email, permissions, cb) {
-      self.props.onInviteMember(email, permissions, function(err) {
-        if (err) {
-          return cb(err);
-        }
-        cb();
-        self.setState({
-          invite: false,
-        });
-      });
-    };
-
-    var handleCancel = function() {
+    var closeModal = function() {
       self.setState({
         invite: false
       });
     };
 
     return(
-      /* jshint ignore:start */
       <MemberInviteForm
-        onSubmit={handleSubmit}
-        onCancel={handleCancel} />
-      /* jshint ignore:end */
+        onInvitationSent={closeModal}
+        onCancel={closeModal} />
     );
 
   },

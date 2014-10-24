@@ -240,6 +240,21 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       self.emitChange();
       break;
 
+    case AppConstants.api.FAILED_SEND_INVITATION:
+      // Don't handle "already sent to email" or "already a member" errors
+      if (payload.error && payload.error.status !== 409) {
+        self._state.error = {
+          key: AppConstants.api.FAILED_SEND_INVITATION,
+          groupId: payload.groupId,
+          email: payload.email,
+          permissions: payload.permissions,
+          message: 'Something went wrong while signing sending invitation to ' + payload.email,
+          original: payload.error
+        };
+      }
+      self.emitChange();
+      break;
+
     case AppConstants.api.COMPLETED_LOGOUT:
       self.reset();
       self.emitChange();

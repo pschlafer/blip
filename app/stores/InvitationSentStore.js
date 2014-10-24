@@ -55,6 +55,14 @@ var InvitationSentStore = merge(EventEmitter.prototype, {
 
   isFetchingForGroup: function(groupId) {
     return Boolean(utils.getIn(this._state.requests, [groupId, 'fetching']));
+  },
+
+  isSending: function() {
+    return Boolean(this._state.requests.sending);
+  },
+
+  getSendError: function() {
+    return _.cloneDeep(this._state.requests.sendError);
   }
 
 });
@@ -77,6 +85,31 @@ InvitationSentStore.dispatchToken = AppDispatcher.register(function(payload) {
       self._state.requests[payload.groupId] = {fetching: false};
       self._state.invitationsByGroupId[payload.groupId] =
         _.cloneDeep(payload.invitations);
+      self.emitChange();
+      break;
+
+    case AppConstants.api.STARTED_SEND_INVITATION:
+      self._state.requests.sending = true;
+      self._state.requests.sendError = null;
+      self.emitChange();
+      break;
+
+    case AppConstants.api.FAILED_SEND_INVITATION:
+      self._state.requests.sending = false;
+      self._state.requests.sendError = _.assign({},
+        payload.error,
+        {email: payload.email, groupId: payload.groupId}
+      );
+      self.emitChange();
+      break;
+
+    case AppConstants.api.COMPLETED_SEND_INVITATION:
+      self._state.requests.sending = false;
+      self._state.requests.sendError = null;
+      self._state.invitationsByGroupId[payload.groupId] =
+        (self._state.invitationsByGroupId[payload.groupId] || []).concat(
+          _.cloneDeep(payload.invitation)
+        );
       self.emitChange();
       break;
 
