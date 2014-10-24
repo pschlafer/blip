@@ -21,11 +21,67 @@ var cx = require('react/lib/cx');
 var personUtils = require('../../core/personutils');
 var ModalOverlay = require('../modaloverlay');
 
+var GroupActions = require('../../actions/GroupActions');
+var GroupStore = require('../../stores/GroupStore');
+
+var RemovePatientDialog = React.createClass({
+  propTypes: {
+    patient: React.PropTypes.object,
+    onCancel: React.PropTypes.func
+  },
+
+  getInitialState: function() {
+    return this.getStateFromStores();
+  },
+
+  getStateFromStores: function() {
+    return {
+      working: GroupStore.isLeaving(this.props.patient.userid)
+    };
+  },
+
+  componentDidMount: function() {
+    GroupStore.addChangeListener(this.handleStoreChange);
+  },
+
+  componentWillUnmount: function() {
+    GroupStore.removeChangeListener(this.handleStoreChange);
+  },
+
+  handleStoreChange: function() {
+    // Carefull, will unmount when done removing, don't try to update
+    if (!this.isMounted()) {
+      return;
+    }
+    this.setState(this.getStateFromStores());
+  },
+
+  render: function() {
+    var disabled = this.state.working;
+    var buttonText = this.state.working ? 'Removing...' : 'I\'m sure, remove me';
+
+    return (
+      <div>
+        <div className="ModalOverlay-content">{"Are you sure you want to leave this person's Care Team? You will no longer be able to view their data."}</div>
+        <div className="ModalOverlay-controls">
+          <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={this.props.onCancel} disabled={disabled}>Cancel</button>
+          <button className="PatientInfo-button PatientInfo-button--primary" type="submit" onClick={this.handleRemovePatient} disabled={disabled}>{buttonText}</button>
+        </div>
+      </div>
+    );
+  },
+
+  handleRemovePatient: function() {
+    // Note: this component will unmount
+    // when leaving group is complete
+    GroupActions.leave(this.props.patient.userid);
+  }
+});
+
 var PatientCard = React.createClass({
   propTypes: {
     href: React.PropTypes.string,
     onClick: React.PropTypes.func,
-    onRemovePatient: React.PropTypes.func,
     uploadUrl: React.PropTypes.string,
     patient: React.PropTypes.object
   },
@@ -100,33 +156,11 @@ var PatientCard = React.createClass({
     /* jshint ignore:end */
   },
 
-  renderRemoveDialog: function(patient) {
-    return (
-      /* jshint ignore:start */
-      <div>
-        <div className="ModalOverlay-content">{"Are you sure you want to leave this person's Care Team? You will no longer be able to view their data."}</div>
-        <div className="ModalOverlay-controls">
-          <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={this.overlayClickHandler}>Cancel</button>
-          <button className="PatientInfo-button PatientInfo-button--primary" type="submit" onClick={this.handleRemovePatient(patient)}>{"I'm sure, remove me."}</button>
-        </div>
-      </div>
-      /* jshint ignore:end */
-    );
+  renderRemoveDialog: function() {
+    return <RemovePatientDialog
+      patient={this.props.patient}
+      onCancel={this.overlayClickHandler} />;
   },
-
-  handleRemovePatient: function(patient) {
-    var self = this;
-
-    return function() {
-      self.props.onRemovePatient(patient.userid, function(err) {
-          self.setState({
-            showModalOverlay: false,
-          });
-        }
-      );
-    };
-  },
-
 
   handleRemove: function(patient) {
     var self = this;
@@ -134,7 +168,7 @@ var PatientCard = React.createClass({
     return function() {
       self.setState({
         showModalOverlay: true,
-        dialog: self.renderRemoveDialog(patient)
+        dialog: self.renderRemoveDialog()
       });
 
       return false;

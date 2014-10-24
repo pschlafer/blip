@@ -97,6 +97,27 @@ var GroupActions = {
         group: group
       });
     });
+  },
+
+  leave: function(groupId) {
+    AppDispatcher.dispatch({
+      type: AppConstants.api.STARTED_LEAVE_GROUP,
+      groupId: groupId
+    });
+    api.access.leaveGroup(groupId, function(err) {
+      if (err) {
+        return AppDispatcher.dispatch({
+          type: AppConstants.api.FAILED_LEAVE_GROUP,
+          groupId: groupId,
+          error: err
+        });
+      }
+
+      AppDispatcher.dispatch({
+        type: AppConstants.api.COMPLETED_LEAVE_GROUP,
+        groupId: groupId
+      });
+    });
   }
 
 };

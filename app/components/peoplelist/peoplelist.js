@@ -27,8 +27,7 @@ var PeopleList = React.createClass({
     people: React.PropTypes.array,
     isPatientList: React.PropTypes.bool,
     onClickPerson: React.PropTypes.func,
-    uploadUrl: React.PropTypes.string,
-    onRemovePatient: React.PropTypes.func
+    uploadUrl: React.PropTypes.string
   },
 
   getDefaultProps: function() {
@@ -92,7 +91,6 @@ var PeopleList = React.createClass({
             href={person.link}
             onClick={handleClick}
             uploadUrl={this.props.uploadUrl}
-            onRemovePatient={this.props.onRemovePatient}
             patient={person}></PatientCard>
         </li>
       );

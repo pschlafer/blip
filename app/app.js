@@ -418,8 +418,7 @@ var AppComponent = React.createClass({
           showingWelcomeTitle={this.state.showingWelcomeTitle}
           showingWelcomeSetup={this.state.showingWelcomeSetup}
           onHideWelcomeSetup={this.handleHideWelcomeSetup}
-          trackMetric={trackMetric}
-          onRemovePatient={this.handleRemovePatient}/>
+          trackMetric={trackMetric} />
     );
   },
 
@@ -441,18 +440,6 @@ var AppComponent = React.createClass({
 
       GroupActions.fetch(patientId);
       cb();
-    });
-  },
-
-  handleRemovePatient: function(patientId,cb) {
-    var self = this;
-
-    api.access.leaveGroup(patientId, function(err) {
-      if(err) {
-        return self.handleApiError(err, 'Something went wrong while removing member from group.');
-      }
-
-      GroupActions.fetchAll();
     });
   },
 

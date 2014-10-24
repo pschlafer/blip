@@ -142,6 +142,16 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       self.emitChange();
       break;
 
+    case AppConstants.api.FAILED_LEAVE_GROUP:
+      self._state.error = {
+        key: AppConstants.api.FAILED_LEAVE_GROUP,
+        groupId: payload.groupId,
+        message: 'Something went wrong while trying to leave group ' + payload.groupId,
+        original: payload.error
+      };
+      self.emitChange();
+      break;
+
     case AppConstants.api.FAILED_GET_INVITATIONS_RECEIVED:
       self._state.error = {
         key: AppConstants.api.FAILED_GET_INVITATIONS_RECEIVED,

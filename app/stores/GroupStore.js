@@ -73,6 +73,10 @@ var GroupStore = merge(EventEmitter.prototype, {
 
   isCreating: function() {
     return Boolean(this._state.requests.creating);
+  },
+
+  isLeaving: function(groupId) {
+    return Boolean(utils.getIn(this._state.requests, [groupId, 'leaving']));
   }
 
 });
@@ -119,6 +123,22 @@ GroupStore.dispatchToken = AppDispatcher.register(function(payload) {
       self._state.requests[group.userid] = {fetching: false};
       self._state.permissionsByGroupId[group.userid] =
         _.cloneDeep(group.permissions);
+      self.emitChange();
+      break;
+
+    case AppConstants.api.STARTED_LEAVE_GROUP:
+      self._state.requests[payload.groupId] = {leaving: true};
+      self.emitChange();
+      break;
+
+    case AppConstants.api.FAILED_LEAVE_GROUP:
+      self._state.requests[payload.groupId] = {leaving: false};
+      self.emitChange();
+      break;
+
+    case AppConstants.api.COMPLETED_LEAVE_GROUP:
+      self._state.requests[payload.groupId] = {leaving: false};
+      delete self._state.permissionsByGroupId[payload.groupId];
       self.emitChange();
       break;
 

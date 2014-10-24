@@ -36,7 +36,6 @@ var Patients = React.createClass({
     showingWelcomeSetup: React.PropTypes.bool,
     onHideWelcomeSetup: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired,
-    onRemovePatient: React.PropTypes.func,
     uploadUrl: React.PropTypes.string
   },
 
@@ -223,8 +222,7 @@ var Patients = React.createClass({
             people={patients}
             isPatientList={true}
             uploadUrl={this.props.uploadUrl}
-            onClickPerson={this.handleClickPatient}
-            onRemovePatient= {this.props.onRemovePatient} />
+            onClickPerson={this.handleClickPatient} />
         </div>
       </div>
     );
