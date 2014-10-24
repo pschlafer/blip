@@ -74,6 +74,33 @@ var InvitationSentActions = {
         invitation: invitation
       });
     });
+  },
+
+  cancel: function(email) {
+    var groupId = AuthStore.getLoggedInUserId();
+
+    AppDispatcher.dispatch({
+      type: AppConstants.api.STARTED_CANCEL_INVITATION,
+      groupId: groupId,
+      email: email
+    });
+
+    api.invitation.cancel(email, function(err) {
+      if (err) {
+        return AppDispatcher.dispatch({
+          type: AppConstants.api.FAILED_CANCEL_INVITATION,
+          groupId: groupId,
+          email: email,
+          error: err
+        });
+      }
+
+      AppDispatcher.dispatch({
+        type: AppConstants.api.COMPLETED_CANCEL_INVITATION,
+        groupId: groupId,
+        email: email
+      });
+    });
   }
 
 };

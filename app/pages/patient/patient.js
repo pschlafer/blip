@@ -29,7 +29,6 @@ var Patient = React.createClass({
     patientId: React.PropTypes.string,
     onChangeMemberPermissions: React.PropTypes.func,
     onRemoveMember: React.PropTypes.func,
-    onCancelInvite: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired
   },
 
@@ -205,8 +204,7 @@ var Patient = React.createClass({
         <PatientTeam
           patientId={this.props.patientId}
           onChangeMemberPermissions={this.props.onChangeMemberPermissions}
-          onRemoveMember={this.props.onRemoveMember}
-          onCancelInvite={this.props.onCancelInvite} />
+          onRemoveMember={this.props.onRemoveMember} />
       </div>
     );
   }

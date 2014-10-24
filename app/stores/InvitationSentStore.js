@@ -63,6 +63,10 @@ var InvitationSentStore = merge(EventEmitter.prototype, {
 
   getSendError: function() {
     return _.cloneDeep(this._state.requests.sendError);
+  },
+
+  isCanceling: function() {
+    return Boolean(this._state.requests.canceling);
   }
 
 });
@@ -110,6 +114,26 @@ InvitationSentStore.dispatchToken = AppDispatcher.register(function(payload) {
         (self._state.invitationsByGroupId[payload.groupId] || []).concat(
           _.cloneDeep(payload.invitation)
         );
+      self.emitChange();
+      break;
+
+    case AppConstants.api.STARTED_CANCEL_INVITATION:
+      self._state.requests.canceling = true;
+      self.emitChange();
+      break;
+
+    case AppConstants.api.FAILED_CANCEL_INVITATION:
+      self._state.requests.canceling = false;
+      self.emitChange();
+      break;
+
+    case AppConstants.api.COMPLETED_CANCEL_INVITATION:
+      self._state.requests.canceling = false;
+      self._state.invitationsByGroupId[payload.groupId] =
+        _.reject(self._state.invitationsByGroupId[payload.groupId],
+        function(invitation) {
+          return invitation.email === payload.email;
+        });
       self.emitChange();
       break;
 

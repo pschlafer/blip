@@ -255,6 +255,17 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       self.emitChange();
       break;
 
+    case AppConstants.api.FAILED_CANCEL_INVITATION:
+      self._state.error = {
+        key: AppConstants.api.FAILED_CANCEL_INVITATION,
+        groupId: payload.groupId,
+        email: payload.email,
+        message: 'Something went wrong while trying to cancel invitation to ' + payload.email,
+        original: payload.error
+      };
+      self.emitChange();
+      break;
+
     case AppConstants.api.COMPLETED_LOGOUT:
       self.reset();
       self.emitChange();

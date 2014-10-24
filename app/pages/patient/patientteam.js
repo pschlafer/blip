@@ -287,18 +287,11 @@ var ChangePermissionsForm = React.createClass({
 var ConfirmDialog = React.createClass({
   propTypes: {
     message: React.PropTypes.renderable,
-    buttonText: React.PropTypes.string,
+    submitText: React.PropTypes.string,
     dismissText: React.PropTypes.string,
-    buttonTextWorking: React.PropTypes.string,
+    working: React.PropTypes.bool,
     onSubmit: React.PropTypes.func,
     onCancel: React.PropTypes.func
-  },
-
-  getInitialState: function() {
-    return {
-      working: false,
-      error: null
-    };
   },
 
   render: function() {
@@ -310,14 +303,13 @@ var ConfirmDialog = React.createClass({
         <div className="ModalOverlay-controls">
           <button className="PatientInfo-button PatientInfo-button--secondary" type="button"
             onClick={this.props.onCancel}
-            disabled={this.state.working}>{this.props.dismissText || 'Cancel'}</button>
+            disabled={this.props.working}>{this.props.dismissText || 'Cancel'}</button>
           <button className="PatientInfo-button PatientInfo-button--primary" type="submit"
             onClick={this.handleSubmit}
-            disabled={this.state.working}>
-            {this.state.working ? this.props.buttonTextWorking : this.props.buttonText}
+            disabled={this.props.working}>
+            {this.props.submitText}
           </button>
         </div>
-        <div className="PatientTeam-validationError">{this.state.error}</div>
       </div>
     );
   },
@@ -326,22 +318,59 @@ var ConfirmDialog = React.createClass({
     if (e) {
       e.preventDefault();
     }
+    this.props.onSubmit();
+  }
+});
 
-    this.setState({
-      working: true,
-      error: null
-    });
-    var self = this;
-    this.props.onSubmit(function(err) {
-      if (err) {
-        self.setState({
-          working: false,
-          error: 'Sorry! Something went wrong...'
-        });
-        return;
-      }
-      self.setState({working: false});
-    });
+var CancelInvitationDialog = React.createClass({
+  propTypes: {
+    invitation: React.PropTypes.object,
+    onInvitationCanceled: React.PropTypes.func,
+    onCancel: React.PropTypes.func
+  },
+
+  getInitialState: function() {
+    return {
+      working: false
+    };
+  },
+
+  getStateFromStores: function() {
+    return {
+      working: InvitationSentStore.isCanceling(),
+    };
+  },
+
+  componentDidMount: function() {
+    InvitationSentStore.addChangeListener(this.handleStoreChange);
+  },
+
+  componentWillUnmount: function() {
+    InvitationSentStore.removeChangeListener(this.handleStoreChange);
+  },
+
+  componentDidUpdate: function(prevProps, prevState) {
+    if (prevState.working && !this.state.working) {
+      this.props.onInvitationCanceled();
+    }
+  },
+
+  handleStoreChange: function() {
+    this.setState(this.getStateFromStores());
+  },
+
+  render: function() {
+    return <ConfirmDialog
+      message={'Are you sure you want to cancel your invitation to ' + this.props.invitation.email + '?'}
+      submitText={this.state.working ? 'Canceling invitation...' : 'Yes'}
+      dismissText={'No'}
+      working={this.state.working}
+      onSubmit={this.handleSubmit}
+      onCancel={this.props.onCancel} />;
+  },
+
+  handleSubmit: function() {
+    InvitationSentActions.cancel(this.props.invitation.email);
   }
 });
 
@@ -349,8 +378,7 @@ var PatientTeam = React.createClass({
   propTypes: {
     patientId: React.PropTypes.string,
     onChangeMemberPermissions: React.PropTypes.func,
-    onRemoveMember: React.PropTypes.func,
-    onCancelInvite: React.PropTypes.func
+    onRemoveMember: React.PropTypes.func
   },
 
   getInitialState: function() {
@@ -506,29 +534,11 @@ var PatientTeam = React.createClass({
   },
 
   renderCancelInviteDialog: function(invite) {
-    var self = this;
-
-    var handleCancel = this.overlayClickHandler;
-    var handleSubmit = function(cb) {
-      self.props.onCancelInvite(invite.email, function(err) {
-        if (err) {
-          return cb(err);
-        }
-        cb();
-        self.setState({
-          showModalOverlay: false,
-        });
-      });
-    };
-
     return (
-      <ConfirmDialog
-        message={'Are you sure you want to cancel your invitation to ' + invite.email + '?'}
-        buttonText={'Yes'}
-        dismissText={'No'}
-        buttonTextWorking={'Canceling invitation...'}
-        onSubmit={handleSubmit}
-        onCancel={handleCancel} />
+      <CancelInvitationDialog
+        invitation={invite}
+        onInvitationCanceled={this.overlayClickHandler}
+        onCancel={this.overlayClickHandler} />
     );
   },
 

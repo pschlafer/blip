@@ -457,23 +457,6 @@ var AppComponent = React.createClass({
     });
   },
 
-  handleCancelInvite: function(email, cb) {
-    var self = this;
-
-    api.invitation.cancel(email, function(err) {
-      if(err) {
-        if (cb) {
-          cb(err);
-        }
-        return self.handleApiError(err, 'Something went wrong while canceling the invitation.');
-      }
-
-      if (cb) {
-        cb();
-      }
-      InvitationSentActions.fetchForGroup(self.state.user.userid);
-    });
-  },
   showPatient: function(patientId) {
     this.renderPage = this.renderPatient;
     this.patientId = patientId;
@@ -498,7 +481,6 @@ var AppComponent = React.createClass({
         patientId={this.patientId}
         onChangeMemberPermissions={this.handleChangeMemberPermissions}
         onRemoveMember={this.handleRemoveMember}
-        onCancelInvite={this.handleCancelInvite}
         trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */
