@@ -16,12 +16,20 @@
 var AppDispatcher = require('../AppDispatcher');
 var AppConstants = require('../AppConstants');
 
-var RequestActions = {
+var AppActions = {
 
-  dismissError: function() {
-    AppDispatcher.dispatch({type: AppConstants.ui.DISMISSED_REQUEST_ERROR});
+  dismissBrowserWarning: function() {
+    AppDispatcher.dispatch({type: AppConstants.ui.DISMISSED_BROWSER_WARNING});
+  },
+
+  acceptTerms: function() {
+    AppDispatcher.dispatch({type: AppConstants.ui.ACCEPTED_TERMS});
+  },
+
+  hideWelcomeSetup: function() {
+    AppDispatcher.dispatch({type: AppConstants.ui.HID_WELCOME_SETUP});
   }
 
 };
 
-module.exports = RequestActions;
+module.exports = AppActions;

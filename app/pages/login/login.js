@@ -16,27 +16,28 @@
 
 var React = require('react');
 var _ = require('lodash');
+var Router = require('react-router');
+var Navigation = Router.Navigation;
 
-var config = require('../../config');
+var utils = require('../../core/utils');
 
 var LoginNav = require('../../components/loginnav');
 var LoginLogo = require('../../components/loginlogo');
 var SimpleForm = require('../../components/simpleform');
 var MailTo = require('../../components/mailto');
 
+var UnauthenticatedRoute = require('../../core/UnauthenticatedRoute');
+
 var AuthActions = require('../../actions/AuthActions');
 var AuthStore = require('../../stores/AuthStore');
 var LogActions = require('../../actions/LogActions');
 
 var Login = React.createClass({
-  propTypes: {
-    inviteEmail: React.PropTypes.string,
-    onLoginSuccess: React.PropTypes.func.isRequired
-  },
+  mixins: [UnauthenticatedRoute, Navigation],
 
   formInputs: function() {
     return [
-      {name: 'username', label: 'Email', type: 'email', disabled: !!this.props.inviteEmail},
+      {name: 'username', label: 'Email', type: 'email', disabled: !!this.state.inviteEmail},
       {name: 'password', label: 'Password', type: 'password'},
       {name: 'remember', label: 'Remember me', type: 'checkbox'}
     ];
@@ -45,15 +46,27 @@ var Login = React.createClass({
   getInitialState: function() {
     var formValues = {};
 
-    if (this.props.inviteEmail) {
-      formValues.username = this.props.inviteEmail;
+    var inviteEmail = this.getInviteEmail();
+    if (inviteEmail) {
+      formValues.username = inviteEmail;
     }
 
     return _.assign({
       formValues: formValues,
       validationErrors: {},
-      notification: null
+      notification: null,
+      inviteEmail: inviteEmail,
     }, this.getInitialStateFromStores());
+  },
+
+  getInviteEmail: function() {
+    var inviteEmail = this.props.query.inviteEmail;
+    if (inviteEmail && utils.validateEmail(inviteEmail)) {
+      return inviteEmail;
+    }
+    else {
+      return null;
+    }
   },
 
   getInitialStateFromStores: function() {
@@ -91,10 +104,18 @@ var Login = React.createClass({
   },
 
   handleStoreChange: function() {
+    if (!this.isMounted()) {
+      return;
+    }
     if (AuthStore.isAuthenticated()) {
-      return this.props.onLoginSuccess();
+      return this.handleLoginSuccess();
     }
     this.setState(this.getStateFromStores());
+  },
+
+  handleLoginSuccess: function() {
+    this.transitionTo('/patients');
+    LogActions.trackMetric('Logged In');
   },
 
   render: function() {
@@ -107,7 +128,7 @@ var Login = React.createClass({
       <div className="login">
         <LoginNav
           page="login"
-          inviteEmail={this.props.inviteEmail} />
+          inviteEmail={this.state.inviteEmail} />
         <LoginLogo />
         {inviteIntro}
         <div className="container-small-outer login-form">
@@ -122,7 +143,7 @@ var Login = React.createClass({
   },
 
   renderInviteIntroduction: function() {
-    if (!this.props.inviteEmail) {
+    if (!this.state.inviteEmail) {
       return null;
     }
 

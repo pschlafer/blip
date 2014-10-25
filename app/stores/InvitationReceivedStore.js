@@ -120,7 +120,6 @@ InvitationReceivedStore.dispatchToken = AppDispatcher.register(function(payload)
 
     case AppConstants.api.COMPLETED_LOGOUT:
       self.reset();
-      self.emitChange();
       break;
 
     default:

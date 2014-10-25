@@ -13,15 +13,17 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var AppDispatcher = require('../AppDispatcher');
-var AppConstants = require('../AppConstants');
+var AuthStore = require('../stores/AuthStore');
 
-var RequestActions = {
-
-  dismissError: function() {
-    AppDispatcher.dispatch({type: AppConstants.ui.DISMISSED_REQUEST_ERROR});
+// React router mixing
+var AuthenticatedRoute = {
+  statics: {
+    willTransitionTo: function (transition) {
+      if (!AuthStore.isAuthenticated()) {
+        transition.redirect('/login');
+      }
+    }
   }
-
 };
 
-module.exports = RequestActions;
+module.exports = AuthenticatedRoute;

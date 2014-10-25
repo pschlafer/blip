@@ -19,9 +19,14 @@ var React = require('react');
 var bows = require('bows');
 var _ = require('lodash');
 var async = require('async');
+var Router = require('react-router');
+var Route = Router.Route;
+var Routes = Router.Routes;
+var Redirect = Router.Redirect;
+var Navigation = Router.Navigation;
+var ActiveState = Router.ActiveState;
 
 var config = require('./config');
-var router = require('./router');
 var api = require('./core/api');
 var personUtils = require('./core/personutils');
 var queryString = require('./core/querystring');
@@ -31,7 +36,7 @@ var utils = require('./core/utils');
 var Navbar = require('./components/navbar');
 var LogoutOverlay = require('./components/logoutoverlay');
 var BrowserWarningOverlay = require('./components/browserwarningoverlay');
-var Notification = require('./components/notification');
+var ApiError = require('./components/apierror');
 var TermsOverlay = require('./components/termsoverlay');
 var MailTo = require('./components/mailto');
 
@@ -39,11 +44,11 @@ var Login = require('./pages/login');
 var Signup = require('./pages/signup');
 var Profile = require('./pages/profile');
 var Patients = require('./pages/patients');
-var Patient = require('./pages/patient');
-
 var PatientEdit = require('./pages/patientedit');
+var Patient = require('./pages/patient');
 var PatientData = require('./pages/patientdata');
 
+var AppActions = window.AppActions = require('./actions/AppActions');
 var AuthActions = window.AuthActions = require('./actions/AuthActions');
 var GroupActions = window.GroupActions = require('./actions/GroupActions');
 var HealthDataActions = window.HealthDataActions = require('./actions/HealthDataActions');
@@ -54,6 +59,7 @@ var MemberActions = window.MemberActions = require('./actions/MemberActions');
 var MessageThreadActions = window.MessageThreadActions = require('./actions/MessageThreadActions');
 var RequestActions = window.RequestActions = require('./actions/RequestActions');
 
+var AppStore = window.AppStore = require('./stores/AppStore');
 var AuthStore = window.AuthStore = require('./stores/AuthStore');
 var GroupStore = window.GroupStore = require('./stores/GroupStore');
 var InvitationReceivedStore = window.InvitationReceivedStore = require('./stores/InvitationReceivedStore');
@@ -72,96 +78,33 @@ require('./style.less');
 // For React developer tools
 window.React = React;
 
-var DEBUG = window.localStorage && window.localStorage.debug;
+var App = React.createClass({
+  mixins: [Navigation, ActiveState],
 
-var app = {
-  log: bows('App'),
-  api: api,
-  personUtils: personUtils,
-  router: router
-};
-
-var routes = {
-  '/': 'redirectToDefaultRoute',
-  '/login': 'showLogin',
-  '/signup': 'showSignup',
-  '/profile': 'showProfile',
-  '/patients': 'showPatients',
-  '/patients/new': 'showPatientNew',
-  '/patients/:id': 'showPatient',
-  '/patients/:id/data': 'showPatientData'
-};
-
-var noAuthRoutes = ['/login', '/signup'];
-
-var defaultNotAuthenticatedRoute = '/login';
-var defaultAuthenticatedRoute = '/patients';
-
-// Shallow difference of two objects
-// Returns all attributes and their values in `destination`
-// that have different values from `source`
-function objectDifference(destination, source) {
-  var result = {};
-
-  _.forEach(source, function(sourceValue, key) {
-    var destinactionValue = destination[key];
-    if (!_.isEqual(sourceValue, destinactionValue)) {
-      result[key] = destinactionValue;
-    }
-  });
-
-  return result;
-}
-
-var AppComponent = React.createClass({
   getInitialState: function() {
-    return _.assign({
-      notification: null,
-      page: null,
-      fetchingMessageData: true,
-      showingAcceptTerms: false,
-      showingWelcomeTitle: false,
-      showingWelcomeSetup: false,
-      dismissedBrowserWarning: false,
-      queryParams: queryString.parseTypes(window.location.search)
-    }, this.getStateFromStores());
+    return this.getStateFromStores();
   },
 
-  // This is a React anti-pattern, but it is used like `this.renderPage`,
-  // to be removed when we switch to `react-router`
-  patientId: null,
-
   getStateFromStores: function() {
-    return {
+    return _.assign(AppStore.getState(), {
       authenticated: AuthStore.isAuthenticated(),
-      user: AuthStore.getLoggedInUser(),
-      loggingOut: AuthStore.isLoggingOut(),
-      patient: this.patientId ? GroupStore.get(this.patientId) : null,
-      fetchingPatient: this.patientId ? GroupStore.isFetching(this.patientId) : true
-    };
+      loggingOut: AuthStore.isLoggingOut()
+    });
   },
 
   componentDidMount: function() {
-    RequestStore.addChangeListener(this.handleStoreChange);
+    AppStore.addChangeListener(this.handleStoreChange);
     AuthStore.addChangeListener(this.handleStoreChange);
-    GroupStore.addChangeListener(this.handleStoreChange);
-    this.setupAndStartRouter();
   },
 
   componentWillUnmount: function() {
-    RequestStore.removeChangeListener(this.handleStoreChange);
+    AppStore.removeChangeListener(this.handleStoreChange);
     AuthStore.removeChangeListener(this.handleStoreChange);
-    GroupStore.removeChangeListener(this.handleStoreChange);
   },
 
   handleStoreChange: function() {
-    var requestError = RequestStore.getError();
-    if (requestError) {
-      this.handleApiError(requestError.original, requestError.message);
-    }
-
     var isLogoutSuccessfull = (
-      this.state.loggingOut && !AuthStore.isLoggingOut() && !requestError
+      this.state.loggingOut && !AuthStore.isLoggingOut()
     );
     if (isLogoutSuccessfull) {
       this.handleLogoutSuccess();
@@ -170,85 +113,40 @@ var AppComponent = React.createClass({
     this.setState(this.getStateFromStores());
   },
 
-  setupAndStartRouter: function() {
-    var self = this;
-
-    var routingTable = {};
-    _.forEach(routes, function(handlerName, route) {
-      routingTable[route] = self[handlerName];
-    });
-
-    var isAuthenticated = function() {
-      return self.state.authenticated;
-    };
-
-    // Currently no-op
-    var onRouteChange = function() {};
-
-    app.router.setup(routingTable, {
-      isAuthenticated: isAuthenticated,
-      noAuthRoutes: noAuthRoutes,
-      defaultNotAuthenticatedRoute: defaultNotAuthenticatedRoute,
-      defaultAuthenticatedRoute: defaultAuthenticatedRoute,
-      onRouteChange: onRouteChange
-    });
-    app.router.start();
-  },
-
-  componentWillUpdate: function(nextProps, nextState) {
-    // Called on props or state changes
-    // Since app main component has no props,
-    // this will be called on a state change
-    if (DEBUG) {
-      var stateDiff = objectDifference(nextState, this.state);
-      app.log('State changed', stateDiff);
-    }
-  },
-
   render: function() {
     var overlay = this.renderOverlay();
     var navbar = this.renderNavbar();
-    var notification = this.renderNotification();
-    var page = this.renderPage();
     var footer = this.renderFooter();
 
-    /* jshint ignore:start */
     return (
       <div className="app">
         {overlay}
+        <ApiError />
         {navbar}
-        {notification}
-        {page}
+        <this.props.activeRouteHandler />
         {footer}
       </div>
     );
-    /* jshint ignore:end */
   },
 
   renderOverlay: function() {
     if (this.state.loggingOut) {
-      /* jshint ignore:start */
       return (
         <LogoutOverlay ref="logoutOverlay" />
       );
-      /* jshint ignore:end */
     }
 
     if (!utils.isChrome() && !this.state.dismissedBrowserWarning) {
-      /* jshint ignore:start */
       return (
-        <BrowserWarningOverlay onSubmit={this.handleAcceptedBrowserWarning} />
+        <BrowserWarningOverlay onSubmit={this.handleDismissBrowserWarning} />
       );
-      /* jshint ignore:end */
     }
 
     if (this.state.showingAcceptTerms) {
-      /* jshint ignore:start */
       return (
         <TermsOverlay
-          onSubmit={this.handleAcceptedTerms} />
+          onSubmit={this.handleAcceptTerms} />
       );
-      /* jshint ignore:end */
     }
 
     return null;
@@ -256,68 +154,21 @@ var AppComponent = React.createClass({
 
   renderNavbar: function() {
     if (this.state.authenticated) {
-      var patientId;
-      var getUploadUrl;
-
-      if (this.isPatientVisibleInNavbar()) {
-        patientId = this.patientId;
-        getUploadUrl = app.api.getUploadUrl.bind(app.api);
-      }
-
       return (
-        /* jshint ignore:start */
         <div className="App-navbar">
           <Navbar
             version={config.VERSION}
-            patientId={patientId}
-            currentPage={this.state.page}
-            getUploadUrl={getUploadUrl} />
+            patientId={this.getActiveParams().patientId}
+            getUploadUrl={api.getUploadUrl.bind(api)} />
         </div>
-        /* jshint ignore:end */
       );
     }
 
     return null;
-  },
-
-  isPatientVisibleInNavbar: function() {
-    // Only show patient name in navbar on certain pages
-    var page = this.state.page;
-    var result = page && page.match(/^patients\//);
-    return Boolean(result);
-  },
-
-  renderNotification: function() {
-    var notification = this.state.notification;
-    var handleClose;
-
-    if (notification) {
-      if (notification.isDismissable) {
-        handleClose = this.closeNotification;
-      }
-
-      return (
-        /* jshint ignore:start */
-        <Notification
-          type={notification.type}
-          onClose={handleClose}>
-          {notification.body}
-        </Notification>
-        /* jshint ignore:end */
-      );
-    }
-
-    return null;
-  },
-
-  logSupportContact: function(){
-    LogActions.trackMetric('Clicked Give Feedback');
   },
 
   renderFooter: function() {
-    // just the feedbak link at this stage
     return (
-      /* jshint ignore:start */
       <div className='container-small-outer footer'>
         <div className='container-small-inner'>
           <MailTo
@@ -327,331 +178,51 @@ var AppComponent = React.createClass({
             onLinkClicked={this.logSupportContact} />
         </div>
       </div>
-      /* jshint ignore:end */
     );
   },
 
-  // Override on route change
-  renderPage: function() {
-    return null;
+  logSupportContact: function(){
+    LogActions.trackMetric('Clicked Give Feedback');
   },
 
-  redirectToDefaultRoute: function() {
-    app.router.setRoute(defaultAuthenticatedRoute);
+  handleAcceptTerms: function() {
+    AppActions.acceptTerms();
   },
 
-  showLogin: function() {
-    this.renderPage = this.renderLogin;
-    this.setState({page: 'login'});
-  },
-
-  renderLogin: function() {
-    return (
-      /* jshint ignore:start */
-      <Login
-        inviteEmail={this.getInviteEmail()}
-        onLoginSuccess={this.handleLoginSuccess} />
-      /* jshint ignore:end */
-    );
-  },
-
-  getInviteEmail: function() {
-    var hashQueryParams = app.router.getQueryParams();
-    var inviteEmail = hashQueryParams.inviteEmail;
-    if (inviteEmail && utils.validateEmail(inviteEmail)) {
-      return inviteEmail;
-    }
-    else {
-      return null;
-    }
-  },
-
-  showSignup: function() {
-    this.renderPage = this.renderSignup;
-    this.setState({page: 'signup'});
-  },
-
-  renderSignup: function() {
-    return (
-      /* jshint ignore:start */
-      <Signup
-        inviteEmail={this.getInviteEmail()}
-        onSignupSuccess={this.handleSignupSuccess} />
-      /* jshint ignore:end */
-    );
-  },
-
-  showProfile: function() {
-    this.renderPage = this.renderProfile;
-    this.setState({page: 'profile'});
-    LogActions.trackMetric('Viewed Account Edit');
-  },
-
-  renderProfile: function() {
-    return (
-      <Profile />
-    );
-  },
-
-  showPatients: function() {
-    this.renderPage = this.renderPatients;
-    this.setState({page: 'patients'});
-    // NOTE: need this to not cause "dispatch while dispatch under way" error
-    // should go away when we switch to `react-router`
-    _.defer(GroupActions.fetchAll);
-    _.defer(InvitationReceivedActions.fetchAll);
-    LogActions.trackMetric('Viewed Care Team List');
-  },
-
-  renderPatients: function() {
-    return (
-      <Patients
-          uploadUrl={app.api.getUploadUrl()}
-          showingWelcomeTitle={this.state.showingWelcomeTitle}
-          showingWelcomeSetup={this.state.showingWelcomeSetup}
-          onHideWelcomeSetup={this.handleHideWelcomeSetup} />
-    );
-  },
-
-  handleHideWelcomeSetup: function(options) {
-    if (options && options.route) {
-      app.router.setRoute(options.route);
-    }
-    this.setState({showingWelcomeSetup: false});
-  },
-
-  showPatient: function(patientId) {
-    this.renderPage = this.renderPatient;
-    this.patientId = patientId;
-    this.setState({
-      page: 'patients/' + patientId,
-      // Reset patient object to avoid showing previous one
-      patient: null,
-      // Indicate renderPatient() that we are fetching the patient
-      // (important to have this on next render)
-      fetchingPatient: true
-    });
-    _.defer(GroupActions.fetch.bind(GroupActions, this.patientId));
-    _.defer(InvitationSentActions.fetchForGroup.bind(InvitationSentActions,
-        this.state.user.userid));
-    LogActions.trackMetric('Viewed Profile');
-  },
-
-  renderPatient: function() {
-    return (
-      <Patient patientId={this.patientId} />
-    );
-  },
-
-  showPatientNew: function() {
-    this.renderPage = this.renderPatientNew;
-    this.setState({
-      page: 'patients/new',
-      patient: null,
-      fetchingPatient: false
-    });
-    LogActions.trackMetric('Viewed Profile Create');
-  },
-
-  renderPatientNew: function() {
-    return (
-      <PatientEdit
-          isNewPatient={true}
-          onPatientCreationSuccess={this.handlePatientCreationSuccess} />
-    );
-  },
-
-  showPatientData: function(patientId) {
-    this.renderPage = this.renderPatientData;
-    this.patientId = patientId;
-    this.setState({
-      page: 'patients/' + patientId + '/data',
-      patient: null,
-      fetchingPatient: true,
-      patientData: null,
-      fetchingPatientData: true
-    });
-
-    var self = this;
-    _.defer(GroupActions.fetch.bind(GroupActions, this.patientId));
-    _.defer(HealthDataActions.fetchForGroup.bind(HealthDataActions, this.patientId));
-
-    LogActions.trackMetric('Viewed Data');
-  },
-
-  renderPatientData: function() {
-    return (
-      <PatientData
-        patientId={this.patientId}
-        queryParams={this.state.queryParams}
-        uploadUrl={app.api.getUploadUrl()}
-        onRefresh={this.fetchCurrentPatientData} />
-    );
-  },
-
-  handleLoginSuccess: function() {
-    this.redirectToDefaultRoute();
-    LogActions.trackMetric('Logged In');
-  },
-
-  handleSignupSuccess: function(user) {
-    this.setState({
-      showingAcceptTerms: config.SHOW_ACCEPT_TERMS ? true : false,
-      showingWelcomeTitle: true,
-      showingWelcomeSetup: true
-    });
-    this.redirectToDefaultRoute();
-    LogActions.trackMetric('Signed Up');
-  },
-
-  handleAcceptedTerms: function() {
-    this.setState({
-      showingAcceptTerms: false
-    });
-  },
-
-  handleAcceptedBrowserWarning: function() {
-    this.setState({
-      dismissedBrowserWarning: true
-    });
+  handleDismissBrowserWarning: function() {
+    AppActions.dismissBrowserWarning();
   },
 
   handleLogoutSuccess: function() {
-    // Nasty race condition between React state change and router it seems,
-    // need to call `showLogin()` to make sure we don't try to render something
-    // else, although it will get called again after router changes route, but
-    // that's ok
-    this.showLogin();
-    this.clearUserData();
-    this.setState({dismissedBrowserWarning: false});
-    router.setRoute('/login');
-  },
-
-  closeNotification: function() {
-    RequestActions.dismissError();
-    this.setState({notification: null});
-  },
-
-  fetchCurrentPatientData: function() {
-    if (!this.patientId) {
-      return;
-    }
-
-    HealthDataActions.fetchForGroup(this.patientId);
-  },
-
-  clearUserData: function() {
-    this.setState({
-      patient: null,
-      patientData: null
-    });
-  },
-
-  handlePatientCreationSuccess: function(patient) {
-    LogActions.trackMetric('Created Profile');
-    var route = '/patients/' + patient.userid + '/data';
-    app.router.setRoute(route);
-  },
-
-  handleApiError: function(error, message) {
-    if (message) {
-      app.log(message);
-    }
-
-    var self = this;
-    var status = error.status;
-    var originalErrorMessage = [
-      message, this.stringifyApiError(error)
-    ].join(' ');
-
-    var type = 'error';
-    var body;
-    /* jshint ignore:start */
-    body = (
-      <p>
-        {'Sorry! Something went wrong. '}
-        {'It\'s our fault, not yours. We\'re going to go investigate. '}
-        {'For the time being, go ahead and '}
-        <a href="/">refresh your browser</a>
-        {'.'}
-      </p>
-    );
-    /* jshint ignore:end */
-    var isDismissable = true;
-
-    if (status === 401) {
-      var handleLogBackIn = function(e) {
-        e.preventDefault();
-        self.setState({notification: null});
-        // We don't actually go through logout process,
-        // so safer to manually destroy local session
-        app.api.user.destroySession();
-        self.handleLogoutSuccess();
-      };
-
-      type = 'alert';
-      originalErrorMessage = null;
-      /* jshint ignore:start */
-      body = (
-        <p>
-          {'To keep your data safe we logged you out. '}
-          <a
-            href=""
-            onClick={handleLogBackIn}>Click here to log back in</a>
-          {'.'}
-        </p>
-      );
-      /* jshint ignore:end */
-      isDismissable = false;
-    }
-
-    //Check that this isn't a 401 where error message adds no context
-    if (!_.isEmpty(originalErrorMessage) && status !== 401) {
-      /* jshint ignore:start */
-      body = (
-        <div>
-          {body}
-          <p className="notification-body-small">
-            <code>{'Original error message: ' + originalErrorMessage}</code>
-          </p>
-        </div>
-      );
-      /* jshint ignore:end */
-    }
-
-    // Send error to backend tracking
-    LogActions.logError(this.stringifyApiError(error), message);
-
-    this.setState({
-      notification: {
-        type: type,
-        body: body,
-        isDismissable: isDismissable
-      }
-    });
-  },
-
-  stringifyApiError: function(error) {
-    if (_.isPlainObject(error)) {
-      return JSON.stringify(error);
-    }
-    else {
-      return error.toString();
-    }
+    this.transitionTo('/login');
   }
 });
+
+var routes = (
+  <Routes>
+    <Route name="app" path="/" handler={App}>
+      <Route name="login" handler={Login}/>
+      <Route name="signup" handler={Signup}/>
+      <Route name="profile" handler={Profile}/>
+      <Route name="patients" handler={Patients}/>
+      <Route name="patient-new" path="patients/new" handler={PatientEdit}/>
+      <Route name="patient-view" path="patients/:patientId" handler={Patient}/>
+      <Route name="patient-data" path="patients/:patientId/data" handler={PatientData}/>
+      <Redirect from="/" to="/patients"/>
+    </Route>
+  </Routes>
+);
+
+var app = {
+  log: bows('App'),
+  api: api
+};
 
 app.start = function() {
   var self = this;
 
   this.init(function() {
-    self.component = React.renderComponent(
-      /* jshint ignore:start */
-      <AppComponent />,
-      /* jshint ignore:end */
-      document.getElementById('app')
-    );
-
+    React.renderComponent(routes, document.getElementById('app'));
     self.log('App started');
 
     if (self.mock) {
@@ -662,7 +233,7 @@ app.start = function() {
 
 app.useMock = function(mock) {
   this.mock = mock;
-  this.api = mock.patchApi(this.api);
+  api = mock.patchApi(api);
 };
 
 app.init = function(callback) {

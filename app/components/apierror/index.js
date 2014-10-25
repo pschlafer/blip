@@ -13,15 +13,4 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var AppDispatcher = require('../AppDispatcher');
-var AppConstants = require('../AppConstants');
-
-var RequestActions = {
-
-  dismissError: function() {
-    AppDispatcher.dispatch({type: AppConstants.ui.DISMISSED_REQUEST_ERROR});
-  }
-
-};
-
-module.exports = RequestActions;
+module.exports = require('./apierror');

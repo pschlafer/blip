@@ -53,7 +53,7 @@ var MemberStore = merge(EventEmitter.prototype, {
   getForGroup: function(groupId) {
     return _.map(this._state.membersByGroupId[groupId],
     function(permissions, memberId) {
-      var member = _.cloneDeep(UserStore.get(memberId));
+      var member = _.cloneDeep(UserStore.get(memberId)) || {};
       member.permissions = permissions;
       return member;
     });
@@ -135,7 +135,6 @@ MemberStore.dispatchToken = AppDispatcher.register(function(payload) {
 
     case AppConstants.api.COMPLETED_LOGOUT:
       self.reset();
-      self.emitChange();
       break;
 
     default:

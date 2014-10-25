@@ -56,7 +56,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
   var self = RequestStore;
   switch(payload.type) {
 
-    case AppConstants.request.DISMISSED_REQUEST_ERROR:
+    case AppConstants.ui.DISMISSED_REQUEST_ERROR:
       self._state.error = null;
       self.emitChange();
       break;
@@ -291,7 +291,6 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
 
     case AppConstants.api.COMPLETED_LOGOUT:
       self.reset();
-      self.emitChange();
       break;
 
     default:

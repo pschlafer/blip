@@ -121,6 +121,9 @@ var MemberInviteForm = React.createClass({
   },
 
   handleStoreChange: function() {
+    if (!this.isMounted()) {
+      return;
+    }
     this.setState(this.getStateFromStores());
   },
 
@@ -239,6 +242,9 @@ var ChangePermissionsForm = React.createClass({
   },
 
   handleStoreChange: function() {
+    if (!this.isMounted()) {
+      return;
+    }
     this.setState(this.getStateFromStores());
   },
 
@@ -366,6 +372,9 @@ var RemoveMemberDialog = React.createClass({
   },
 
   handleStoreChange: function() {
+    if (!this.isMounted()) {
+      return;
+    }
     this.setState(this.getStateFromStores());
   },
 
@@ -417,6 +426,9 @@ var CancelInvitationDialog = React.createClass({
   },
 
   handleStoreChange: function() {
+    if (!this.isMounted()) {
+      return;
+    }
     this.setState(this.getStateFromStores());
   },
 
@@ -478,6 +490,9 @@ var PatientTeam = React.createClass({
   },
 
   handleStoreChange: function() {
+    if (!this.isMounted()) {
+      return;
+    }
     this.setState(this.getStateFromStores());
   },
 

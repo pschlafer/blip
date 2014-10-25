@@ -16,6 +16,8 @@
 
 var React = require('react');
 var _ = require('lodash');
+var Router = require('react-router');
+var Navigation = Router.Navigation;
 
 var config = require('../../config');
 
@@ -24,14 +26,18 @@ var LoginNav = require('../../components/loginnav');
 var LoginLogo = require('../../components/loginlogo');
 var SimpleForm = require('../../components/simpleform');
 
+var UnauthenticatedRoute = require('../../core/UnauthenticatedRoute');
+
 var AuthActions = require('../../actions/AuthActions');
 var AuthStore = require('../../stores/AuthStore');
+var LogActions = require('../../actions/LogActions');
 
 var Signup = React.createClass({
   propTypes: {
-    onSignupSuccess: React.PropTypes.func.isRequired,
-    inviteEmail: React.PropTypes.string
+    onSignupSuccess: React.PropTypes.func.isRequired
   },
+
+  mixins: [UnauthenticatedRoute, Navigation],
 
   formInputs: function() {
     return [
@@ -41,7 +47,7 @@ var Signup = React.createClass({
         label: 'Email',
         type: 'email',
         placeholder: '',
-        disabled: !!this.props.inviteEmail
+        disabled: !!this.state.inviteEmail
       },
       {
         name: 'password',
@@ -61,15 +67,27 @@ var Signup = React.createClass({
   getInitialState: function() {
     var formValues = {};
 
-    if (this.props.inviteEmail) {
-      formValues.username = this.props.inviteEmail;
+    var inviteEmail = this.getInviteEmail();
+    if (inviteEmail) {
+      formValues.username = inviteEmail;
     }
 
     return _.assign({
       formValues: formValues,
       validationErrors: {},
-      notification: null
+      notification: null,
+      inviteEmail: inviteEmail,
     }, this.getInitialStateFromStores());
+  },
+
+  getInviteEmail: function() {
+    var inviteEmail = this.props.query.inviteEmail;
+    if (inviteEmail && utils.validateEmail(inviteEmail)) {
+      return inviteEmail;
+    }
+    else {
+      return null;
+    }
   },
 
   getInitialStateFromStores: function() {
@@ -107,10 +125,18 @@ var Signup = React.createClass({
   },
 
   handleStoreChange: function() {
+    if (!this.isMounted()) {
+      return;
+    }
     if (AuthStore.isAuthenticated()) {
-      return this.props.onSignupSuccess();
+      return this.handleSignupSuccess();
     }
     this.setState(this.getStateFromStores());
+  },
+
+  handleSignupSuccess: function() {
+    this.transitionTo('/patients');
+    LogActions.trackMetric('Signed Up');
   },
 
   render: function() {
@@ -122,7 +148,7 @@ var Signup = React.createClass({
       <div className="signup">
         <LoginNav
           page="signup"
-          inviteEmail={this.props.inviteEmail} />
+          inviteEmail={this.state.inviteEmail} />
         <LoginLogo />
         {inviteIntro}
         <div className="container-small-outer signup-form">
@@ -136,7 +162,7 @@ var Signup = React.createClass({
   },
 
   renderInviteIntroduction: function() {
-    if (!this.props.inviteEmail) {
+    if (!this.state.inviteEmail) {
       return null;
     }
 

@@ -17,6 +17,8 @@
 var React = require('react');
 var _ = require('lodash');
 var cx = require('react/lib/cx');
+var Router = require('react-router');
+var Link = Router.Link;
 
 var personUtils = require('../../core/personutils');
 
@@ -31,7 +33,6 @@ var logoSrc = require('./images/blip-logo-80x80.png');
 var Navbar = React.createClass({
   propTypes: {
     version: React.PropTypes.string,
-    currentPage: React.PropTypes.string,
     patientId: React.PropTypes.string,
     getUploadUrl: React.PropTypes.func
   },
@@ -40,10 +41,11 @@ var Navbar = React.createClass({
     return this.getStateFromStores();
   },
 
-  getStateFromStores: function() {
+  getStateFromStores: function(props) {
+    props = props || this.props;
     return {
       user: AuthStore.getLoggedInUser(),
-      patient: GroupStore.get(this.props.patientId)
+      patient: GroupStore.get(props.patientId)
     };
   },
 
@@ -58,12 +60,13 @@ var Navbar = React.createClass({
   },
 
   componentWillReceiveProps: function(nextProps) {
-    this.setState({
-      patient: GroupStore.get(nextProps.patientId)
-    });
+    this.setState(this.getStateFromStores(nextProps));
   },
 
   handleStoreChange: function() {
+    if (!this.isMounted()) {
+      return;
+    }
     this.setState(this.getStateFromStores());
   },
 
@@ -211,30 +214,31 @@ var Navbar = React.createClass({
       LogActions.trackMetric('Clicked Navbar CareTeam');
     };
 
-    var patientsClasses = cx({
-      'Navbar-button': true,
-      'Navbar-selected': this.props.currentPage && this.props.currentPage === 'patients'
-    });
-
-    var profileClasses = cx({
-      'Navbar-button': true,
-      'Navbar-button--withLeftLabelAndArrow': true,
-      'Navbar-selected': this.props.currentPage && this.props.currentPage === 'profile'
-    });
-
     return (
       <ul className="Navbar-menuSection" ref="user">
         <li className="Navbar-menuItem">
-          <a href="#/profile" title="Account" onClick={handleClickUser} className={profileClasses}>
+          <Link
+            to="profile"
+            title="Account"
+            onClick={handleClickUser}
+            className="Navbar-button Navbar-button--withLeftLabelAndArrow"
+            activeClassName="Navbar-selected">
             <div className="Navbar-label Navbar-label--left Navbar-label--withArrow">
               <span className="Navbar-loggedInAs">{'Logged in as '}</span>
               <span className="Navbar-userName" ref="userFullName">{displayName}</span>
             </div>
             <i className="Navbar-icon icon-profile"></i>
-          </a>
+          </Link>
         </li>
         <li className="Navbar-menuItem">
-          <a href="#/" title="Care Team" onClick={this.handleCareteam} className={patientsClasses} ref="careteam"><i className="Navbar-icon icon-careteam"></i></a>
+          <Link
+            to="patients"
+            title="Care Team"
+            onClick={this.handleCareteam}
+            className="Navbar-button"
+            activeClassName="Navbar-selected"
+            ref="careteam"><i className="Navbar-icon icon-careteam"></i>
+          </Link>
         </li>
         <li className="Navbar-menuItem">
           <a href="" title="Logout" onClick={this.handleLogout} className="Navbar-button" ref="logout"><i className="Navbar-icon icon-logout"></i></a>

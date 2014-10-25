@@ -23,6 +23,8 @@ var SimpleForm = require('../../components/simpleform');
 var PeopleList = require('../../components/peoplelist');
 var PersonCard = require('../../components/personcard');
 
+var AuthenticatedRoute = require('../../core/AuthenticatedRoute');
+
 var AuthActions = require('../../actions/AuthActions');
 var AuthStore = require('../../stores/AuthStore');
 var LogActions = require('../../actions/LogActions');
@@ -34,6 +36,8 @@ var Profile = React.createClass({
     {name: 'password', label: 'Password', type: 'password', placeholder: '******'},
     {name: 'passwordConfirm', label: 'Confirm password', type: 'password', placeholder: '******'}
   ],
+
+  mixins: [AuthenticatedRoute],
 
   MESSAGE_TIMEOUT: 2000,
 
@@ -52,6 +56,8 @@ var Profile = React.createClass({
 
   componentDidMount: function() {
     AuthStore.addChangeListener(this.handleStoreChange);
+
+    LogActions.trackMetric('Viewed Account Edit');
   },
 
   componentWillUnmount: function() {
@@ -60,6 +66,9 @@ var Profile = React.createClass({
   },
 
   handleStoreChange: function() {
+    if (!this.isMounted()) {
+      return;
+    }
     this.setState(this.getStateFromStores());
   },
 

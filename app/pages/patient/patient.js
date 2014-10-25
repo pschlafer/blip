@@ -22,13 +22,15 @@ var ModalOverlay = require('../../components/modaloverlay');
 var PatientInfo = require('./patientinfo');
 var PatientTeam = require('./patientteam');
 
+var AuthenticatedRoute = require('../../core/AuthenticatedRoute');
+
+var GroupActions = require('../../actions/GroupActions');
 var GroupStore = require('../../stores/GroupStore');
+var InvitationSentActions = require('../../actions/InvitationSentActions');
 var LogActions = require('../../actions/LogActions');
 
 var Patient = React.createClass({
-  propTypes: {
-    patientId: React.PropTypes.string
-  },
+  mixins: [AuthenticatedRoute],
 
   getInitialState: function() {
     return _.assign({
@@ -36,11 +38,17 @@ var Patient = React.createClass({
     }, this.getStateFromStores());
   },
 
-  getStateFromStores: function() {
+  getStateFromStores: function(props) {
+    props = props || this.props;
     return {
-      patient: GroupStore.get(this.props.patientId),
-      fetchingPatient: GroupStore.isFetching(this.props.patientId)
+      patient: GroupStore.get(this.props.params.patientId),
+      fetchingPatient: GroupStore.isFetching(this.props.params.patientId)
     };
+  },
+
+  componentWillMount: function() {
+    this.fetchData();
+    LogActions.trackMetric('Viewed Profile');
   },
 
   componentDidMount: function() {
@@ -52,13 +60,24 @@ var Patient = React.createClass({
   },
 
   componentWillReceiveProps: function(nextProps) {
-    this.setState({
-      patient: GroupStore.get(nextProps.patientId),
-      fetchingPatient: GroupStore.isFetching(nextProps.patientId)
+    this.setState(this.getStateFromStores(nextProps));
+    if (nextProps.patientId !== this.props.patientId) {
+      this.fetchData(nextProps);
+    }
+  },
+
+  fetchData: function(props) {
+    props = props || this.props;
+    _.defer(function() {
+      GroupActions.fetch(props.params.patientId);
+      InvitationSentActions.fetchForGroup(props.params.patientId);
     });
   },
 
   handleStoreChange: function() {
+    if (!this.isMounted()) {
+      return;
+    }
     this.setState(this.getStateFromStores());
   },
 
@@ -126,7 +145,7 @@ var Patient = React.createClass({
   renderTitle: function() {
     var text = 'Profile';
 
-    if (!this.state.fetchingPatient) {
+    if (!this.state.fetchingPatient && this.state.patient) {
       text = personUtils.patientFullName(this.state.patient) + '\'s Profile';
     }
 
@@ -136,7 +155,7 @@ var Patient = React.createClass({
   renderInfo: function() {
     return (
       <div className="PatientPage-infoSection">
-        <PatientInfo patientId={this.props.patientId} />
+        <PatientInfo patientId={this.props.params.patientId} />
       </div>
     );
   },
@@ -195,7 +214,7 @@ var Patient = React.createClass({
 
     return (
       <div className="PatientPage-teamSection">
-        <PatientTeam patientId={this.props.patientId} />
+        <PatientTeam patientId={this.props.params.patientId} />
       </div>
     );
   }

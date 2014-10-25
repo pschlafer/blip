@@ -17,7 +17,10 @@ var keyMirror = require('react/lib/keyMirror');
 
 var AppConstants = {
 
-  request: keyMirror({
+  ui: keyMirror({
+    DISMISSED_BROWSER_WARNING: null,
+    ACCEPTED_TERMS: null,
+    HID_WELCOME_SETUP: null,
     DISMISSED_REQUEST_ERROR: null
   }),
 

@@ -136,6 +136,13 @@ var AuthActions = {
         user: newUser
       });
     });
+  },
+
+  // Used to destroy local session without actually making a logout call
+  // Maybe deprecate this and support logging out with no token?
+  destroySession: function() {
+    AppDispatcher.dispatch({type: AppConstants.api.COMPLETED_LOGOUT});
+    api.user.destroySession();
   }
 
 };

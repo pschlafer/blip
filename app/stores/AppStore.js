@@ -18,20 +18,21 @@ var AppDispatcher = require('../AppDispatcher');
 var AppConstants = require('../AppConstants');
 var EventEmitter = require('events').EventEmitter;
 var merge = require('react/lib/merge');
-var utils = require('../core/utils');
-var nurseShark = require('tideline/plugins/nurseshark');
-var TidelineData = require('tideline/js/tidelinedata');
+var config = require('../config');
+var AuthStore = require('./AuthStore');
 
 var CHANGE_EVENT = 'change';
 
 var getInitialState = function() {
   return {
-    requests: {},
-    tidelineDataByGroupId: {}
+    showingAcceptTerms: false,
+    showingWelcomeTitle: false,
+    showingWelcomeSetup: false,
+    dismissedBrowserWarning: false
   };
 };
 
-var TidelineDataStore = merge(EventEmitter.prototype, {
+var AppStore = merge(EventEmitter.prototype, {
 
   _state: getInitialState(),
 
@@ -51,55 +52,50 @@ var TidelineDataStore = merge(EventEmitter.prototype, {
     this.removeListener(CHANGE_EVENT, callback);
   },
 
-  getForGroup: function(groupId) {
-    return this._state.tidelineDataByGroupId[groupId];
-  },
-
-  isFetchingForGroup: function(groupId) {
-    return Boolean(utils.getIn(this._state.requests, [groupId, 'fetching']));
-  },
-
-  _preprocessHealthData: function(healthData) {
-    if (!(healthData && healthData.length >= 0)) {
-      return null;
-    }
-
-    var res = nurseShark.processData(healthData);
-    var tidelineData = new TidelineData(res.processedData);
-
-    window.tidelineData = tidelineData;
-    window.downloadProcessedData = function() {
-      console.save(res.processedData);
-    };
-
-    return tidelineData;
+  getState: function() {
+    return _.cloneDeep(this._state);
   }
 
 });
 
-TidelineDataStore.dispatchToken = AppDispatcher.register(function(payload) {
-  var self = TidelineDataStore;
+AppStore.dispatchToken = AppDispatcher.register(function(payload) {
+  var self = AppStore;
   switch(payload.type) {
 
-    case AppConstants.api.STARTED_GET_HEALTH_DATA:
-      self._state.requests[payload.groupId] = {fetching: true};
+    case AppConstants.api.COMPLETED_SIGNUP:
+      self._state = _.assign(self._state, {
+        showingAcceptTerms: config.SHOW_ACCEPT_TERMS ? true : false,
+        showingWelcomeTitle: true,
+        showingWelcomeSetup: true
+      });
       self.emitChange();
       break;
 
-    case AppConstants.api.FAILED_GET_HEALTH_DATA:
-      self._state.requests[payload.groupId] = {fetching: false};
+    case AppConstants.ui.DISMISSED_BROWSER_WARNING:
+      self._state = _.assign(self._state, {
+        dismissedBrowserWarning: true
+      });
       self.emitChange();
       break;
 
-    case AppConstants.api.COMPLETED_GET_HEALTH_DATA:
-      self._state.requests[payload.groupId] = {fetching: false};
-      self._state.tidelineDataByGroupId[payload.groupId] =
-        self._preprocessHealthData(payload.healthData);
+    case AppConstants.ui.ACCEPTED_TERMS:
+      self._state = _.assign(self._state, {
+        showingAcceptTerms: false
+      });
+      self.emitChange();
+      break;
+
+    case AppConstants.ui.HID_WELCOME_SETUP:
+      self._state = _.assign(self._state, {
+        showingWelcomeSetup: false
+      });
       self.emitChange();
       break;
 
     case AppConstants.api.COMPLETED_LOGOUT:
+      AppDispatcher.waitFor([AuthStore.dispatchToken]);
       self.reset();
+      self.emitChange();
       break;
 
     default:
@@ -108,4 +104,4 @@ TidelineDataStore.dispatchToken = AppDispatcher.register(function(payload) {
 
 });
 
-module.exports = TidelineDataStore;
+module.exports = AppStore;

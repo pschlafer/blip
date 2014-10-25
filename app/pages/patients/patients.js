@@ -16,6 +16,7 @@
 
 var React = require('react');
 var _ = require('lodash');
+var Navigation = require('react-router').Navigation;
 
 var config = require('../../config');
 
@@ -24,6 +25,10 @@ var PeopleList = require('../../components/peoplelist');
 var PersonCard = require('../../components/personcard');
 var Invitation = require('../../components/invitation');
 
+var AuthenticatedRoute = require('../../core/AuthenticatedRoute');
+
+var AppActions = require('../../actions/AppActions');
+var AppStore = require('../../stores/AppStore');
 var AuthStore = require('../../stores/AuthStore');
 var GroupActions = require('../../actions/GroupActions');
 var GroupStore = require('../../stores/GroupStore');
@@ -31,26 +36,31 @@ var InvitationReceivedActions = require('../../actions/InvitationReceivedActions
 var InvitationReceivedStore = require('../../stores/InvitationReceivedStore');
 var LogActions = require('../../actions/LogActions');
 
+var api = require('../../core/api');
+
 var Patients = React.createClass({
-  propTypes: {
-    showingWelcomeTitle: React.PropTypes.bool,
-    showingWelcomeSetup: React.PropTypes.bool,
-    onHideWelcomeSetup: React.PropTypes.func,
-    uploadUrl: React.PropTypes.string
-  },
+  mixins: [AuthenticatedRoute, Navigation],
 
   getInitialState: function() {
     return this.getStateFromStores();
   },
 
   getStateFromStores: function() {
+    var appState = AppStore.getState();
     return {
       user: AuthStore.getLoggedInUser(),
       patients: GroupStore.getAll(),
       fetchingPatients: GroupStore.isFetchingAll(),
       invites: InvitationReceivedStore.getAll(),
-      fetchingInvites: InvitationReceivedStore.isFetchingAll()
+      fetchingInvites: InvitationReceivedStore.isFetchingAll(),
+      showingWelcomeTitle: appState.showingWelcomeTitle,
+      showingWelcomeSetup: appState.showingWelcomeSetup
     };
+  },
+
+  componentWillMount: function() {
+    this.fetchData();
+    LogActions.trackMetric('Viewed Care Team List');
   },
 
   componentDidMount: function() {
@@ -66,7 +76,17 @@ var Patients = React.createClass({
   },
 
   handleStoreChange: function() {
+    if (!this.isMounted()) {
+      return;
+    }
     this.setState(this.getStateFromStores());
+  },
+
+  fetchData: function() {
+    _.defer(function() {
+      GroupActions.fetchAll();
+      InvitationReceivedActions.fetchAll();
+    });
   },
 
   render: function() {
@@ -111,11 +131,12 @@ var Patients = React.createClass({
     var self = this;
     var handleClickYes = function(e) {
       e.preventDefault();
-      self.props.onHideWelcomeSetup({route: '/patients/new'});
+      self.transitionTo('/patients/new');
+      AppActions.hideWelcomeSetup();
     };
     var handleClickNo = function(e) {
       e.preventDefault();
-      self.props.onHideWelcomeSetup();
+      AppActions.hideWelcomeSetup();
     };
 
     return (
@@ -147,12 +168,12 @@ var Patients = React.createClass({
   },
 
   handleAcceptInvitation: function(invitation) {
-    this.props.onHideWelcomeSetup();
+    AppActions.hideWelcomeSetup();
     InvitationReceivedActions.accept(invitation);
   },
 
   handleDismissInvitation: function(invitation) {
-    this.props.onHideWelcomeSetup();
+    AppActions.hideWelcomeSetup();
     InvitationReceivedActions.dismiss(invitation);
   },
 
@@ -221,7 +242,7 @@ var Patients = React.createClass({
           <PeopleList
             people={patients}
             isPatientList={true}
-            uploadUrl={this.props.uploadUrl}
+            uploadUrl={api.getUploadUrl()}
             onClickPerson={this.handleClickPatient} />
         </div>
       </div>
@@ -294,7 +315,7 @@ var Patients = React.createClass({
   },
 
   isShowingWelcomeTitle: function() {
-    return this.props.showingWelcomeTitle;
+    return this.state.showingWelcomeTitle;
   },
 
   hasInvites: function() {
@@ -302,7 +323,7 @@ var Patients = React.createClass({
   },
 
   isShowingWelcomeSetup: function() {
-    return this.props.showingWelcomeSetup && !this.hasInvites();
+    return this.state.showingWelcomeSetup && !this.hasInvites();
   },
 
   hasPatients: function() {

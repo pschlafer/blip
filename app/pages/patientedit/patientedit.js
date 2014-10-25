@@ -17,11 +17,14 @@
 var React = require('react');
 var _ = require('lodash');
 var moment = require('moment');
+var Navigation = require('react-router').Navigation;
 
 var SimpleForm = require('../../components/simpleform');
 var InputGroup = require('../../components/inputgroup');
 var personUtils = require('../../core/personutils');
 var datetimeUtils = require('../../core/datetimeutils');
+
+var AuthenticatedRoute = require('../../core/AuthenticatedRoute');
 
 var GroupActions = require('../../actions/GroupActions');
 var AuthStore = require('../../stores/AuthStore');
@@ -33,10 +36,15 @@ var DISPLAY_DATE_FORMAT = 'MM-DD-YYYY';
 
 var PatientEdit = React.createClass({
   propTypes: {
-    patient: React.PropTypes.object,
-    fetchingPatient: React.PropTypes.bool,
-    isNewPatient: React.PropTypes.bool,
-    onPatientCreationSuccess: React.PropTypes.func
+    isNewPatient: React.PropTypes.bool
+  },
+
+  mixins: [AuthenticatedRoute, Navigation],
+
+  getDefaultProps: function() {
+    return {
+      isNewPatient: true
+    };
   },
 
   formInputs: [
@@ -126,6 +134,10 @@ var PatientEdit = React.createClass({
     };
   },
 
+  componentWillMount: function() {
+    LogActions.trackMetric('Viewed Profile Create');
+  },
+
   componentDidMount: function() {
     AuthStore.addChangeListener(this.handleStoreChange);
     GroupStore.addChangeListener(this.handleStoreChange);
@@ -138,9 +150,11 @@ var PatientEdit = React.createClass({
   },
 
   handleStoreChange: function() {
-    // A bit of a hack for now
+    if (!this.isMounted()) {
+      return;
+    }
     if (this.state.working && !GroupStore.isCreating()) {
-      return this.props.onPatientCreationSuccess();
+      return this.handlePatientCreationSuccess();
     }
     this.setState(this.getStateFromStores());
   },
@@ -473,6 +487,12 @@ var PatientEdit = React.createClass({
 
   submitFormValuesForCreation: function(formValues) {
     GroupActions.create(formValues);
+  },
+
+  handlePatientCreationSuccess: function() {
+    var route = '/patients/' + this.state.user.userid + '/data';
+    this.transitionTo(route);
+    LogActions.trackMetric('Created Profile');
   }
 });
 

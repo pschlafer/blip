@@ -23,6 +23,7 @@ var config = require('../../config');
 
 var utils = require('../../core/utils');
 var personUtils = require('../../core/personutils');
+var queryString = require('../../core/querystring');
 var Header = require('../../components/chart').header;
 var Daily = require('../../components/chart').daily;
 var Weekly = require('../../components/chart').weekly;
@@ -32,21 +33,22 @@ var nurseShark = require('tideline/plugins/nurseshark/');
 
 var Messages = require('../../components/messages');
 
+var AuthenticatedRoute = require('../../core/AuthenticatedRoute');
+
 var AuthStore = require('../../stores/AuthStore');
+var GroupActions = require('../../actions/GroupActions');
 var GroupStore = require('../../stores/GroupStore');
 var TidelineDataStore = require('../../stores/TidelineDataStore');
+var HealthDataActions = require('../../actions/HealthDataActions');
 var LogActions = require('../../actions/LogActions');
 
+var api = require('../../core/api');
+
 var PatientData = React.createClass({
-  propTypes: {
-    patientId: React.PropTypes.string,
-    queryParams: React.PropTypes.object.isRequired,
-    uploadUrl: React.PropTypes.string,
-    onRefresh: React.PropTypes.func
-  },
+  mixins: [AuthenticatedRoute],
 
   getInitialState: function() {
-    var params = this.props.queryParams;
+    var params = this.getQueryParams();
     var state = {
       chartPrefs: {
         hiddenPools: {
@@ -65,15 +67,19 @@ var PatientData = React.createClass({
     return _.assign(state, this.getStateFromStores());
   },
 
+  getQueryParams: function() {
+    return queryString.parseTypes(window.location.search);
+  },
+
   getStateFromStores: function(props) {
     props = props || this.props;
-    var patientData = TidelineDataStore.getForGroup(props.patientId);
+    var patientData = TidelineDataStore.getForGroup(props.params.patientId);
     return {
       user: AuthStore.getLoggedInUser(),
-      patient: GroupStore.get(props.patientId),
-      fetchingPatient: GroupStore.isFetching(props.patientId),
+      patient: GroupStore.get(props.params.patientId),
+      fetchingPatient: GroupStore.isFetching(props.params.patientId),
       patientData: patientData,
-      fetchingPatientData: TidelineDataStore.isFetchingForGroup(props.patientId),
+      fetchingPatientData: TidelineDataStore.isFetchingForGroup(props.params.patientId),
       bgPrefs: {
         bgClasses: patientData ? patientData.bgClasses : null,
         bgUnits: patientData ? patientData.bgUnits : null
@@ -82,8 +88,7 @@ var PatientData = React.createClass({
   },
 
   componentWillMount: function() {
-    var params = this.props.queryParams;
-
+    var params = this.getQueryParams();
     if (!_.isEmpty(params)) {
       this.setState({
         chartPrefs: {
@@ -95,6 +100,17 @@ var PatientData = React.createClass({
         }
       });
     }
+
+    this.fetchData();
+    LogActions.trackMetric('Viewed Data');
+  },
+
+  fetchData: function(props) {
+    props = props || this.props;
+    _.defer(function() {
+      GroupActions.fetch(props.params.patientId);
+      HealthDataActions.fetchForGroup(props.params.patientId);
+    });
   },
 
   componentDidMount: function() {
@@ -111,9 +127,13 @@ var PatientData = React.createClass({
 
   componentWillReceiveProps: function(nextProps) {
     this.setState(this.getStateFromStores(nextProps));
+    this.fetchData(nextProps);
   },
 
   handleStoreChange: function() {
+    if (!this.isMounted()) {
+      return;
+    }
     this.setState(this.getStateFromStores());
   },
 
@@ -197,7 +217,7 @@ var PatientData = React.createClass({
         <div className="patient-data-message-no-data">
           <p>{'There is no data in here yet!'}</p>
           <a
-            href={this.props.uploadUrl}
+            href={api.getUploadUrl()}
             target="_blank"
             onClick={handleClickUpload}>Upload data</a>
           <p>
@@ -299,7 +319,7 @@ var PatientData = React.createClass({
             onSwitchToWeekly={this.handleSwitchToWeekly}
             updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
-            uploadUrl={this.props.uploadUrl}
+            uploadUrl={api.getUploadUrl()}
             ref="tideline" />
           );
         /* jshint ignore:end */
@@ -314,7 +334,7 @@ var PatientData = React.createClass({
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
-            uploadUrl={this.props.uploadUrl}
+            uploadUrl={api.getUploadUrl()}
             ref="tideline" />
           );
         /* jshint ignore:end */
@@ -327,7 +347,7 @@ var PatientData = React.createClass({
       return (
         <Messages
           createDatetime={this.state.createMessageDatetime}
-          patientId={this.props.patientId}
+          patientId={this.props.params.patientId}
           onClose={this.closeMessageCreation}
           onCreateThread={this.handleMessageCreation}
           onEditMessage={this.handleEditMessage} />
@@ -336,7 +356,7 @@ var PatientData = React.createClass({
       return (
         <Messages
           threadId={this.state.showingThreadWithId}
-          patientId={this.props.patientId}
+          patientId={this.props.params.patientId}
           onClose={this.closeMessageThread}
           onAddComment={this.handleReplyToMessage}
           onEditMessage={this.handleEditMessage} />
@@ -427,11 +447,8 @@ var PatientData = React.createClass({
       e.preventDefault();
     }
 
-    var refresh = this.props.onRefresh;
-    if (refresh) {
-      this.setState({title: this.DEFAULT_TITLE});
-      refresh();
-    }
+    this.setState({title: this.DEFAULT_TITLE});
+    HealthDataActions.fetchForGroup(this.props.params.patientId);
   },
 
   updateChartPrefs: function(newChartPrefs) {

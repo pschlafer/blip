@@ -26,7 +26,7 @@ var LogActions = {
     // Might go away when switching to react-router
     _.defer(function() {
       AppDispatcher.dispatch({
-        type: AppConstants.request.TRACKED_METRIC,
+        type: AppConstants.api.TRACKED_METRIC,
         name: name,
         properties: properties
       });
@@ -37,7 +37,7 @@ var LogActions = {
 
   logError: function(error, message, properties) {
     AppDispatcher.dispatch({
-      type: AppConstants.request.LOGGED_ERROR,
+      type: AppConstants.api.LOGGED_ERROR,
       error: error,
       message: message,
       properties: properties

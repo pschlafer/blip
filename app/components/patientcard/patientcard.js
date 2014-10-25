@@ -49,7 +49,6 @@ var RemovePatientDialog = React.createClass({
   },
 
   handleStoreChange: function() {
-    // Carefull, will unmount when done removing, don't try to update
     if (!this.isMounted()) {
       return;
     }

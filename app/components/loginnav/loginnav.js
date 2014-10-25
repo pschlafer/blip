@@ -15,6 +15,8 @@
  */
 
 var React = require('react');
+var Router = require('react-router');
+var Link = Router.Link;
 
 var logoSrc = require('./images/tidepool-logo-370x40.png');
 
@@ -70,7 +72,7 @@ var LoginNav = React.createClass({
 
     var self = this;
     var page = this.props.page;
-    var href = '#/signup';
+    var to = 'signup';
     var className = 'js-signup-link';
     var icon = 'icon-add';
     var text = 'Sign up';
@@ -79,7 +81,7 @@ var LoginNav = React.createClass({
     };
 
     if (page === 'signup') {
-      href = '#/login';
+      to = 'login';
       className = 'js-login-link';
       icon = 'icon-login';
       text = 'Log in';
@@ -89,11 +91,10 @@ var LoginNav = React.createClass({
     }
 
     return (
-      /* jshint ignore:start */
-      <a
-        href={href}
-        className={className}><i className={icon}></i>{' ' + text}</a>
-      /* jshint ignore:end */
+      <Link
+        to={to}
+        className={className}
+        onClick={handleClick}><i className={icon}></i>{' ' + text}</Link>
     );
   }
 });
