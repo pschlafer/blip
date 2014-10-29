@@ -18,6 +18,8 @@ var AppConstants = require('../AppConstants');
 var EventEmitter = require('events').EventEmitter;
 var merge = require('react/lib/merge');
 
+var userMessages = require('../userMessages');
+
 var CHANGE_EVENT = 'change';
 
 var getInitialState = function() {
@@ -66,7 +68,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       if (payload.error && payload.error.status !== 401) {
         self._state.error = {
           key: AppConstants.api.FAILED_LOGIN,
-          message: 'Something went wrong while logging in',
+          message: userMessages.ERR_LOGIN,
           original: payload.error
         };
       }
@@ -78,7 +80,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       if (payload.error && payload.error.status !== 400) {
         self._state.error = {
           key: AppConstants.api.FAILED_SIGNUP,
-          message: 'Something went wrong while signing up',
+          message: userMessages.ERR_SIGNUP,
           original: payload.error
         };
       }
@@ -88,7 +90,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
     case AppConstants.api.FAILED_LOGOUT:
       self._state.error = {
         key: AppConstants.api.FAILED_LOGOUT,
-        message: 'Something went wrong while logging out',
+        message: userMessages.ERR_LOGOUT,
         original: payload.error
       };
       self.emitChange();
@@ -97,7 +99,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
     case AppConstants.api.FAILED_UPDATE_USER:
       self._state.error = {
         key: AppConstants.api.FAILED_UPDATE_USER,
-        message: 'Something went wrong while updating user',
+        message: userMessages.ERR_UPDATE_USER,
         original: payload.error,
         user: payload.user
       };
@@ -107,7 +109,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
     case AppConstants.api.FAILED_GET_GROUPS:
       self._state.error = {
         key: AppConstants.api.FAILED_GET_GROUPS,
-        message: 'Something went wrong while trying to fetch groups user has access to',
+        message: userMessages.ERR_GET_GROUPS,
         original: payload.error
       };
       self.emitChange();
@@ -117,7 +119,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       self._state.error = {
         key: AppConstants.api.FAILED_GET_GROUP,
         groupId: payload.groupId,
-        message: 'Something went wrong while trying to fetch group ' + payload.groupId,
+        message: userMessages.ERR_GET_GROUP(payload.groupId),
         original: payload.error
       };
       self.emitChange();
@@ -126,7 +128,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
     case AppConstants.api.FAILED_CREATE_GROUP:
       self._state.error = {
         key: AppConstants.api.FAILED_CREATE_GROUP,
-        message: 'Something went wrong while trying to create group',
+        message: userMessages.ERR_CREATE_GROUP,
         original: payload.error
       };
       self.emitChange();
@@ -136,7 +138,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       self._state.error = {
         key: AppConstants.api.FAILED_UPDATE_GROUP,
         groupId: payload.group.userid,
-        message: 'Something went wrong while trying to update group ' + payload.groupId,
+        message: userMessages.ERR_UPDATE_GROUP(payload.group.userid),
         original: payload.error
       };
       self.emitChange();
@@ -146,7 +148,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       self._state.error = {
         key: AppConstants.api.FAILED_LEAVE_GROUP,
         groupId: payload.groupId,
-        message: 'Something went wrong while trying to leave group ' + payload.groupId,
+        message: userMessages.ERR_LEAVE_GROUP(payload.groupId),
         original: payload.error
       };
       self.emitChange();
@@ -155,7 +157,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
     case AppConstants.api.FAILED_GET_INVITATIONS_RECEIVED:
       self._state.error = {
         key: AppConstants.api.FAILED_GET_INVITATIONS_RECEIVED,
-        message: 'Something went wrong while trying to fetch received invitations',
+        message: userMessages.ERR_GET_INVITATIONS_RECEIVED,
         original: payload.error
       };
       self.emitChange();
@@ -165,7 +167,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       self._state.error = {
         key: AppConstants.api.FAILED_GET_INVITATIONS_SENT,
         groupId: payload.groupId,
-        message: 'Something went wrong while trying to fetch sent invitations for group ' + payload.groupId,
+        message: userMessages.ERR_GET_INVITATIONS_SENT(payload.groupId),
         original: payload.error
       };
       self.emitChange();
@@ -175,7 +177,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       self._state.error = {
         key: AppConstants.api.FAILED_GET_HEALTH_DATA,
         groupId: payload.groupId,
-        message: 'Something went wrong while trying to fetch health data for group ' + payload.groupId,
+        message: userMessages.ERR_GET_HEALTH_DATA(payload.groupId),
         original: payload.error
       };
       self.emitChange();
@@ -185,7 +187,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       self._state.error = {
         key: AppConstants.api.FAILED_GET_MESSAGE_THREAD,
         threadId: payload.threadId,
-        message: 'Something went wrong while trying to fetch message thread ' + payload.threadId,
+        message: userMessages.ERR_GET_MESSAGE_THREAD(payload.threadId),
         original: payload.error
       };
       self.emitChange();
@@ -194,7 +196,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
     case AppConstants.api.FAILED_CREATE_MESSAGE_THREAD:
       self._state.error = {
         key: AppConstants.api.FAILED_CREATE_MESSAGE_THREAD,
-        message: 'Something went wrong while trying to create message thread',
+        message: userMessages.ERR_CREATE_MESSAGE_THREAD,
         original: payload.error
       };
       self.emitChange();
@@ -204,7 +206,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       self._state.error = {
         key: AppConstants.api.FAILED_ADD_COMMENT,
         threadId: payload.threadId,
-        message: 'Something went wrong while trying to comment on message thread ' + payload.threadId,
+        message: userMessages.ERR_ADD_COMMENT(payload.threadId),
         original: payload.error
       };
       self.emitChange();
@@ -214,7 +216,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       self._state.error = {
         key: AppConstants.api.FAILED_EDIT_MESSAGE,
         messageId: payload.message.id,
-        message: 'Something went wrong while trying to edit message ' + payload.message.id,
+        message: userMessages.ERR_EDIT_MESSAGE(payload.message.id),
         original: payload.error
       };
       self.emitChange();
@@ -224,7 +226,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       self._state.error = {
         key: AppConstants.api.FAILED_ACCEPT_INVITATION,
         invitation: payload.invitation,
-        message: 'Something went wrong while trying to accept invitation from user ' + payload.invitation.creator.userid,
+        message: userMessages.ERR_ACCEPT_INVITATION(payload.invitation.creator.userid),
         original: payload.error
       };
       self.emitChange();
@@ -234,7 +236,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       self._state.error = {
         key: AppConstants.api.FAILED_DISMISS_INVITATION,
         invitation: payload.invitation,
-        message: 'Something went wrong while trying to dismiss invitation from user ' + payload.invitation.creator.userid,
+        message: userMessages.ERR_DISMISS_INVITATION(payload.invitation.creator.userid),
         original: payload.error
       };
       self.emitChange();
@@ -248,7 +250,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
           groupId: payload.groupId,
           email: payload.email,
           permissions: payload.permissions,
-          message: 'Something went wrong while signing sending invitation to ' + payload.email,
+          message: userMessages.ERR_SEND_INVITATION(payload.email),
           original: payload.error
         };
       }
@@ -260,7 +262,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
         key: AppConstants.api.FAILED_CANCEL_INVITATION,
         groupId: payload.groupId,
         email: payload.email,
-        message: 'Something went wrong while trying to cancel invitation to ' + payload.email,
+        message: userMessages.ERR_CANCEL_INVITATION(payload.email),
         original: payload.error
       };
       self.emitChange();
@@ -271,7 +273,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
         key: AppConstants.api.FAILED_REMOVE_MEMBER,
         groupId: payload.groupId,
         memberId: payload.memberId,
-        message: 'Something went wrong while trying to remove member ' + payload.memberId,
+        message: userMessages.ERR_REMOVE_MEMBER(payload.memberId),
         original: payload.error
       };
       self.emitChange();
@@ -283,7 +285,7 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
         groupId: payload.groupId,
         memberId: payload.memberId,
         permissions: payload.permissions,
-        message: 'Something went wrong while trying to set permissions for member ' + payload.memberId,
+        message: userMessages.ERR_SET_MEMBER_PERMISSIONS(payload.memberId),
         original: payload.error
       };
       self.emitChange();

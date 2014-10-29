@@ -70,6 +70,13 @@ utils.isChrome = function() {
   return navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
 };
 
+utils.buildExceptionDetails = function() {
+  return {
+    href: window.location.href,
+    stack: console.trace()
+  };
+};
+
 utils.validateEmail = function(email) {
   var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(email);

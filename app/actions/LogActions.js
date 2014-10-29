@@ -23,7 +23,6 @@ var LogActions = {
   trackMetric: function(name, properties) {
     // Since we are tracking all over the place,
     // we get "can't dispatch in the middle of a dispatch" errors
-    // Might go away when switching to react-router
     _.defer(function() {
       AppDispatcher.dispatch({
         type: AppConstants.api.TRACKED_METRIC,
@@ -33,17 +32,6 @@ var LogActions = {
     });
 
     api.metrics.track(name, properties);
-  },
-
-  logError: function(error, message, properties) {
-    AppDispatcher.dispatch({
-      type: AppConstants.api.LOGGED_ERROR,
-      error: error,
-      message: message,
-      properties: properties
-    });
-
-    api.errors.log(error, message, properties);
   }
 
 };

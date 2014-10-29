@@ -18,12 +18,16 @@ var _ = require('lodash');
 var React = require('react');
 var Navigation = require('react-router').Navigation;
 
+var utils = require('../../core/utils');
 var Notification = require('../notification');
+var userMessages = require('../../userMessages');
 
 var AuthActions = require('../../actions/AuthActions');
 var RequestActions = require('../../actions/RequestActions');
 var RequestStore = require('../../stores/RequestStore');
 var LogActions = require('../../actions/LogActions');
+
+var api = require('../../core/api');
 
 var ApiError = React.createClass({
   mixins: [Navigation],
@@ -40,10 +44,56 @@ var ApiError = React.createClass({
 
   componentDidMount: function() {
     RequestStore.addChangeListener(this.handleStoreChange);
+    this.logErrorIfAny();
+    this.logoutIfNeeded();
+  },
+
+  componentDidUpdate: function() {
+    this.logErrorIfAny();
+    this.logoutIfNeeded();
   },
 
   componentWillUnmount: function() {
     RequestStore.removeChangeListener(this.handleStoreChange);
+  },
+
+  logErrorIfAny: function() {
+    var error = this.state.error;
+
+    if (!error) {
+      return;
+    }
+
+    var properties = {
+      details: this.stringifyErrorData(utils.buildExceptionDetails())
+    };
+    // Send error to backend tracking
+    // NOTE: can't use an "action" for this, or else we'll get a
+    // "can't dispatch in the middle of a dispatch" error
+    api.errors.log(
+      this.stringifyErrorData(error.original),
+      error.message,
+      properties
+    );
+  },
+
+  logoutIfNeeded: function() {
+    var error = this.state.error;
+
+    if (!error) {
+      return;
+    }
+
+    var originalError = error.original || {};
+    if (originalError.status === 401) {
+      var self = this;
+      // NOTE: this feels a bit not very "fluxy", but it works
+      _.defer(function() {
+        RequestActions.dismissError();
+        AuthActions.destroySession();
+        self.transitionTo('/login');
+      });
+    }
   },
 
   handleStoreChange: function() {
@@ -76,60 +126,43 @@ var ApiError = React.createClass({
 
   notificationFromError: function() {
     var error = this.state.error;
-    var message;
 
     if (!error) {
       return null;
     }
 
-    message = error.message;
-    error = error.original;
-
-    var self = this;
-    var status = error.status;
-    var originalErrorMessage = [
-      message, this.stringifyApiError(error)
-    ].join(' ');
-
-    var type = 'error';
-    var body = (
-      <p>
-        {'Sorry! Something went wrong. '}
-        {'It\'s our fault, not yours. We\'re going to go investigate. '}
-        {'For the time being, go ahead and '}
-        <a href="/">refresh your browser</a>
-        {'.'}
-      </p>
-    );
-    var isDismissable = true;
+    var originalError = error.original;
+    var status = originalError.status;
+    var message = error.message;
+    var properties = {
+      details: this.stringifyErrorData(utils.buildExceptionDetails())
+    };
 
     if (status === 401) {
-      var handleLogBackIn = function(e) {
-        e.preventDefault();
-        self.closeNotification();
-        // We don't actually go through logout process,
-        // so safer to manually destroy local session
-        AuthActions.destroySession();
-        self.transitionTo('/login');
-      };
-
-      type = 'alert';
-      originalErrorMessage = null;
-      body = (
-        <p>
-          {'To keep your data safe we logged you out. '}
-          <a
-            href=""
-            onClick={handleLogBackIn}>Click here to log back in</a>
-          {'.'}
-        </p>
-      );
-      isDismissable = false;
+      return;
     }
-    else if (!_.isEmpty(originalErrorMessage) && status !== 401) {
+
+    var body;
+    if (status === 500) {
+      // Something is down, ask to try again
+      body = <p>{userMessages.ERR_SERVICE_DOWN}</p>;
+    }
+    else if (status === 503) {
+      // Offline, nothing is going to work
+      body = <p>{userMessages.ERR_OFFLINE}</p>;
+    }
+    else {
+      var originalErrorMessage = [
+        message, this.stringifyErrorData(originalError)
+      ].join(' ');
+
       body = (
         <div>
-          {body}
+          <p>
+            {userMessages.ERR_GENERIC}
+            <a href="/">refresh your browser</a>
+            {'.'}
+          </p>
           <p className="notification-body-small">
             <code>{'Original error message: ' + originalErrorMessage}</code>
           </p>
@@ -137,22 +170,22 @@ var ApiError = React.createClass({
       );
     }
 
-    // Send error to backend tracking
-    LogActions.logError(this.stringifyApiError(error), message);
-
     return {
-      type: type,
+      type: 'error',
       body: body,
-      isDismissable: isDismissable
+      isDismissable: true
     };
   },
 
-  stringifyApiError: function(error) {
-    if (_.isPlainObject(error)) {
-      return JSON.stringify(error);
+  stringifyErrorData: function(data) {
+    if(_.isEmpty(data)){
+      return '';
+    }
+    if (_.isPlainObject(data)) {
+      return JSON.stringify(data);
     }
     else {
-      return error.toString();
+      return data.toString();
     }
   },
 
