@@ -51,7 +51,9 @@ var Messages = React.createClass({
   },
 
   getInitialState: function() {
-    return this.getStateFromStores();
+    return _.assign(this.getStateFromStores(), {
+      fetchingMessages: true
+    });
   },
 
   getStateFromStores: function(props) {
@@ -208,7 +210,7 @@ var Messages = React.createClass({
   },
   renderLoading: function() {
     // Show loading indicator only if there is nothing else to show
-    if (_.isEmpty(this.state.messages) && this.state.fetchingMessages) {
+    if (this.isLoading()) {
       return <div className="messages-loading">Loading message thread...</div>;
     }
     return null;
@@ -243,6 +245,9 @@ var Messages = React.createClass({
      </div>
      /* jshint ignore:end */
      );
+  },
+  isLoading: function() {
+    return this.state.fetchingMessages && _.isEmpty(this.state.messages);
   },
   getParent : function(){
     if(this.isMessageThread()){

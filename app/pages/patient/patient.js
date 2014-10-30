@@ -33,9 +33,10 @@ var Patient = React.createClass({
   mixins: [AuthenticatedRoute],
 
   getInitialState: function() {
-    return _.assign({
+    return _.assign(this.getStateFromStores(), {
+      fetchingPatient: true,
       showModalOverlay: false
-    }, this.getStateFromStores());
+    });
   },
 
   getStateFromStores: function(props) {
@@ -122,7 +123,7 @@ var Patient = React.createClass({
 
   renderBackButton: function() {
     var patient = this.state.patient;
-    if (this.props.fetchingPatient || !(patient && patient.userid)) {
+    if (this.isLoading()) {
       return null;
     }
 
@@ -143,13 +144,11 @@ var Patient = React.createClass({
   },
 
   renderTitle: function() {
-    var text = 'Profile';
-
-    if (!this.state.fetchingPatient && this.state.patient) {
-      text = personUtils.patientFullName(this.state.patient) + '\'s Profile';
+    if (this.isLoading()) {
+      return 'Profile';
     }
 
-    return text;
+    return personUtils.patientFullName(this.state.patient) + '\'s Profile';
   },
 
   renderInfo: function() {
@@ -158,6 +157,10 @@ var Patient = React.createClass({
         <PatientInfo patientId={this.props.params.patientId} />
       </div>
     );
+  },
+
+  isLoading: function() {
+    return this.state.fetchingPatient && !this.state.patient;
   },
 
   isRootOrAdmin: function() {

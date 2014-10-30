@@ -42,7 +42,10 @@ var Patients = React.createClass({
   mixins: [AuthenticatedRoute, Navigation],
 
   getInitialState: function() {
-    return this.getStateFromStores();
+    return _.assign(this.getStateFromStores(), {
+      fetchingPatients: true,
+      fetchingInvites: true
+    });
   },
 
   getStateFromStores: function() {
@@ -92,7 +95,7 @@ var Patients = React.createClass({
   render: function() {
     var welcomeTitle = this.renderWelcomeTitle();
 
-    if (this.isLoading()) {
+    if (this.isLoadingOrRefreshing()) {
       return (
         <div className="container-box-outer">
           <div className="patients js-patients-page">
@@ -310,7 +313,7 @@ var Patients = React.createClass({
     }
   },
 
-  isLoading: function() {
+  isLoadingOrRefreshing: function() {
     return this.state.fetchingInvites || this.state.fetchingPatients;
   },
 

@@ -50,6 +50,8 @@ var PatientData = React.createClass({
   getInitialState: function() {
     var params = this.getQueryParams();
     var state = {
+      fetchingPatient: true,
+      fetchingPatientData: true,
       chartPrefs: {
         hiddenPools: {
           // pass null here to *completely* disable the tabular display of basal settings
@@ -64,7 +66,7 @@ var PatientData = React.createClass({
       messages: null
     };
 
-    return _.assign(state, this.getStateFromStores());
+    return _.assign(this.getStateFromStores(), state);
   },
 
   getQueryParams: function() {
@@ -154,7 +156,7 @@ var PatientData = React.createClass({
   },
 
   renderPatientData: function() {
-    if (this.isLoading()) {
+    if (this.isLoadingOrRefreshing()) {
       return this.renderLoading();
     }
 
@@ -165,7 +167,7 @@ var PatientData = React.createClass({
     return this.renderChart();
   },
 
-  isLoading: function() {
+  isLoadingOrRefreshing: function() {
     return this.state.fetchingPatient || this.state.fetchingPatientData;
   },
 
