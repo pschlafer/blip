@@ -87,11 +87,13 @@ var ApiError = React.createClass({
     var originalError = error.original || {};
     if (originalError.status === 401) {
       var self = this;
-      // NOTE: this feels a bit not very "fluxy", but it works
+      // NOTE: this doesn't feel very "fluxy", but it works
       _.defer(function() {
         RequestActions.dismissError();
+        self.transitionTo('/logout');
+        // Maybe we should allow logout even if there is no or an expired token
+        // so we don't have to "manually" destroy the session like this
         AuthActions.destroySession();
-        self.transitionTo('/login');
       });
     }
   },

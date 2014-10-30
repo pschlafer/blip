@@ -34,13 +34,13 @@ var detectTouchScreen = require('./core/notouch');
 var utils = require('./core/utils');
 
 var Navbar = require('./components/navbar');
-var LogoutOverlay = require('./components/logoutoverlay');
 var BrowserWarningOverlay = require('./components/browserwarningoverlay');
 var ApiError = require('./components/apierror');
 var TermsOverlay = require('./components/termsoverlay');
 var MailTo = require('./components/mailto');
 
 var Login = require('./pages/login');
+var Logout = require('./pages/logout');
 var Signup = require('./pages/signup');
 var Profile = require('./pages/profile');
 var Patients = require('./pages/patients');
@@ -87,8 +87,7 @@ var App = React.createClass({
 
   getStateFromStores: function() {
     return _.assign(AppStore.getState(), {
-      authenticated: AuthStore.isAuthenticated(),
-      loggingOut: AuthStore.isLoggingOut()
+      authenticated: AuthStore.isAuthenticated()
     });
   },
 
@@ -103,13 +102,6 @@ var App = React.createClass({
   },
 
   handleStoreChange: function() {
-    var isLogoutSuccessfull = (
-      this.state.loggingOut && !AuthStore.isLoggingOut()
-    );
-    if (isLogoutSuccessfull) {
-      this.handleLogoutSuccess();
-    }
-
     this.setState(this.getStateFromStores());
   },
 
@@ -130,12 +122,6 @@ var App = React.createClass({
   },
 
   renderOverlay: function() {
-    if (this.state.loggingOut) {
-      return (
-        <LogoutOverlay ref="logoutOverlay" />
-      );
-    }
-
     if (!utils.isChrome() && !this.state.dismissedBrowserWarning) {
       return (
         <BrowserWarningOverlay onSubmit={this.handleDismissBrowserWarning} />
@@ -191,10 +177,6 @@ var App = React.createClass({
 
   handleDismissBrowserWarning: function() {
     AppActions.dismissBrowserWarning();
-  },
-
-  handleLogoutSuccess: function() {
-    this.transitionTo('/login');
   }
 });
 
@@ -202,6 +184,7 @@ var routes = (
   <Routes>
     <Route name="app" path="/" handler={App}>
       <Route name="login" handler={Login}/>
+      <Route name="logout" handler={Logout}/>
       <Route name="signup" handler={Signup}/>
       <Route name="profile" handler={Profile}/>
       <Route name="patients" handler={Patients}/>

@@ -241,7 +241,7 @@ var Navbar = React.createClass({
           </Link>
         </li>
         <li className="Navbar-menuItem">
-          <a href="" title="Logout" onClick={this.handleLogout} className="Navbar-button" ref="logout"><i className="Navbar-icon icon-logout"></i></a>
+          <Link to="logout" title="Logout" className="Navbar-button" ref="logout"><i className="Navbar-icon icon-logout"></i></Link>
         </li>
       </ul>
     );
@@ -266,14 +266,6 @@ var Navbar = React.createClass({
   isRootOrAdmin: function() {
     return personUtils.hasPermissions('root', this.state.patient) ||
            personUtils.hasPermissions('admin', this.state.patient);
-  },
-
-  handleLogout: function(e) {
-    if (e) {
-      e.preventDefault();
-    }
-
-    AuthActions.logout();
   }
 });
 
