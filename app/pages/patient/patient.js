@@ -34,7 +34,6 @@ var Patient = React.createClass({
 
   getInitialState: function() {
     return _.assign(this.getStateFromStores(), {
-      fetchingPatient: true,
       showModalOverlay: false
     });
   },
@@ -42,8 +41,7 @@ var Patient = React.createClass({
   getStateFromStores: function(props) {
     props = props || this.props;
     return {
-      patient: GroupStore.get(this.props.params.patientId),
-      fetchingPatient: GroupStore.isFetching(this.props.params.patientId)
+      patient: GroupStore.get(this.props.params.patientId)
     };
   },
 
@@ -121,7 +119,7 @@ var Patient = React.createClass({
 
   renderBackButton: function() {
     var patient = this.state.patient;
-    if (this.isLoading()) {
+    if (_.isEmpty(patient)) {
       return null;
     }
 
@@ -142,11 +140,12 @@ var Patient = React.createClass({
   },
 
   renderTitle: function() {
-    if (this.isLoading()) {
+    var patient = this.state.patient;
+    if (_.isEmpty(patient)) {
       return 'Profile';
     }
 
-    return personUtils.patientFullName(this.state.patient) + '\'s Profile';
+    return personUtils.patientFullName(patient) + '\'s Profile';
   },
 
   renderInfo: function() {
@@ -155,10 +154,6 @@ var Patient = React.createClass({
         <PatientInfo patientId={this.props.params.patientId} />
       </div>
     );
-  },
-
-  isLoading: function() {
-    return this.state.fetchingPatient && !this.state.patient;
   },
 
   isRootOrAdmin: function() {
