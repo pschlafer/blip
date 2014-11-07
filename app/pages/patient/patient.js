@@ -62,7 +62,7 @@ var Patient = React.createClass({
 
   componentWillReceiveProps: function(nextProps) {
     this.setState(this.getStateFromStores(nextProps));
-    if (nextProps.patientId !== this.props.patientId) {
+    if (nextProps.params.patientId !== this.props.params.patientId) {
       this.fetchData(nextProps);
     }
   },

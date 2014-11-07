@@ -127,7 +127,9 @@ var PatientData = React.createClass({
 
   componentWillReceiveProps: function(nextProps) {
     this.setState(this.getStateFromStores(nextProps));
-    this.fetchData(nextProps);
+    if (nextProps.params.patientId !== this.props.params.patientId) {
+      this.fetchData(nextProps);
+    }
   },
 
   handleStoreChange: function() {
