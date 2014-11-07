@@ -17,7 +17,6 @@ var _ = require('lodash');
 var AppDispatcher = require('../AppDispatcher');
 var AppConstants = require('../AppConstants');
 var EventEmitter = require('events').EventEmitter;
-var merge = require('react/lib/merge');
 var UserStore = require('./UserStore');
 var utils = require('../core/utils');
 
@@ -30,7 +29,7 @@ var getInitialState = function() {
   };
 };
 
-var MemberStore = merge(EventEmitter.prototype, {
+var MemberStore = _.assign({}, EventEmitter.prototype, {
 
   _state: getInitialState(),
 

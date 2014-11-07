@@ -17,7 +17,6 @@ var _ = require('lodash');
 var AppDispatcher = require('../AppDispatcher');
 var AppConstants = require('../AppConstants');
 var EventEmitter = require('events').EventEmitter;
-var merge = require('react/lib/merge');
 var utils = require('../core/utils');
 var nurseShark = require('tideline/plugins/nurseshark');
 var TidelineData = require('tideline/js/tidelinedata');
@@ -31,7 +30,7 @@ var getInitialState = function() {
   };
 };
 
-var TidelineDataStore = merge(EventEmitter.prototype, {
+var TidelineDataStore = _.assign({}, EventEmitter.prototype, {
 
   _state: getInitialState(),
 

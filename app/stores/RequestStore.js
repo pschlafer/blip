@@ -13,10 +13,10 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+var _ = require('lodash');
 var AppDispatcher = require('../AppDispatcher');
 var AppConstants = require('../AppConstants');
 var EventEmitter = require('events').EventEmitter;
-var merge = require('react/lib/merge');
 
 var userMessages = require('../userMessages');
 
@@ -28,7 +28,7 @@ var getInitialState = function() {
   };
 };
 
-var RequestStore = merge(EventEmitter.prototype, {
+var RequestStore = _.assign({}, EventEmitter.prototype, {
 
   _state: getInitialState(),
 

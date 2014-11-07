@@ -13,7 +13,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var keyMirror = require('react/lib/keyMirror');
+var keyMirror = require('keymirror');
 
 var AppConstants = {
 

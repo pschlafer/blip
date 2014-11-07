@@ -17,7 +17,6 @@ var _ = require('lodash');
 var AppDispatcher = require('../AppDispatcher');
 var AppConstants = require('../AppConstants');
 var EventEmitter = require('events').EventEmitter;
-var merge = require('react/lib/merge');
 
 var CHANGE_EVENT = 'change';
 
@@ -28,7 +27,7 @@ var getInitialState = function() {
   };
 };
 
-var AuthStore = merge(EventEmitter.prototype, {
+var AuthStore = _.assign({}, EventEmitter.prototype, {
 
   _state: getInitialState(),
 

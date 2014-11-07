@@ -17,7 +17,6 @@ var _ = require('lodash');
 var AppDispatcher = require('../AppDispatcher');
 var AppConstants = require('../AppConstants');
 var EventEmitter = require('events').EventEmitter;
-var merge = require('react/lib/merge');
 var utils = require('../core/utils');
 
 var CHANGE_EVENT = 'change';
@@ -29,7 +28,7 @@ var getInitialState = function() {
   };
 };
 
-var InvitationSentStore = merge(EventEmitter.prototype, {
+var InvitationSentStore = _.assign({}, EventEmitter.prototype, {
 
   _state: getInitialState(),
 
