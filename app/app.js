@@ -48,6 +48,8 @@ var PatientEdit = require('./pages/patientedit');
 var Patient = require('./pages/patient');
 var PatientData = require('./pages/patientdata');
 
+var deferActions = require('./actions/deferActions');
+
 var AppActions = window.AppActions = require('./actions/AppActions');
 var AuthActions = window.AuthActions = require('./actions/AuthActions');
 var GroupActions = window.GroupActions = require('./actions/GroupActions');
@@ -249,7 +251,10 @@ app.init = function(callback) {
     var handleAuthStoreChange = function() {
       if (!AuthStore.isLoadingSession()) {
         AuthStore.removeChangeListener(handleAuthStoreChange);
-        callback();
+        // NOTE: We are reacting to a store change and will render components
+        // that are going to call actions when they mount
+        // Make sure to let Flux cycle finish before doing that
+        deferActions(callback);
       }
     };
     AuthStore.addChangeListener(handleAuthStoreChange);

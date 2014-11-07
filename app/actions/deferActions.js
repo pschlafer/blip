@@ -13,14 +13,13 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var Dispatcher = require('flux').Dispatcher;
+var _ = require('lodash');
 
-var log = require('bows')('AppDispatcher');
-
-var AppDispatcher = new Dispatcher();
-
-AppDispatcher.register(function(payload) {
-  log(payload);
-});
-
-module.exports = AppDispatcher;
+// Use if you need to execute something that will call an action,
+// immediately after responding to a store change event
+// (ex: redirecting after a store updated with a particular value)
+// Warning: generally considered an "anti-flux pattern", use only if you need to
+module.exports = function(callback) {
+  // Allow stores to finish updating before executing callback
+  _.defer(callback);
+};

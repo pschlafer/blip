@@ -69,10 +69,8 @@ var Patient = React.createClass({
 
   fetchData: function(props) {
     props = props || this.props;
-    _.defer(function() {
-      GroupActions.fetch(props.params.patientId);
-      InvitationSentActions.fetchForGroup(props.params.patientId);
-    });
+    GroupActions.fetch(props.params.patientId);
+    InvitationSentActions.fetchForGroup(props.params.patientId);
   },
 
   handleStoreChange: function() {

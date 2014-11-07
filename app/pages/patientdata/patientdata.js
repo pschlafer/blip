@@ -109,10 +109,8 @@ var PatientData = React.createClass({
 
   fetchData: function(props) {
     props = props || this.props;
-    _.defer(function() {
-      GroupActions.fetch(props.params.patientId);
-      HealthDataActions.fetchForGroup(props.params.patientId);
-    });
+    GroupActions.fetch(props.params.patientId);
+    HealthDataActions.fetchForGroup(props.params.patientId);
   },
 
   componentDidMount: function() {

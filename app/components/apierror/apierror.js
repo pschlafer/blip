@@ -26,6 +26,7 @@ var AuthActions = require('../../actions/AuthActions');
 var RequestActions = require('../../actions/RequestActions');
 var RequestStore = require('../../stores/RequestStore');
 var LogActions = require('../../actions/LogActions');
+var deferActions = require('../../actions/deferActions');
 
 var api = require('../../core/api');
 
@@ -87,8 +88,9 @@ var ApiError = React.createClass({
     var originalError = error.original || {};
     if (originalError.status === 401) {
       var self = this;
-      // NOTE: this doesn't feel very "fluxy", but it works
-      _.defer(function() {
+      // NOTE: We are reacting to a store change and are going to call actions
+      // Make sure to let current Flux cycle finish before
+      deferActions(function() {
         RequestActions.dismissError();
         self.transitionTo('/logout');
         // Maybe we should allow logout even if there is no or an expired token

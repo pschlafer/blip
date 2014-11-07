@@ -86,10 +86,8 @@ var Patients = React.createClass({
   },
 
   fetchData: function() {
-    _.defer(function() {
-      GroupActions.fetchAll();
-      InvitationReceivedActions.fetchAll();
-    });
+    GroupActions.fetchAll();
+    InvitationReceivedActions.fetchAll();
   },
 
   render: function() {

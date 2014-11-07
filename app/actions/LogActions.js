@@ -17,13 +17,14 @@ var _ = require('lodash');
 var AppDispatcher = require('../AppDispatcher');
 var AppConstants = require('../AppConstants');
 var api = require('../core/api');
+var deferActions = require('./deferActions');
 
 var LogActions = {
 
   trackMetric: function(name, properties) {
     // Since we are tracking all over the place,
-    // we get "can't dispatch in the middle of a dispatch" errors
-    _.defer(function() {
+    // guard against "can't dispatch in the middle of a dispatch" errors
+    deferActions(function() {
       AppDispatcher.dispatch({
         type: AppConstants.api.TRACKED_METRIC,
         name: name,
