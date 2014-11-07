@@ -43,7 +43,7 @@ var patch = function(mock, api) {
       }
 
       var userId = api.userId;
-      var groups = _.cloneDeep(data.groups[userId]) || [];
+      var groups = _.cloneDeep(data.groups[userId]) || {};
       groups[userId] = {root: {}};
 
       var patients = _.reduce(groups, function(result, permissions, groupId) {
