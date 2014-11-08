@@ -28,7 +28,7 @@ var RequestStore = require('../../stores/RequestStore');
 var trackMetric = require('../../core/trackMetric');
 var deferAction = require('../../actions/deferAction');
 
-var api = require('../../core/api');
+var logError = require('../../core/logError');
 
 var ApiError = React.createClass({
   mixins: [Navigation],
@@ -69,9 +69,7 @@ var ApiError = React.createClass({
       details: this.stringifyErrorData(utils.buildExceptionDetails())
     };
     // Send error to backend tracking
-    // NOTE: can't use an "action" for this, or else we'll get a
-    // "can't dispatch in the middle of a dispatch" error
-    api.errors.log(
+    logError(
       this.stringifyErrorData(error.original),
       error.message,
       properties
