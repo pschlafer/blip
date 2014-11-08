@@ -11,7 +11,7 @@ var chartWeeklyFactory = tidelineBlip.twoweek;
 var Header = require('./header');
 var Footer = require('./footer');
 
-var LogActions = require('../../actions/LogActions');
+var trackMetric = require('../../core/trackMetric');
 
 var tideline = {
   log: bows('Two Weeks')
@@ -122,7 +122,7 @@ var Weekly = React.createClass({
   renderMissingSMBGMessage: function() {
     var self = this;
     var handleClickUpload = function() {
-      LogActions.trackMetric('Clicked Partial Data Upload, No SMBG');
+      trackMetric('Clicked Partial Data Upload, No SMBG');
     };
     /* jshint ignore:start */
     return (

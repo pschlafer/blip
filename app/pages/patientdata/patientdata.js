@@ -40,7 +40,7 @@ var GroupActions = require('../../actions/GroupActions');
 var GroupStore = require('../../stores/GroupStore');
 var TidelineDataStore = require('../../stores/TidelineDataStore');
 var HealthDataActions = require('../../actions/HealthDataActions');
-var LogActions = require('../../actions/LogActions');
+var trackMetric = require('../../core/trackMetric');
 
 var api = require('../../core/api');
 
@@ -104,7 +104,7 @@ var PatientData = React.createClass({
     }
 
     this.fetchData();
-    LogActions.trackMetric('Viewed Data');
+    trackMetric('Viewed Data');
   },
 
   fetchData: function(props) {
@@ -210,7 +210,7 @@ var PatientData = React.createClass({
 
     var self = this;
     var handleClickUpload = function() {
-      LogActions.trackMetric('Clicked No Data Upload');
+      trackMetric('Clicked No Data Upload');
     };
 
     if (this.isRootOrAdmin()) {
@@ -370,13 +370,13 @@ var PatientData = React.createClass({
   closeMessageThread: function(){
     this.setState({ showingThreadWithId: null });
     this.refs.tideline.closeMessageThread();
-    LogActions.trackMetric('Closed Message Thread Modal');
+    trackMetric('Closed Message Thread Modal');
   },
 
   closeMessageCreation: function(){
     this.setState({ createMessageDatetime: null });
     this.refs.tideline.closeMessageThread();
-    LogActions.trackMetric('Closed New Message Modal');
+    trackMetric('Closed New Message Modal');
   },
 
   handleMessageCreation: function(message){
@@ -384,27 +384,27 @@ var PatientData = React.createClass({
     // so no need to do anything to update it
     // Not super elegant, but works for now
     this.refs.tideline.createMessageThread(nurseShark.reshapeMessage(message));
-    LogActions.trackMetric('Created New Message');
+    trackMetric('Created New Message');
   },
 
   handleReplyToMessage: function(comment) {
-    LogActions.trackMetric('Replied To Message');
+    trackMetric('Replied To Message');
   },
 
   handleEditMessage: function(message) {
     this.refs.tideline.editMessageThread(nurseShark.reshapeMessage(message));
-    LogActions.trackMetric('Edit To Message');
+    trackMetric('Edit To Message');
   },
 
   handleShowMessageThread: function(threadId) {
     this.setState({showingThreadWithId: threadId});
 
-    LogActions.trackMetric('Clicked Message Icon');
+    trackMetric('Clicked Message Icon');
   },
 
   handleShowMessageCreation: function(datetime) {
     this.setState({ createMessageDatetime : datetime });
-    LogActions.trackMetric('Clicked Message Pool Background');
+    trackMetric('Clicked Message Pool Background');
   },
 
   handleSwitchToDaily: function(datetime) {
@@ -412,7 +412,7 @@ var PatientData = React.createClass({
       chartType: 'daily',
       initialDatetimeLocation: datetime || this.state.datetimeLocation
     });
-    LogActions.trackMetric('Clicked Switch To One Day', {
+    trackMetric('Clicked Switch To One Day', {
       fromChart: this.state.chartType
     });
   },
@@ -422,7 +422,7 @@ var PatientData = React.createClass({
       chartType: 'weekly',
       initialDatetimeLocation: datetime || this.state.datetimeLocation
     });
-    LogActions.trackMetric('Clicked Switch To Two Week', {
+    trackMetric('Clicked Switch To Two Week', {
       fromChart: this.state.chartType
     });
   },
@@ -434,14 +434,14 @@ var PatientData = React.createClass({
     this.setState({
       chartType: 'settings'
     });
-    LogActions.trackMetric('Clicked Switch To Settings', {
+    trackMetric('Clicked Switch To Settings', {
       fromChart: this.state.chartType
     });
   },
 
   handleClickRefresh: function(e) {
     this.handleRefresh(e);
-    LogActions.trackMetric('Clicked No Data Refresh');
+    trackMetric('Clicked No Data Refresh');
   },
 
   handleRefresh: function(e) {

@@ -27,7 +27,7 @@ var AuthenticatedRoute = require('../../core/AuthenticatedRoute');
 
 var AuthActions = require('../../actions/AuthActions');
 var AuthStore = require('../../stores/AuthStore');
-var LogActions = require('../../actions/LogActions');
+var trackMetric = require('../../core/trackMetric');
 
 var Profile = React.createClass({
   formInputs: [
@@ -57,7 +57,7 @@ var Profile = React.createClass({
   componentDidMount: function() {
     AuthStore.addChangeListener(this.handleStoreChange);
 
-    LogActions.trackMetric('Viewed Account Edit');
+    trackMetric('Viewed Account Edit');
   },
 
   componentWillUnmount: function() {
@@ -87,7 +87,7 @@ var Profile = React.createClass({
     var form = this.renderForm();
     var self = this;
     var handleClickBack = function() {
-      LogActions.trackMetric('Clicked Back To Care Team List');
+      trackMetric('Clicked Back To Care Team List');
     };
 
     /* jshint ignore:start */
@@ -254,7 +254,7 @@ var Profile = React.createClass({
     var self = this;
     // Save optimistically
     AuthActions.updateUser(formValues);
-    LogActions.trackMetric('Updated Account');
+    trackMetric('Updated Account');
 
     this.setState({
       notification: {type: 'success', message: 'All changes saved.'}

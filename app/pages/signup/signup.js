@@ -30,7 +30,7 @@ var UnauthenticatedRoute = require('../../core/UnauthenticatedRoute');
 
 var AuthActions = require('../../actions/AuthActions');
 var AuthStore = require('../../stores/AuthStore');
-var LogActions = require('../../actions/LogActions');
+var trackMetric = require('../../core/trackMetric');
 
 var Signup = React.createClass({
   propTypes: {
@@ -136,7 +136,7 @@ var Signup = React.createClass({
 
   handleSignupSuccess: function() {
     this.transitionTo('/patients');
-    LogActions.trackMetric('Signed Up');
+    trackMetric('Signed Up');
   },
 
   render: function() {

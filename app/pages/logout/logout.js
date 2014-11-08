@@ -22,7 +22,7 @@ var LogoutOverlay = require('../../components/logoutoverlay');
 
 var AuthActions = require('../../actions/AuthActions');
 var AuthStore = require('../../stores/AuthStore');
-var LogActions = require('../../actions/LogActions');
+var trackMetric = require('../../core/trackMetric');
 
 var Logout = React.createClass({
   mixins: [Navigation],
@@ -53,7 +53,7 @@ var Logout = React.createClass({
 
   handleLogoutSuccess: function() {
     this.transitionTo('/login');
-    LogActions.trackMetric('Logged Out');
+    trackMetric('Logged Out');
   },
 
   render: function() {

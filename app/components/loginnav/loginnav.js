@@ -20,7 +20,7 @@ var Link = Router.Link;
 
 var logoSrc = require('./images/tidepool-logo-370x40.png');
 
-var LogActions = require('../../actions/LogActions');
+var trackMetric = require('../../core/trackMetric');
 
 var LoginNav = React.createClass({
   propTypes: {
@@ -77,7 +77,7 @@ var LoginNav = React.createClass({
     var icon = 'icon-add';
     var text = 'Sign up';
     var handleClick = function() {
-      LogActions.trackMetric('Clicked Sign Up Link');
+      trackMetric('Clicked Sign Up Link');
     };
 
     if (page === 'signup') {
@@ -86,7 +86,7 @@ var LoginNav = React.createClass({
       icon = 'icon-login';
       text = 'Log in';
       handleClick = function() {
-        LogActions.trackMetric('Clicked Log In Link');
+        trackMetric('Clicked Log In Link');
       };
     }
 

@@ -10,7 +10,7 @@ var chartSettingsFactory = tidelineBlip.settings;
 var Header = require('./header');
 var Footer = require('./footer');
 
-var LogActions = require('../../actions/LogActions');
+var trackMetric = require('../../core/trackMetric');
 
 var tideline = {
   log: bows('Settings')
@@ -79,7 +79,7 @@ var Settings = React.createClass({
   renderMissingSettingsMessage: function() {
     var self = this;
     var handleClickUpload = function() {
-      LogActions.trackMetric('Clicked Partial Data Upload, No Settings');
+      trackMetric('Clicked Partial Data Upload, No Settings');
     };
     /* jshint ignore:start */
     return (

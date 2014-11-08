@@ -13,28 +13,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var _ = require('lodash');
-var AppDispatcher = require('../AppDispatcher');
-var AppConstants = require('../AppConstants');
-var api = require('../core/api');
-var deferAction = require('./deferAction');
+var api = require('./api');
 
-var LogActions = {
-
-  trackMetric: function(name, properties) {
-    // Since we are tracking all over the place,
-    // guard against "can't dispatch in the middle of a dispatch" errors
-    deferAction(function() {
-      AppDispatcher.dispatch({
-        type: AppConstants.api.TRACKED_METRIC,
-        name: name,
-        properties: properties
-      });
-    });
-
-    api.metrics.track(name, properties);
-  }
-
+module.exports = function(name, properties) {
+  api.metrics.track(name, properties);
 };
-
-module.exports = LogActions;

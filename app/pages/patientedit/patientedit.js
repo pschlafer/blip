@@ -29,7 +29,7 @@ var AuthenticatedRoute = require('../../core/AuthenticatedRoute');
 var GroupActions = require('../../actions/GroupActions');
 var AuthStore = require('../../stores/AuthStore');
 var GroupStore = require('../../stores/GroupStore');
-var LogActions = require('../../actions/LogActions');
+var trackMetric = require('../../core/trackMetric');
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 var DISPLAY_DATE_FORMAT = 'MM-DD-YYYY';
@@ -135,7 +135,7 @@ var PatientEdit = React.createClass({
   },
 
   componentWillMount: function() {
-    LogActions.trackMetric('Viewed Profile Create');
+    trackMetric('Viewed Profile Create');
   },
 
   componentDidMount: function() {
@@ -233,7 +233,7 @@ var PatientEdit = React.createClass({
 
     var self = this;
     var handleClick = function() {
-      LogActions.trackMetric('Clicked Back To Profile');
+      trackMetric('Clicked Back To Profile');
     };
 
     /* jshint ignore:start */
@@ -492,7 +492,7 @@ var PatientEdit = React.createClass({
   handlePatientCreationSuccess: function() {
     var route = '/patients/' + this.state.user.userid + '/data';
     this.transitionTo(route);
-    LogActions.trackMetric('Created Profile');
+    trackMetric('Created Profile');
   }
 });
 

@@ -26,7 +26,7 @@ var AuthActions = require('../../actions/AuthActions');
 var AuthStore = require('../../stores/AuthStore');
 var GroupStore = require('../../stores/GroupStore');
 
-var LogActions = require('../../actions/LogActions');
+var trackMetric = require('../../core/trackMetric');
 
 var logoSrc = require('./images/blip-logo-80x80.png');
 
@@ -92,7 +92,7 @@ var Navbar = React.createClass({
   renderLogo: function() {
     var self = this;
     var handleClick = function() {
-      LogActions.trackMetric('Clicked Navbar Logo');
+      trackMetric('Clicked Navbar Logo');
     };
 
     return (
@@ -126,7 +126,7 @@ var Navbar = React.createClass({
     var shareLink = this.renderShareLink();
     var self = this;
     var handleClick = function() {
-      LogActions.trackMetric('Clicked Navbar View Profile');
+      trackMetric('Clicked Navbar View Profile');
     };
 
     return (
@@ -164,7 +164,7 @@ var Navbar = React.createClass({
         e.preventDefault();
       }
       window.open(uploadUrl, '_blank');
-      LogActions.trackMetric('Clicked Navbar Upload Data');
+      trackMetric('Clicked Navbar Upload Data');
     };
 
     return (
@@ -186,7 +186,7 @@ var Navbar = React.createClass({
     var patientUrl = this.getPatientUrl();
 
     var handleClick = function() {
-      LogActions.trackMetric('Clicked Navbar Share');
+      trackMetric('Clicked Navbar Share');
     };
 
     return (
@@ -207,11 +207,11 @@ var Navbar = React.createClass({
     var displayName = this.getUserDisplayName();
     var self = this;
     var handleClickUser = function() {
-      LogActions.trackMetric('Clicked Navbar Logged In User');
+      trackMetric('Clicked Navbar Logged In User');
     };
 
     var handleCareteam = function() {
-      LogActions.trackMetric('Clicked Navbar CareTeam');
+      trackMetric('Clicked Navbar CareTeam');
     };
 
     return (

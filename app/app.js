@@ -32,6 +32,7 @@ var personUtils = require('./core/personutils');
 var queryString = require('./core/querystring');
 var detectTouchScreen = require('./core/notouch');
 var utils = require('./core/utils');
+var trackMetric = require('./core/trackMetric');
 
 var Navbar = require('./components/navbar');
 var BrowserWarningOverlay = require('./components/browserwarningoverlay');
@@ -56,7 +57,6 @@ var GroupActions = window.GroupActions = require('./actions/GroupActions');
 var HealthDataActions = window.HealthDataActions = require('./actions/HealthDataActions');
 var InvitationReceivedActions = window.InvitationReceivedActions = require('./actions/InvitationReceivedActions');
 var InvitationSentActions = window.InvitationSentActions = require('./actions/InvitationSentActions');
-var LogActions = window.LogActions = require('./actions/LogActions');
 var MemberActions = window.MemberActions = require('./actions/MemberActions');
 var MessageThreadActions = window.MessageThreadActions = require('./actions/MessageThreadActions');
 var RequestActions = window.RequestActions = require('./actions/RequestActions');
@@ -170,7 +170,7 @@ var App = React.createClass({
   },
 
   logSupportContact: function(){
-    LogActions.trackMetric('Clicked Give Feedback');
+    trackMetric('Clicked Give Feedback');
   },
 
   handleAcceptTerms: function() {

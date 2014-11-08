@@ -23,7 +23,7 @@ var datetimeUtils = require('../../core/datetimeutils');
 
 var GroupStore = require('../../stores/GroupStore');
 var GroupActions = require('../../actions/GroupActions');
-var LogActions = require('../../actions/LogActions');
+var trackMetric = require('../../core/trackMetric');
 
 var SERVER_DATE_FORMAT = 'YYYY-MM-DD';
 var FORM_DATE_FORMAT = 'MM/DD/YYYY';
@@ -185,7 +185,7 @@ var PatientInfo = React.createClass({
     var self = this;
     var handleClick = function(e) {
       e.preventDefault();
-      LogActions.trackMetric('Clicked Edit Profile');
+      trackMetric('Clicked Edit Profile');
       self.toggleEdit();
     };
 
@@ -420,7 +420,7 @@ var PatientInfo = React.createClass({
 
     // Save optimistically
     GroupActions.update(formValues);
-    LogActions.trackMetric('Updated Profile');
+    trackMetric('Updated Profile');
     this.toggleEdit();
   },
 

@@ -25,7 +25,7 @@ var userMessages = require('../../userMessages');
 var AuthActions = require('../../actions/AuthActions');
 var RequestActions = require('../../actions/RequestActions');
 var RequestStore = require('../../stores/RequestStore');
-var LogActions = require('../../actions/LogActions');
+var trackMetric = require('../../core/trackMetric');
 var deferAction = require('../../actions/deferAction');
 
 var api = require('../../core/api');

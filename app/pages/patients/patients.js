@@ -34,7 +34,7 @@ var GroupActions = require('../../actions/GroupActions');
 var GroupStore = require('../../stores/GroupStore');
 var InvitationReceivedActions = require('../../actions/InvitationReceivedActions');
 var InvitationReceivedStore = require('../../stores/InvitationReceivedStore');
-var LogActions = require('../../actions/LogActions');
+var trackMetric = require('../../core/trackMetric');
 
 var api = require('../../core/api');
 
@@ -63,7 +63,7 @@ var Patients = React.createClass({
 
   componentWillMount: function() {
     this.fetchData();
-    LogActions.trackMetric('Viewed Care Team List');
+    trackMetric('Viewed Care Team List');
   },
 
   componentDidMount: function() {
@@ -289,7 +289,7 @@ var Patients = React.createClass({
   },
 
   handleClickCreateProfile: function() {
-    LogActions.trackMetric('Clicked Create Profile');
+    trackMetric('Clicked Create Profile');
   },
 
   addLinkToPatients: function(patients) {
@@ -304,10 +304,10 @@ var Patients = React.createClass({
 
   handleClickPatient: function(patient) {
     if (personUtils.isSame(this.state.user, patient)) {
-      LogActions.trackMetric('Clicked Own Care Team');
+      trackMetric('Clicked Own Care Team');
     }
     else {
-      LogActions.trackMetric('Clicked Other Care Team');
+      trackMetric('Clicked Other Care Team');
     }
   },
 

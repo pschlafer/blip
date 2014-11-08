@@ -30,7 +30,7 @@ var UnauthenticatedRoute = require('../../core/UnauthenticatedRoute');
 
 var AuthActions = require('../../actions/AuthActions');
 var AuthStore = require('../../stores/AuthStore');
-var LogActions = require('../../actions/LogActions');
+var trackMetric = require('../../core/trackMetric');
 
 var Login = React.createClass({
   mixins: [UnauthenticatedRoute, Navigation],
@@ -115,7 +115,7 @@ var Login = React.createClass({
 
   handleLoginSuccess: function() {
     this.transitionTo('/patients');
-    LogActions.trackMetric('Logged In');
+    trackMetric('Logged In');
   },
 
   render: function() {
@@ -172,7 +172,7 @@ var Login = React.createClass({
   },
 
   logPasswordReset : function() {
-    LogActions.trackMetric('Clicked Forgot Password');
+    trackMetric('Clicked Forgot Password');
   },
 
   renderPasswordMailTo: function() {

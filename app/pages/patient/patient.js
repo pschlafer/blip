@@ -27,7 +27,7 @@ var AuthenticatedRoute = require('../../core/AuthenticatedRoute');
 var GroupActions = require('../../actions/GroupActions');
 var GroupStore = require('../../stores/GroupStore');
 var InvitationSentActions = require('../../actions/InvitationSentActions');
-var LogActions = require('../../actions/LogActions');
+var trackMetric = require('../../core/trackMetric');
 
 var Patient = React.createClass({
   mixins: [AuthenticatedRoute],
@@ -47,7 +47,7 @@ var Patient = React.createClass({
 
   componentWillMount: function() {
     this.fetchData();
-    LogActions.trackMetric('Viewed Profile');
+    trackMetric('Viewed Profile');
   },
 
   componentDidMount: function() {
@@ -128,7 +128,7 @@ var Patient = React.createClass({
 
     var self = this;
     var handleClick = function() {
-      LogActions.trackMetric('Clicked Back To Data');
+      trackMetric('Clicked Back To Data');
     };
 
     return (

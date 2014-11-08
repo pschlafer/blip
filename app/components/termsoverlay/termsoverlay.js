@@ -16,7 +16,7 @@
 
 var React = require('react');
 
-var LogActions = require('../../actions/LogActions');
+var trackMetric = require('../../core/trackMetric');
 
 var TermsOverlay = React.createClass({
   propTypes: {
@@ -95,7 +95,7 @@ var TermsOverlay = React.createClass({
       e.preventDefault();
     }
 
-    LogActions.trackMetric('Agreed To Terms Of Use');
+    trackMetric('Agreed To Terms Of Use');
 
     var submit = this.props.onSubmit;
     if (submit) {
