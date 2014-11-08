@@ -74,17 +74,17 @@ InvitationSentStore.dispatchToken = AppDispatcher.register(function(payload) {
   var self = InvitationSentStore;
   switch(payload.type) {
 
-    case AppConstants.api.STARTED_GET_INVITATIONS_SENT:
+    case AppConstants.api.STARTED_FETCH_INVITATIONS_SENT:
       self._state.requests[payload.groupId] = {fetching: true};
       self.emitChange();
       break;
 
-    case AppConstants.api.FAILED_GET_INVITATIONS_SENT:
+    case AppConstants.api.FAILED_FETCH_INVITATIONS_SENT:
       self._state.requests[payload.groupId] = {fetching: false};
       self.emitChange();
       break;
 
-    case AppConstants.api.COMPLETED_GET_INVITATIONS_SENT:
+    case AppConstants.api.COMPLETED_FETCH_INVITATIONS_SENT:
       self._state.requests[payload.groupId] = {fetching: false};
       self._state.invitationsByGroupId[payload.groupId] =
         _.cloneDeep(payload.invitations);

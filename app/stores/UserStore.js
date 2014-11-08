@@ -75,14 +75,14 @@ UserStore.dispatchToken = AppDispatcher.register(function(payload) {
   var self = UserStore;
   switch(payload.type) {
 
-    case AppConstants.api.COMPLETED_GET_GROUPS:
+    case AppConstants.api.COMPLETED_FETCH_GROUPS:
       _.forEach(payload.groups, function(group) {
         self._updateWithGroup(group);
       });
       self.emitChange();
       break;
 
-    case AppConstants.api.COMPLETED_GET_GROUP:
+    case AppConstants.api.COMPLETED_FETCH_GROUP:
       self._updateWithGroup(payload.group);
       self.emitChange();
       break;

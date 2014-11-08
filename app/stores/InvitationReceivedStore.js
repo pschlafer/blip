@@ -66,17 +66,17 @@ InvitationReceivedStore.dispatchToken = AppDispatcher.register(function(payload)
   var self = InvitationReceivedStore;
   switch(payload.type) {
 
-    case AppConstants.api.STARTED_GET_INVITATIONS_RECEIVED:
+    case AppConstants.api.STARTED_FETCH_INVITATIONS_RECEIVED:
       self._state.requests.fetchingAll = true;
       self.emitChange();
       break;
 
-    case AppConstants.api.FAILED_GET_INVITATIONS_RECEIVED:
+    case AppConstants.api.FAILED_FETCH_INVITATIONS_RECEIVED:
       self._state.requests.fetchingAll = false;
       self.emitChange();
       break;
 
-    case AppConstants.api.COMPLETED_GET_INVITATIONS_RECEIVED:
+    case AppConstants.api.COMPLETED_FETCH_INVITATIONS_RECEIVED:
       self._state.requests.fetchingAll = false;
       self._state.invitations = _.cloneDeep(payload.invitations);
       self.emitChange();

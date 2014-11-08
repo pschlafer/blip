@@ -106,18 +106,18 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       self.emitChange();
       break;
 
-    case AppConstants.api.FAILED_GET_GROUPS:
+    case AppConstants.api.FAILED_FETCH_GROUPS:
       self._state.error = {
-        key: AppConstants.api.FAILED_GET_GROUPS,
+        key: AppConstants.api.FAILED_FETCH_GROUPS,
         message: userMessages.ERR_GET_GROUPS,
         original: payload.error
       };
       self.emitChange();
       break;
 
-    case AppConstants.api.FAILED_GET_GROUP:
+    case AppConstants.api.FAILED_FETCH_GROUP:
       self._state.error = {
-        key: AppConstants.api.FAILED_GET_GROUP,
+        key: AppConstants.api.FAILED_FETCH_GROUP,
         groupId: payload.groupId,
         message: userMessages.ERR_GET_GROUP(payload.groupId),
         original: payload.error
@@ -154,18 +154,18 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       self.emitChange();
       break;
 
-    case AppConstants.api.FAILED_GET_INVITATIONS_RECEIVED:
+    case AppConstants.api.FAILED_FETCH_INVITATIONS_RECEIVED:
       self._state.error = {
-        key: AppConstants.api.FAILED_GET_INVITATIONS_RECEIVED,
+        key: AppConstants.api.FAILED_FETCH_INVITATIONS_RECEIVED,
         message: userMessages.ERR_GET_INVITATIONS_RECEIVED,
         original: payload.error
       };
       self.emitChange();
       break;
 
-    case AppConstants.api.FAILED_GET_INVITATIONS_SENT:
+    case AppConstants.api.FAILED_FETCH_INVITATIONS_SENT:
       self._state.error = {
-        key: AppConstants.api.FAILED_GET_INVITATIONS_SENT,
+        key: AppConstants.api.FAILED_FETCH_INVITATIONS_SENT,
         groupId: payload.groupId,
         message: userMessages.ERR_GET_INVITATIONS_SENT(payload.groupId),
         original: payload.error
@@ -173,9 +173,9 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       self.emitChange();
       break;
 
-    case AppConstants.api.FAILED_GET_HEALTH_DATA:
+    case AppConstants.api.FAILED_FETCH_HEALTH_DATA:
       self._state.error = {
-        key: AppConstants.api.FAILED_GET_HEALTH_DATA,
+        key: AppConstants.api.FAILED_FETCH_HEALTH_DATA,
         groupId: payload.groupId,
         message: userMessages.ERR_GET_HEALTH_DATA(payload.groupId),
         original: payload.error
@@ -183,9 +183,9 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
       self.emitChange();
       break;
 
-    case AppConstants.api.FAILED_GET_MESSAGE_THREAD:
+    case AppConstants.api.FAILED_FETCH_MESSAGE_THREAD:
       self._state.error = {
-        key: AppConstants.api.FAILED_GET_MESSAGE_THREAD,
+        key: AppConstants.api.FAILED_FETCH_MESSAGE_THREAD,
         threadId: payload.threadId,
         message: userMessages.ERR_GET_MESSAGE_THREAD(payload.threadId),
         original: payload.error

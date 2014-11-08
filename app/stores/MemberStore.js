@@ -76,17 +76,17 @@ MemberStore.dispatchToken = AppDispatcher.register(function(payload) {
   var self = MemberStore;
   switch(payload.type) {
 
-    case AppConstants.api.STARTED_GET_GROUP:
+    case AppConstants.api.STARTED_FETCH_GROUP:
       self._state.requests[payload.groupId] = {fetching: true};
       self.emitChange();
       break;
 
-    case AppConstants.api.FAILED_GET_GROUP:
+    case AppConstants.api.FAILED_FETCH_GROUP:
       self._state.requests[payload.groupId] = {fetching: false};
       self.emitChange();
       break;
 
-    case AppConstants.api.COMPLETED_GET_GROUP:
+    case AppConstants.api.COMPLETED_FETCH_GROUP:
       AppDispatcher.waitFor([UserStore.dispatchToken]);
       var group = payload.group;
       self._state.requests[group.userid] = {fetching: false};

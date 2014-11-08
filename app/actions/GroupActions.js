@@ -20,17 +20,17 @@ var api = require('../core/api');
 var GroupActions = {
 
   fetchAll: function() {
-    AppDispatcher.dispatch({type: AppConstants.api.STARTED_GET_GROUPS});
+    AppDispatcher.dispatch({type: AppConstants.api.STARTED_FETCH_GROUPS});
     api.patient.getAll(function(err, groups) {
       if (err) {
         return AppDispatcher.dispatch({
-          type: AppConstants.api.FAILED_GET_GROUPS,
+          type: AppConstants.api.FAILED_FETCH_GROUPS,
           error: err
         });
       }
 
       AppDispatcher.dispatch({
-        type: AppConstants.api.COMPLETED_GET_GROUPS,
+        type: AppConstants.api.COMPLETED_FETCH_GROUPS,
         groups: groups
       });
     });
@@ -38,20 +38,20 @@ var GroupActions = {
 
   fetch: function(groupId) {
     AppDispatcher.dispatch({
-      type: AppConstants.api.STARTED_GET_GROUP,
+      type: AppConstants.api.STARTED_FETCH_GROUP,
       groupId: groupId
     });
     api.patient.get(groupId, function(err, group) {
       if (err) {
         return AppDispatcher.dispatch({
-          type: AppConstants.api.FAILED_GET_GROUP,
+          type: AppConstants.api.FAILED_FETCH_GROUP,
           groupId: groupId,
           error: err
         });
       }
 
       AppDispatcher.dispatch({
-        type: AppConstants.api.COMPLETED_GET_GROUP,
+        type: AppConstants.api.COMPLETED_FETCH_GROUP,
         group: group
       });
     });

@@ -20,17 +20,17 @@ var api = require('../core/api');
 var InvitationReceivedActions = {
 
   fetchAll: function() {
-    AppDispatcher.dispatch({type: AppConstants.api.STARTED_GET_INVITATIONS_RECEIVED});
+    AppDispatcher.dispatch({type: AppConstants.api.STARTED_FETCH_INVITATIONS_RECEIVED});
     api.invitation.getReceived(function(err, invitations) {
       if (err) {
         return AppDispatcher.dispatch({
-          type: AppConstants.api.FAILED_GET_INVITATIONS_RECEIVED,
+          type: AppConstants.api.FAILED_FETCH_INVITATIONS_RECEIVED,
           error: err
         });
       }
 
       AppDispatcher.dispatch({
-        type: AppConstants.api.COMPLETED_GET_INVITATIONS_RECEIVED,
+        type: AppConstants.api.COMPLETED_FETCH_INVITATIONS_RECEIVED,
         invitations: invitations
       });
     });

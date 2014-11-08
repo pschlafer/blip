@@ -24,7 +24,7 @@ var HealthDataActions = {
 
   fetchForGroup: function(groupId) {
     AppDispatcher.dispatch({
-      type: AppConstants.api.STARTED_GET_HEALTH_DATA,
+      type: AppConstants.api.STARTED_FETCH_HEALTH_DATA,
       groupId: groupId
     });
 
@@ -35,7 +35,7 @@ var HealthDataActions = {
     function(err, results) {
       if (err) {
         return AppDispatcher.dispatch({
-          type: AppConstants.api.FAILED_GET_HEALTH_DATA,
+          type: AppConstants.api.FAILED_FETCH_HEALTH_DATA,
           groupId: groupId,
           error: err
         });
@@ -53,7 +53,7 @@ var HealthDataActions = {
       };
 
       AppDispatcher.dispatch({
-        type: AppConstants.api.COMPLETED_GET_HEALTH_DATA,
+        type: AppConstants.api.COMPLETED_FETCH_HEALTH_DATA,
         groupId: groupId,
         healthData: healthData
       });

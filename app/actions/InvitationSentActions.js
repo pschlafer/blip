@@ -26,21 +26,21 @@ var InvitationSentActions = {
     var groupId = AuthStore.getLoggedInUserId();
 
     AppDispatcher.dispatch({
-      type: AppConstants.api.STARTED_GET_INVITATIONS_SENT,
+      type: AppConstants.api.STARTED_FETCH_INVITATIONS_SENT,
       groupId: groupId
     });
 
     api.invitation.getSent(function(err, invitations) {
       if (err) {
         return AppDispatcher.dispatch({
-          type: AppConstants.api.FAILED_GET_INVITATIONS_SENT,
+          type: AppConstants.api.FAILED_FETCH_INVITATIONS_SENT,
           groupId: groupId,
           error: err
         });
       }
 
       AppDispatcher.dispatch({
-        type: AppConstants.api.COMPLETED_GET_INVITATIONS_SENT,
+        type: AppConstants.api.COMPLETED_FETCH_INVITATIONS_SENT,
         groupId: groupId,
         invitations: invitations
       });

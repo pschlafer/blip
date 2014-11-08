@@ -25,14 +25,14 @@ var MessageThreadActions = {
 
   fetch: function(threadId) {
     AppDispatcher.dispatch({
-      type: AppConstants.api.STARTED_GET_MESSAGE_THREAD,
+      type: AppConstants.api.STARTED_FETCH_MESSAGE_THREAD,
       threadId: threadId
     });
 
     api.team.getMessageThread(threadId, function(err, messages) {
       if (err) {
         return AppDispatcher.dispatch({
-          type: AppConstants.api.FAILED_GET_MESSAGE_THREAD,
+          type: AppConstants.api.FAILED_FETCH_MESSAGE_THREAD,
           threadId: threadId,
           error: err
         });
@@ -41,7 +41,7 @@ var MessageThreadActions = {
       log('Fetched message thread with ' + messages.length + ' messages');
 
       AppDispatcher.dispatch({
-        type: AppConstants.api.COMPLETED_GET_MESSAGE_THREAD,
+        type: AppConstants.api.COMPLETED_FETCH_MESSAGE_THREAD,
         threadId: threadId,
         messages: messages
       });

@@ -85,17 +85,17 @@ GroupStore.dispatchToken = AppDispatcher.register(function(payload) {
   var group;
   switch(payload.type) {
 
-    case AppConstants.api.STARTED_GET_GROUPS:
+    case AppConstants.api.STARTED_FETCH_GROUPS:
       self._state.requests.fetchingAll = true;
       self.emitChange();
       break;
 
-    case AppConstants.api.FAILED_GET_GROUPS:
+    case AppConstants.api.FAILED_FETCH_GROUPS:
       self._state.requests.fetchingAll = false;
       self.emitChange();
       break;
 
-    case AppConstants.api.COMPLETED_GET_GROUPS:
+    case AppConstants.api.COMPLETED_FETCH_GROUPS:
       AppDispatcher.waitFor([UserStore.dispatchToken]);
       self._state.requests.fetchingAll = false;
       self._state.permissionsByGroupId = _.reduce(payload.groups,
@@ -106,17 +106,17 @@ GroupStore.dispatchToken = AppDispatcher.register(function(payload) {
       self.emitChange();
       break;
 
-    case AppConstants.api.STARTED_GET_GROUP:
+    case AppConstants.api.STARTED_FETCH_GROUP:
       self._state.requests[payload.groupId] = {fetching: true};
       self.emitChange();
       break;
 
-    case AppConstants.api.FAILED_GET_GROUP:
+    case AppConstants.api.FAILED_FETCH_GROUP:
       self._state.requests[payload.groupId] = {fetching: false};
       self.emitChange();
       break;
 
-    case AppConstants.api.COMPLETED_GET_GROUP:
+    case AppConstants.api.COMPLETED_FETCH_GROUP:
       AppDispatcher.waitFor([UserStore.dispatchToken]);
       group = payload.group;
       self._state.requests[group.userid] = {fetching: false};
