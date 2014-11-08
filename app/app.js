@@ -48,7 +48,7 @@ var PatientEdit = require('./pages/patientedit');
 var Patient = require('./pages/patient');
 var PatientData = require('./pages/patientdata');
 
-var deferActions = require('./actions/deferActions');
+var deferAction = require('./actions/deferAction');
 
 var AppActions = window.AppActions = require('./actions/AppActions');
 var AuthActions = window.AuthActions = require('./actions/AuthActions');
@@ -254,7 +254,7 @@ app.init = function(callback) {
         // NOTE: We are reacting to a store change and will render components
         // that are going to call actions when they mount
         // Make sure to let Flux cycle finish before doing that
-        deferActions(callback);
+        deferAction(callback);
       }
     };
     AuthStore.addChangeListener(handleAuthStoreChange);
