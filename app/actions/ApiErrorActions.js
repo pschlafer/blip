@@ -16,12 +16,12 @@
 var AppDispatcher = require('../AppDispatcher');
 var AppConstants = require('../AppConstants');
 
-var RequestActions = {
+var ApiErrorActions = {
 
   dismissError: function() {
-    AppDispatcher.dispatch({type: AppConstants.ui.DISMISSED_REQUEST_ERROR});
+    AppDispatcher.dispatch({type: AppConstants.ui.DISMISSED_API_ERROR});
   }
 
 };
 
-module.exports = RequestActions;
+module.exports = ApiErrorActions;

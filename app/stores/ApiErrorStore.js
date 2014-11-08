@@ -28,7 +28,7 @@ var getInitialState = function() {
   };
 };
 
-var RequestStore = _.assign({}, EventEmitter.prototype, {
+var ApiErrorStore = _.assign({}, EventEmitter.prototype, {
 
   _state: getInitialState(),
 
@@ -54,11 +54,11 @@ var RequestStore = _.assign({}, EventEmitter.prototype, {
 
 });
 
-RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
-  var self = RequestStore;
+ApiErrorStore.dispatchToken = AppDispatcher.register(function(payload) {
+  var self = ApiErrorStore;
   switch(payload.type) {
 
-    case AppConstants.ui.DISMISSED_REQUEST_ERROR:
+    case AppConstants.ui.DISMISSED_API_ERROR:
       self._state.error = null;
       self.emitChange();
       break;
@@ -301,4 +301,4 @@ RequestStore.dispatchToken = AppDispatcher.register(function(payload) {
 
 });
 
-module.exports = RequestStore;
+module.exports = ApiErrorStore;

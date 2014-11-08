@@ -187,10 +187,12 @@ var app = {
   log: bows('App'),
   api: api,
   actions: {},
-  stores: {}
+  stores: {},
+  AppDispatcher: require('./AppDispatcher')
 };
 
 // Attach stores and actions for easier debugging
+app.actions.ApiErrorActions = require('./actions/ApiErrorActions');
 app.actions.AppActions = require('./actions/AppActions');
 app.actions.AuthActions = require('./actions/AuthActions');
 app.actions.GroupActions = require('./actions/GroupActions');
@@ -199,8 +201,8 @@ app.actions.InvitationReceivedActions = require('./actions/InvitationReceivedAct
 app.actions.InvitationSentActions = require('./actions/InvitationSentActions');
 app.actions.MemberActions = require('./actions/MemberActions');
 app.actions.MessageThreadActions = require('./actions/MessageThreadActions');
-app.actions.RequestActions = require('./actions/RequestActions');
 
+app.stores.ApiErrorStore = require('./stores/ApiErrorStore');
 app.stores.AppStore = require('./stores/AppStore');
 app.stores.AuthStore = require('./stores/AuthStore');
 app.stores.GroupStore = require('./stores/GroupStore');
@@ -208,7 +210,6 @@ app.stores.InvitationReceivedStore = require('./stores/InvitationReceivedStore')
 app.stores.InvitationSentStore = require('./stores/InvitationSentStore');
 app.stores.MemberStore = require('./stores/MemberStore');
 app.stores.MessageThreadStore = require('./stores/MessageThreadStore');
-app.stores.RequestStore = require('./stores/RequestStore');
 app.stores.TidelineDataStore = require('./stores/TidelineDataStore');
 app.stores.UserStore = require('./stores/UserStore');
 

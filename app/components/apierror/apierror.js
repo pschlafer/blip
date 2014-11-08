@@ -23,8 +23,8 @@ var Notification = require('../notification');
 var userMessages = require('../../userMessages');
 
 var AuthActions = require('../../actions/AuthActions');
-var RequestActions = require('../../actions/RequestActions');
-var RequestStore = require('../../stores/RequestStore');
+var ApiErrorActions = require('../../actions/ApiErrorActions');
+var ApiErrorStore = require('../../stores/ApiErrorStore');
 var trackMetric = require('../../core/trackMetric');
 var deferAction = require('../../actions/deferAction');
 
@@ -39,12 +39,12 @@ var ApiError = React.createClass({
 
   getStateFromStores: function() {
     return {
-      error: RequestStore.getError()
+      error: ApiErrorStore.getError()
     };
   },
 
   componentDidMount: function() {
-    RequestStore.addChangeListener(this.handleStoreChange);
+    ApiErrorStore.addChangeListener(this.handleStoreChange);
     this.logErrorIfAny();
     this.logoutIfNeeded();
   },
@@ -55,7 +55,7 @@ var ApiError = React.createClass({
   },
 
   componentWillUnmount: function() {
-    RequestStore.removeChangeListener(this.handleStoreChange);
+    ApiErrorStore.removeChangeListener(this.handleStoreChange);
   },
 
   logErrorIfAny: function() {
@@ -91,7 +91,7 @@ var ApiError = React.createClass({
       // NOTE: We are reacting to a store change and are going to call actions
       // Make sure to let current Flux cycle finish before
       deferAction(function() {
-        RequestActions.dismissError();
+        ApiErrorActions.dismissError();
         self.transitionTo('/logout');
         // Maybe we should allow logout even if there is no or an expired token
         // so we don't have to "manually" destroy the session like this
@@ -194,7 +194,7 @@ var ApiError = React.createClass({
   },
 
   closeNotification: function() {
-    RequestActions.dismissError();
+    ApiErrorActions.dismissError();
   }
 });
 

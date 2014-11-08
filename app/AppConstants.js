@@ -21,7 +21,7 @@ var AppConstants = {
     DISMISSED_BROWSER_WARNING: null,
     ACCEPTED_TERMS: null,
     HID_WELCOME_SETUP: null,
-    DISMISSED_REQUEST_ERROR: null
+    DISMISSED_API_ERROR: null
   }),
 
   api: keyMirror({
