@@ -36,7 +36,7 @@ var InvitationReceivedActions = require('../../actions/InvitationReceivedActions
 var InvitationReceivedStore = require('../../stores/InvitationReceivedStore');
 var trackMetric = require('../../core/trackMetric');
 
-var api = require('../../core/api');
+var getUploadUrl = require('../../core/getUploadUrl');
 
 var Patients = React.createClass({
   mixins: [AuthenticatedRoute, Navigation],
@@ -243,7 +243,7 @@ var Patients = React.createClass({
           <PeopleList
             people={patients}
             isPatientList={true}
-            uploadUrl={api.getUploadUrl()}
+            uploadUrl={getUploadUrl()}
             onClickPerson={this.handleClickPatient} />
         </div>
       </div>

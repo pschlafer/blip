@@ -69,6 +69,8 @@ var ApiError = React.createClass({
       details: this.stringifyErrorData(utils.buildExceptionDetails())
     };
     // Send error to backend tracking
+    // NOTE: This doesn't seem right to be here. Should it be in a store?
+    // Or maybe setup a special listener to a store?
     logError(
       this.stringifyErrorData(error.original),
       error.message,

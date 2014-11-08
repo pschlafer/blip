@@ -42,7 +42,7 @@ var TidelineDataStore = require('../../stores/TidelineDataStore');
 var HealthDataActions = require('../../actions/HealthDataActions');
 var trackMetric = require('../../core/trackMetric');
 
-var api = require('../../core/api');
+var getUploadUrl = require('../../core/getUploadUrl');
 
 var PatientData = React.createClass({
   mixins: [AuthenticatedRoute],
@@ -219,7 +219,7 @@ var PatientData = React.createClass({
         <div className="patient-data-message-no-data">
           <p>{'There is no data in here yet!'}</p>
           <a
-            href={api.getUploadUrl()}
+            href={getUploadUrl()}
             target="_blank"
             onClick={handleClickUpload}>Upload data</a>
           <p>
@@ -321,7 +321,7 @@ var PatientData = React.createClass({
             onSwitchToWeekly={this.handleSwitchToWeekly}
             updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
-            uploadUrl={api.getUploadUrl()}
+            uploadUrl={getUploadUrl()}
             ref="tideline" />
           );
         /* jshint ignore:end */
@@ -336,7 +336,7 @@ var PatientData = React.createClass({
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
-            uploadUrl={api.getUploadUrl()}
+            uploadUrl={getUploadUrl()}
             ref="tideline" />
           );
         /* jshint ignore:end */
