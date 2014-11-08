@@ -51,26 +51,11 @@ var PatientData = require('./pages/patientdata');
 
 var deferAction = require('./actions/deferAction');
 
-var AppActions = window.AppActions = require('./actions/AppActions');
-var AuthActions = window.AuthActions = require('./actions/AuthActions');
-var GroupActions = window.GroupActions = require('./actions/GroupActions');
-var HealthDataActions = window.HealthDataActions = require('./actions/HealthDataActions');
-var InvitationReceivedActions = window.InvitationReceivedActions = require('./actions/InvitationReceivedActions');
-var InvitationSentActions = window.InvitationSentActions = require('./actions/InvitationSentActions');
-var MemberActions = window.MemberActions = require('./actions/MemberActions');
-var MessageThreadActions = window.MessageThreadActions = require('./actions/MessageThreadActions');
-var RequestActions = window.RequestActions = require('./actions/RequestActions');
+var AppActions = require('./actions/AppActions');
+var AuthActions = require('./actions/AuthActions');
 
-var AppStore = window.AppStore = require('./stores/AppStore');
-var AuthStore = window.AuthStore = require('./stores/AuthStore');
-var GroupStore = window.GroupStore = require('./stores/GroupStore');
-var InvitationReceivedStore = window.InvitationReceivedStore = require('./stores/InvitationReceivedStore');
-var InvitationSentStore = window.InvitationSentStore = require('./stores/InvitationSentStore');
-var MemberStore = window.MemberStore = require('./stores/MemberStore');
-var MessageThreadStore = window.MessageThreadStore = require('./stores/MessageThreadStore');
-var RequestStore = window.RequestStore = require('./stores/RequestStore');
-var TidelineDataStore = window.TidelineDataStore = require('./stores/TidelineDataStore');
-var UserStore = window.UserStore = require('./stores/UserStore');
+var AppStore = require('./stores/AppStore');
+var AuthStore = require('./stores/AuthStore');
 
 // Styles
 require('tideline/css/tideline.less');
@@ -200,8 +185,32 @@ var routes = (
 
 var app = {
   log: bows('App'),
-  api: api
+  api: api,
+  actions: {},
+  stores: {}
 };
+
+// Attach stores and actions for easier debugging
+app.actions.AppActions = require('./actions/AppActions');
+app.actions.AuthActions = require('./actions/AuthActions');
+app.actions.GroupActions = require('./actions/GroupActions');
+app.actions.HealthDataActions = require('./actions/HealthDataActions');
+app.actions.InvitationReceivedActions = require('./actions/InvitationReceivedActions');
+app.actions.InvitationSentActions = require('./actions/InvitationSentActions');
+app.actions.MemberActions = require('./actions/MemberActions');
+app.actions.MessageThreadActions = require('./actions/MessageThreadActions');
+app.actions.RequestActions = require('./actions/RequestActions');
+
+app.stores.AppStore = require('./stores/AppStore');
+app.stores.AuthStore = require('./stores/AuthStore');
+app.stores.GroupStore = require('./stores/GroupStore');
+app.stores.InvitationReceivedStore = require('./stores/InvitationReceivedStore');
+app.stores.InvitationSentStore = require('./stores/InvitationSentStore');
+app.stores.MemberStore = require('./stores/MemberStore');
+app.stores.MessageThreadStore = require('./stores/MessageThreadStore');
+app.stores.RequestStore = require('./stores/RequestStore');
+app.stores.TidelineDataStore = require('./stores/TidelineDataStore');
+app.stores.UserStore = require('./stores/UserStore');
 
 app.start = function() {
   var self = this;
