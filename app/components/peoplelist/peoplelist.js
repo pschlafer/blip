@@ -30,6 +30,12 @@ var PeopleList = React.createClass({
     uploadUrl: React.PropTypes.string
   },
 
+  getInitialState: function() {
+    return {
+      editing: false
+    };
+  },
+
   getDefaultProps: function() {
     return {
       onClickPerson: function() {}
@@ -63,14 +69,44 @@ var PeopleList = React.createClass({
       'people-list-single': this.props.people.length === 1
     });
 
+    var editControls = this.editablePersonExists(this.props.people) ? this.renderEditControls() : null;
+
       /* jshint ignore:start */
     return (
-      <ul className={classes}>
-        {peopleNodes}
-        <div className="clear"></div>
-      </ul>
+      <div>
+        <ul className={classes}>
+          {peopleNodes}
+          <div className="clear"></div>
+        </ul>
+        {editControls}
+      </div>
     );
     /* jshint ignore:end */
+  },
+
+  editablePersonExists: function(patients) {
+    return Boolean(_.find(patients, personUtils.hasEditPermissions));
+  },
+
+  renderEditControls: function() {
+    var key = 'edit';
+    var text = 'Remove people…';
+    if (this.state.editing) {
+      key = 'cancel';
+      text = 'Done';
+    }
+
+    return (
+      <div className="patient-list-controls">
+        <button key={key} onClick={this.toggleEdit} className="patient-list-controls-button patient-list-controls-button--secondary" type="button">{text}</button>
+      </div>
+    );
+  },
+
+  toggleEdit: function() {
+    this.setState({
+      editing: !this.state.editing,
+    });
   },
 
   renderPeopleListItem: function(person, index) {
@@ -88,14 +124,17 @@ var PeopleList = React.createClass({
       return (
         <li key={person.userid || index} className="patient-list-item">
           <PatientCard
-            href={person.link}
+            patient={person}
             onClick={handleClick}
             uploadUrl={this.props.uploadUrl}
-            patient={person}></PatientCard>
+            isEditing={this.state.editing} />
         </li>
       );
       /* jshint ignore:end */
     }
+
+    // TODO: The end of this method is dead code.
+    // Deprecate the `isPatientList` prop, this is *only* used as a patient list
 
     if (person.link) {
       handleClick = function() {

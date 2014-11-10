@@ -19,8 +19,10 @@ var _ = require('lodash');
 var cx = require('react/lib/cx');
 var Router = require('react-router');
 var Link = Router.Link;
+var ActiveState = Router.ActiveState;
 
 var personUtils = require('../../core/personutils');
+var NavbarPatientCard = require('../../components/navbarpatientcard');
 
 var AuthActions = require('../../actions/AuthActions');
 var AuthStore = require('../../stores/AuthStore');
@@ -36,6 +38,8 @@ var Navbar = React.createClass({
     patientId: React.PropTypes.string,
     getUploadUrl: React.PropTypes.func
   },
+
+  mixins: [ActiveState],
 
   getInitialState: function() {
     return this.getStateFromStores();
@@ -113,6 +117,14 @@ var Navbar = React.createClass({
     return null;
   },
 
+  getPatientLink: function(patient) {
+    if (!patient || !patient.userid) {
+      return '';
+    }
+
+    return '#/patients/' + patient.userid + '/data';
+  },
+
   renderPatientSection: function() {
     var patient = this.state.patient;
 
@@ -120,36 +132,40 @@ var Navbar = React.createClass({
       return <div className="Navbar-patientSection"></div>;
     }
 
+    patient.link = this.getPatientLink(patient);
+
     var displayName = this.getPatientDisplayName();
     var patientUrl = this.getPatientUrl();
     var uploadLink = this.renderUploadLink();
     var shareLink = this.renderShareLink();
-    var self = this;
-    var handleClick = function() {
-      trackMetric('Clicked Navbar View Profile');
-    };
 
     return (
       <div className="Navbar-patientSection" ref="patient">
-        <a href={patientUrl} onClick={handleClick} className="Navbar-button--blueBg Navbar-button Navbar-button--withLeftLabelAndArrow">
-          <div className="Navbar-label Navbar-label--left Navbar-label--withArrow">
-            <span className="Navbar-patientName">{displayName}</span>
-          </div>
-        </a>
-        <div className="Navbar-patientPicture"></div>
-        <div>
-          {uploadLink}
-          {shareLink}
-          <div className="clear"></div>
-        </div>
+        <NavbarPatientCard
+          patient={patient}
+          navbarActive={this.getPatientActiveLink()}
+          uploadUrl={this.props.getUploadUrl()} />
       </div>
     );
+  },
+
+  getPatientActiveLink: function() {
+    if (this.isActive('patient-data')) {
+      return 'data';
+    }
+    if (this.isActive('patient-profile')) {
+      return 'profile';
+    }
+    if (this.isActive('patient-share')) {
+      return 'share';
+    }
+    return null;
   },
 
   renderUploadLink: function() {
     var noLink = <div className="Navbar-uploadButton"></div>;
 
-    if (!this.isRootOrAdmin()) {
+    if (!this.hasEditPermissions()) {
       return noLink;
     }
 
@@ -179,7 +195,7 @@ var Navbar = React.createClass({
     var noLink = <div className="Navbar-shareButton"></div>;
     var self = this;
 
-    if (!this.isRootOrAdmin()) {
+    if (!this.hasEditPermissions()) {
       return noLink;
     }
 
@@ -223,7 +239,7 @@ var Navbar = React.createClass({
             onClick={handleClickUser}
             className="Navbar-button Navbar-button--withLeftLabelAndArrow"
             activeClassName="Navbar-selected">
-            <div className="Navbar-label Navbar-label--left Navbar-label--withArrow">
+            <div className="Navbar-logged">
               <span className="Navbar-loggedInAs">{'Logged in as '}</span>
               <span className="Navbar-userName" ref="userFullName">{displayName}</span>
             </div>
@@ -263,9 +279,8 @@ var Navbar = React.createClass({
     return '#/patients/' + patient.userid;
   },
 
-  isRootOrAdmin: function() {
-    return personUtils.hasPermissions('root', this.state.patient) ||
-           personUtils.hasPermissions('admin', this.state.patient);
+  hasEditPermissions: function() {
+    return personUtils.hasEditPermissions(this.state.patient);
   }
 });
 

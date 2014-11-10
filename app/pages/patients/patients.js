@@ -228,8 +228,6 @@ var Patients = React.createClass({
     }
 
     var patients = _.clone(this.state.patients);
-    patients = this.addLinkToPatients(patients);
-
     var addDataStorage = this.renderAddDataStorage();
 
     return (
@@ -290,16 +288,6 @@ var Patients = React.createClass({
 
   handleClickCreateProfile: function() {
     trackMetric('Clicked Create Profile');
-  },
-
-  addLinkToPatients: function(patients) {
-    return _.map(patients, function(patient) {
-      patient = _.cloneDeep(patient);
-      if (patient.userid) {
-        patient.link = '#/patients/' + patient.userid + '/data';
-      }
-      return patient;
-    });
   },
 
   handleClickPatient: function(patient) {

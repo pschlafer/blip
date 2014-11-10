@@ -31,38 +31,25 @@ var InvitationSentStore = require('../../stores/InvitationSentStore');
 var PermissionInputGroup = React.createClass({
   propTypes: {
     name: React.PropTypes.string,
-    value: React.PropTypes.bool
+    value: React.PropTypes.bool,
+    working: React.PropTypes.bool,
+    onChange: React.PropTypes.func
   },
-  getDefaultProps: function() {
-    return {
-      value: false
-    };
-  },
-  getInitialState: function() {
-    return {
-      value: this.props.value
-    };
-  },
-  componentWillReceiveProps: function(nextProps) {
-    this.setState({value: nextProps.value});
-  },
-  handleChange: function(obj) {
-    this.setState({value: obj.value});
-  },
-  // Doesn't feel very React-y, but handy in this case
-  getValue: function() {
-    return this.state.value;
+  handleChange: function(e) {
+    var value = e.value;
+    if (this.props.onChange) {
+      this.props.onChange(value);
+    }
   },
   render: function() {
     return (
-      /* jshint ignore:start */
       <InputGroup
-        name="upload"
+        name={this.props.name || 'upload'}
         type="checkbox"
-        label="Allow this person to upload data for you"
-        value={this.state.value}
+        label="Allow uploading"
+        disabled={this.props.working}
+        value={this.props.value}
         onChange={this.handleChange}/>
-        /* jshint ignore:end */
     );
   }
 });
@@ -136,7 +123,11 @@ var MemberInviteForm = React.createClass({
             <div className="">
               <input className="PatientInfo-input" id="email" ref="email" placeholder="Email" />
               <div className="PatientTeam-permissionSelection">
-                <PermissionInputGroup ref="allowUpload" value={this.state.allowUpload} />
+                <PermissionInputGroup
+                  name="upload-invitation"
+                  value={this.state.allowUpload}
+                  working={this.state.working}
+                  onChange={this.handlePermissionChange} />
               </div>
               <div className="PatientTeam-buttonHolder">
                 <button className="PatientInfo-button PatientInfo-button--secondary" type="button"
@@ -158,13 +149,17 @@ var MemberInviteForm = React.createClass({
     );
   },
 
+  handlePermissionChange: function(value) {
+    this.setState({allowUpload: value});
+  },
+
   handleSubmit: function(e) {
     if (e) {
       e.preventDefault();
     }
 
     var email = this.refs.email.getDOMNode().value;
-    var allowUpload = this.refs.allowUpload.getValue();
+    var allowUpload = this.state.allowUpload;
 
     var validateEmail = function(email) {
       var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -191,17 +186,13 @@ var MemberInviteForm = React.createClass({
       permissions.upload = {};
     }
 
-    this.setState({allowUpload: allowUpload});
-
     InvitationSentActions.send(email, permissions);
   }
 });
 
 var ChangePermissionsForm = React.createClass({
   propTypes: {
-    member: React.PropTypes.object,
-    onPermissionsSet: React.PropTypes.func,
-    onCancel: React.PropTypes.func
+    member: React.PropTypes.object
   },
 
   getInitialState: function() {
@@ -231,12 +222,6 @@ var ChangePermissionsForm = React.createClass({
     MemberStore.removeChangeListener(this.handleStoreChange);
   },
 
-  componentDidUpdate: function(prevProps, prevState) {
-    if (prevState.working && !this.state.working) {
-      this.props.onPermissionsSet();
-    }
-  },
-
   componentWillReceiveProps: function(nextProps) {
     this.setState(this.getStateFromProps(nextProps));
   },
@@ -254,43 +239,20 @@ var ChangePermissionsForm = React.createClass({
   },
 
   render: function() {
-    var member = this.props.member;
-
-    return (
-      <div>
-        <div className="ModalOverlay-content">
-          <div className="PatientTeam-changePermissionsFormText">
-            {member.profile.fullName + ' is allowed to view your data. '}
-            {'You can set or unset additional permissions below:'}
-          </div>
-          <div className="PatientTeam-changePermissionsFormInput">
-            <PermissionInputGroup ref="allowUpload" value={this.state.allowUpload} />
-          </div>
-        </div>
-        <div className="ModalOverlay-controls">
-          <button className="PatientInfo-button PatientInfo-button--secondary" type="button"
-            onClick={this.props.onCancel}
-            disabled={this.state.working}>Cancel</button>
-          <button className="PatientInfo-button PatientInfo-button--primary" type="submit"
-            onClick={this.handleSave}
-            disabled={this.state.working}>
-            {this.state.working ? 'Saving...' : 'Save'}</button>
-        </div>
-      </div>
-    );
+    return <PermissionInputGroup
+      name={'upload-' + this.props.member.userid}
+      value={this.state.allowUpload}
+      working={this.state.working}
+      onChange={this.handlePermissionChange} />;
   },
 
-  handleSave: function(e) {
-    if (e) {
-      e.preventDefault();
-    }
-
+  handlePermissionChange: function(value) {
     var permissions = {
       view: {},
       note: {}
     };
 
-    var allowUpload = this.refs.allowUpload.getValue();
+    var allowUpload = value;
     if (allowUpload) {
       permissions.upload = {};
     }
@@ -320,7 +282,7 @@ var ConfirmDialog = React.createClass({
           <button className="PatientInfo-button PatientInfo-button--secondary" type="button"
             onClick={this.props.onCancel}
             disabled={this.props.working}>{this.props.dismissText || 'Cancel'}</button>
-          <button className="PatientInfo-button PatientInfo-button--primary" type="submit"
+          <button className="PatientInfo-button PatientInfo-button--warning PatientInfo-button--primary" type="submit"
             onClick={this.handleSubmit}
             disabled={this.props.working}>
             {this.props.submitText}
@@ -496,29 +458,6 @@ var PatientTeam = React.createClass({
     this.setState(this.getStateFromStores());
   },
 
-  renderChangeTeamMemberPermissionsDialog: function(member) {
-    return (
-      <ChangePermissionsForm
-        member={member}
-        onPermissionsSet={this.overlayClickHandler}
-        onCancel={this.overlayClickHandler} />
-    );
-  },
-
-  handleChangeTeamMemberPermissions: function(member) {
-    var self = this;
-
-    return function(e) {
-      if (e) {
-        e.preventDefault();
-      }
-      self.setState({
-        showModalOverlay: true,
-        dialog: self.renderChangeTeamMemberPermissionsDialog(member)
-      });
-    };
-  },
-
   renderRemoveTeamMemberDialog: function(member) {
     return (
       <RemoveMemberDialog
@@ -549,7 +488,7 @@ var PatientTeam = React.createClass({
 
     if(_.isEmpty(member.permissions)){
       return null;
-    }else {
+    } else {
       if(member.permissions.admin) {
         classes['icon-permissions-own'] = true;
       } else if(member.permissions.upload) {
@@ -571,9 +510,9 @@ var PatientTeam = React.createClass({
           <div className="PatientTeam-blocks PatientInfo-blocks">
             <div className="PatientInfo-blockRow">
               <div className="PatientInfo-block PatientInfo-block--withArrow"><div>{member.profile.fullName}</div></div>
-              <a href="" className="PatientTeam-icon PatientTeam-icon--permission" title='Change permissions' onClick={this.handleChangeTeamMemberPermissions(member)}><i className={iconClasses}></i></a>
-              <a href="" className="PatientTeam-icon PatientTeam-icon--remove" title='Remove member' onClick={this.handleRemoveTeamMember(member)}><i className="icon-remove"></i></a>
+              <a href="" className="PatientTeam-icon PatientTeam-icon--remove" title='Remove member' onClick={this.handleRemoveTeamMember(member)}><i className="icon-delete"></i></a>
               <div className="clear"></div>
+              <ChangePermissionsForm member={member} />
             </div>
           </div>
         </div>
@@ -616,9 +555,9 @@ var PatientTeam = React.createClass({
           <div className="PatientTeam-blocks PatientInfo-blocks">
             <div className="PatientInfo-blockRow">
               <div className="PatientInfo-block PatientInfo-block--withArrow" title={invite.email}><div>{invite.email}</div></div>
-              <div className="PatientInfo-waiting">Waiting for confirmation</div>
-              <a href="" className="PatientTeam-icon PatientTeam-icon--remove" title='Dismiss invitation' onClick={this.handleCancelInvite(invite)}><i className="icon-remove"></i></a>
+              <a href="" className="PatientTeam-icon PatientTeam-icon--remove" title='Dismiss invitation' onClick={this.handleCancelInvite(invite)}><i className="icon-delete"></i></a>
               <div className="clear"></div>
+              <div className="PatientInfo-waiting">Waiting for confirmation</div>
             </div>
           </div>
         </div>
@@ -700,7 +639,7 @@ var PatientTeam = React.createClass({
 
   renderEditControls: function() {
     var key = 'edit';
-    var text = 'Edit';
+    var text = 'Remove people…';
     if (this.state.editing) {
       key = 'cancel';
       text = 'Done';
@@ -725,8 +664,8 @@ var PatientTeam = React.createClass({
       'isEditing': this.state.editing
     });
 
-    var editControls = this.renderEditControls();
     var members = _.map(this.state.members, this.renderTeamMember);
+    var editControls = _.isEmpty(members) ? null : this.renderEditControls();
     var pendingInvites = _.map(this.state.pendingInvites, this.renderPendingInvite);
     var invite = this.state && this.state.invite ? this.renderInviteForm() : this.renderInvite();
 
@@ -740,12 +679,11 @@ var PatientTeam = React.createClass({
     return (
       <div className={classes}>
         <div className="PatientPage-sectionTitle">
-          {'Care Team'}
+          {'Share'}
           <span className="PatientPage-sectionTitleMessage">
             {'These people can view ' + patientName + '\'s data'}
           </span>
         </div>
-        {editControls}
         <div className="clear"></div>
         <ul className={listClass}>
           {members}
@@ -753,6 +691,7 @@ var PatientTeam = React.createClass({
           {invite}
           <div className="clear"></div>
         </ul>
+        {editControls}
         {this.renderModalOverlay()}
       </div>
     );

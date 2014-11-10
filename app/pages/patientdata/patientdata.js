@@ -21,6 +21,7 @@ var bows = require('bows');
 
 var config = require('../../config');
 
+var personUtils = require('../../core/personutils');
 var utils = require('../../core/utils');
 var personUtils = require('../../core/personutils');
 var queryString = require('../../core/querystring');
@@ -205,7 +206,7 @@ var PatientData = React.createClass({
   },
 
   renderNoData: function() {
-    var content = 'This patient doesn\'t have any data yet.';
+    var content = personUtils.patientFullName(this.state.patient) + ' does not have any data yet.';
     var header = this.renderEmptyHeader();
 
     var self = this;
@@ -213,7 +214,7 @@ var PatientData = React.createClass({
       trackMetric('Clicked No Data Upload');
     };
 
-    if (this.isRootOrAdmin()) {
+    if (this.hasEditPermissions()) {
       /* jshint ignore:start */
       content = (
         <div className="patient-data-message-no-data">
@@ -279,9 +280,8 @@ var PatientData = React.createClass({
     return false;
   },
 
-  isRootOrAdmin: function() {
-    return personUtils.hasPermissions('root', this.state.patient) ||
-           personUtils.hasPermissions('admin', this.state.patient);
+  hasEditPermissions: function() {
+    return personUtils.hasEditPermissions(this.state.patient);
   },
 
   renderChart: function() {

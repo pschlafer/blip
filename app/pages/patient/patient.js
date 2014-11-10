@@ -30,6 +30,10 @@ var InvitationSentActions = require('../../actions/InvitationSentActions');
 var trackMetric = require('../../core/trackMetric');
 
 var Patient = React.createClass({
+  propTypes: {
+    shareOnly: React.PropTypes.bool
+  },
+
   mixins: [AuthenticatedRoute],
 
   getInitialState: function() {
@@ -47,7 +51,12 @@ var Patient = React.createClass({
 
   componentWillMount: function() {
     this.fetchData();
-    trackMetric('Viewed Profile');
+    if (this.props.shareOnly) {
+      trackMetric('Viewed Share');
+    }
+    else {
+      trackMetric('Viewed Profile');
+    }
   },
 
   componentDidMount: function() {
@@ -93,59 +102,32 @@ var Patient = React.createClass({
   renderSubnav: function() {
     return (
       <div className="PatientPage-subnav grid">
-        <div className="grid-item one-whole medium-one-third">
-          {this.renderBackButton()}
-        </div>
-        <div className="grid-item one-whole medium-one-third">
-          <div className="PatientPage-subnavTitle">{this.renderTitle()}</div>
-        </div>
       </div>
     );
   },
 
   renderContent: function() {
+    var share;
+    var modal;
+    var profile = this.renderInfo();
+
+    if (this.props.shareOnly) {
+      share = this.renderAccess();
+      modal = this.renderModalOverlay();
+      profile = null;
+    }
+
     return (
       <div className="PatientPage-content">
-        {this.renderInfo()}
-        {this.renderTeam()}
-        {this.renderModalOverlay()}
+        {profile}
+        {share}
+        {modal}
       </div>
     );
   },
 
   renderFooter: function() {
     return <div className="PatientPage-footer"></div>;
-  },
-
-  renderBackButton: function() {
-    var patient = this.state.patient;
-    if (_.isEmpty(patient)) {
-      return null;
-    }
-
-    var text = 'Data';
-    var url = '#/patients/' + patient.userid + '/data';
-
-    var self = this;
-    var handleClick = function() {
-      trackMetric('Clicked Back To Data');
-    };
-
-    return (
-      <a className="js-back" href={url} onClick={handleClick}>
-        <i className="icon-back"></i>
-        {' ' + text}
-      </a>
-    );
-  },
-
-  renderTitle: function() {
-    var patient = this.state.patient;
-    if (_.isEmpty(patient)) {
-      return 'Profile';
-    }
-
-    return personUtils.patientFullName(patient) + '\'s Profile';
   },
 
   renderInfo: function() {
@@ -156,9 +138,8 @@ var Patient = React.createClass({
     );
   },
 
-  isRootOrAdmin: function() {
-    return personUtils.hasPermissions('root', this.state.patient) ||
-           personUtils.hasPermissions('admin', this.state.patient);
+  hasEditPermissions: function() {
+    return personUtils.hasEditPermissions(this.state.patient);
   },
 
   renderDeleteDialog: function() {
@@ -170,7 +151,7 @@ var Patient = React.createClass({
   renderDelete: function() {
     var self = this;
 
-    if (!this.isRootOrAdmin()) {
+    if (!this.hasEditPermissions()) {
       return null;
     }
 
@@ -203,8 +184,8 @@ var Patient = React.createClass({
     /* jshint ignore:end */
   },
 
-  renderTeam: function() {
-    if (!this.isRootOrAdmin()) {
+  renderAccess: function() {
+    if (!this.hasEditPermissions()) {
       return null;
     }
 

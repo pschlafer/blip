@@ -16,6 +16,7 @@
 
 var React = require('react');
 var _ = require('lodash');
+var Navigation = require('react-router').Navigation;
 
 var utils = require('../../core/utils');
 var personUtils = require('../../core/personutils');
@@ -37,7 +38,7 @@ var Profile = React.createClass({
     {name: 'passwordConfirm', label: 'Confirm password', type: 'password', placeholder: '******'}
   ],
 
-  mixins: [AuthenticatedRoute],
+  mixins: [AuthenticatedRoute, Navigation],
 
   MESSAGE_TIMEOUT: 2000,
 
@@ -86,8 +87,10 @@ var Profile = React.createClass({
   render: function() {
     var form = this.renderForm();
     var self = this;
-    var handleClickBack = function() {
-      trackMetric('Clicked Back To Care Team List');
+    var handleClickBack = function(e) {
+      e.preventDefault();
+      trackMetric('Clicked Back In Account');
+      self.goBack();
     };
 
     /* jshint ignore:start */
@@ -97,7 +100,7 @@ var Profile = React.createClass({
           <div className="container-box-inner profile-subnav-box">
             <div className="grid">
               <div className="grid-item one-whole medium-one-third">
-                <a className="js-back" href="#/" onClick={handleClickBack}>
+                <a className="js-back" href="" onClick={handleClickBack}>
                   <i className="icon-back"></i>
                   {' ' + 'Back'}
                 </a>

@@ -176,9 +176,11 @@ var routes = (
       <Route name="profile" handler={Profile}/>
       <Route name="patients" handler={Patients}/>
       <Route name="patient-new" path="patients/new" handler={PatientEdit}/>
-      <Route name="patient-view" path="patients/:patientId" handler={Patient}/>
+      <Route name="patient-profile" path="patients/:patientId/profile" handler={Patient}/>
+      <Route name="patient-share" path="patients/:patientId/share" handler={Patient} shareOnly={true}/>
       <Route name="patient-data" path="patients/:patientId/data" handler={PatientData}/>
       <Redirect from="/" to="/patients"/>
+      <Redirect from="/patients/:patientId" to="/patients/:patientId/data"/>
     </Route>
   </Routes>
 );

@@ -84,7 +84,7 @@ var PatientInfo = React.createClass({
     var nameNode;
     var ageNode;
     var diagnosisNode;
-    if (this.isRootOrAdmin()) {
+    if (this.hasEditPermissions()) {
       nameNode = (
         <a href="" onClick={handleClick} className="PatientInfo-block PatientInfo-block--withArrow">
           {this.getDisplayName(patient)}
@@ -121,7 +121,7 @@ var PatientInfo = React.createClass({
 
     return (
       <div className="PatientInfo">
-        <div className="PatientPage-sectionTitle">Info</div>
+        <div className="PatientPage-sectionTitle">Profile</div>
         <div className="PatientInfo-controls">
           {this.renderEditLink()}
         </div>
@@ -153,7 +153,7 @@ var PatientInfo = React.createClass({
   renderSkeleton: function() {
     return (
       <div className="PatientInfo">
-        <div className="PatientPage-sectionTitle">Info</div>
+        <div className="PatientPage-sectionTitle">Profile</div>
         <div className="PatientInfo-controls"></div>
         <div className="clear"></div>
         <div className="PatientInfo-content">
@@ -178,7 +178,7 @@ var PatientInfo = React.createClass({
   },
 
   renderEditLink: function() {
-    if (!this.isRootOrAdmin()) {
+    if (!this.hasEditPermissions()) {
       return null;
     }
 
@@ -236,11 +236,13 @@ var PatientInfo = React.createClass({
 
     return (
       <div className="PatientInfo">
+        <div className="PatientPage-sectionTitle">Profile</div>
         <div className="PatientInfo-controls">
           <button key="cancel" className="PatientInfo-button PatientInfo-button--secondary" type="button" disabled={this.state.working} onClick={handleCancel}>Cancel</button>
           {this.renderSubmit()}
           {this.renderNotification()}
         </div>
+        <div className="clear"></div>
         <div className="PatientInfo-content">
           <div className="PatientInfo-head">
             <div className="PatientInfo-picture"></div>
@@ -296,9 +298,8 @@ var PatientInfo = React.createClass({
     );
   },
 
-  isRootOrAdmin: function() {
-    return personUtils.hasPermissions('root', this.state.patient) ||
-           personUtils.hasPermissions('admin', this.state.patient);
+  hasEditPermissions: function() {
+    return personUtils.hasEditPermissions(this.state.patient);
   },
 
   getDisplayName: function(patient) {

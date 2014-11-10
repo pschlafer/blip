@@ -17,6 +17,9 @@
 var React = require('react');
 var _ = require('lodash');
 var cx = require('react/lib/cx');
+var Router = require('react-router');
+var Link = Router.Link;
+var Navigation = Router.Navigation;
 
 var personUtils = require('../../core/personutils');
 var ModalOverlay = require('../modaloverlay');
@@ -64,7 +67,7 @@ var RemovePatientDialog = React.createClass({
         <div className="ModalOverlay-content">{"Are you sure you want to leave this person's Care Team? You will no longer be able to view their data."}</div>
         <div className="ModalOverlay-controls">
           <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={this.props.onCancel} disabled={disabled}>Cancel</button>
-          <button className="PatientInfo-button PatientInfo-button--primary" type="submit" onClick={this.handleRemovePatient} disabled={disabled}>{buttonText}</button>
+          <button className="PatientInfo-button PatientInfo-button--warning PatientInfo-button--primary" type="submit" onClick={this.handleRemovePatient} disabled={disabled}>{buttonText}</button>
         </div>
       </div>
     );
@@ -79,11 +82,15 @@ var RemovePatientDialog = React.createClass({
 
 var PatientCard = React.createClass({
   propTypes: {
-    href: React.PropTypes.string,
+    patient: React.PropTypes.object,
+    isEditing: React.PropTypes.bool,
+    isNavbar: React.PropTypes.bool,
+    navbarActive: React.PropTypes.string,
     onClick: React.PropTypes.func,
-    uploadUrl: React.PropTypes.string,
-    patient: React.PropTypes.object
+    uploadUrl: React.PropTypes.string
   },
+
+  mixins: [Navigation],
 
   getInitialState: function() {
     return {
@@ -95,17 +102,15 @@ var PatientCard = React.createClass({
     var patient = this.props.patient;
     var self = this;
     var classes = cx({
-      'patientcard': true
+      'patientcard': true,
+      'isEditing': this.props.isEditing
     });
 
+    var view = this.renderView(patient);
     var remove = this.renderRemove(patient);
     var upload = this.renderUpload(patient);
     var share = this.renderShare(patient);
-
-    var viewClasses = cx({
-      'patientcard-actions-view': true,
-      'patientcard-actions--highlight': self.state.highlight === 'view'
-    });
+    var profile = this.renderProfile(patient);
 
     /* jshint ignore:start */
     return (
@@ -114,9 +119,9 @@ var PatientCard = React.createClass({
           onClick={this.onClick}>
           <i className="Navbar-icon icon-face-standin"></i>
           <div className="patientcard-info">
-            <div className="patientcard-fullname">{this.getFullName()}</div>
+            <div className="patientcard-fullname">{this.getFullName()} {profile}</div>
             <div className="patientcard-actions">
-              <a className={viewClasses} href={this.props.href} onClick={this.props.onClick}>View</a>
+              {view}
               {share}
               {upload}
             </div>
@@ -132,6 +137,53 @@ var PatientCard = React.createClass({
     /* jshint ignore:end */
   },
 
+  renderView: function() {
+    var classes = cx({
+      'patientcard-actions-view': true,
+      'patientcard-actions--highlight': (!this.props.isNavbar && this.state.highlight === 'view') || this.props.navbarActive === 'data'
+    });
+
+    return (
+      <Link
+        className={classes}
+        to="patient-data"
+        params={{patientId: this.props.patient.userid}}
+        onClick={this.props.onClick}>
+        View
+      </Link>
+    );
+  },
+
+  renderProfile: function(patient) {
+    if (!this.props.isNavbar) {
+      return;
+    }
+
+    var classes = cx({
+      'patientcard-actions-profile': true,
+      'patientcard-actions--highlight': (!this.props.isNavbar && this.state.highlight === 'profile') || this.props.navbarActive === 'profile'
+    });
+
+    var iconClass = cx({
+      'patientcard-icon': true,
+      'icon-settings': true,
+      'patientcard-icon--highlight': this.props.navbarActive === 'profile'
+    });
+
+    return (
+      <Link
+        className={classes}
+        to="patient-profile"
+        params={{patientId: this.props.patient.userid}}
+        onClick={this.stopPropagation}
+        onMouseEnter={this.setHighlight('profile')}
+        onMouseLeave={this.setHighlight('view')}
+        title="Profile">
+        <i className={iconClass}></i>
+      </Link>
+    );
+  },
+
   renderRemove: function(patient) {
     var classes = cx({
       'patientcard-actions--highlight': this.state.highlight === 'remove'
@@ -143,7 +195,7 @@ var PatientCard = React.createClass({
       return (
         /* jshint ignore:start */
         <a className={classes} href="" onMouseEnter={this.setHighlight('remove')} onMouseLeave={this.setHighlight('view')} onClick={this.handleRemove} title={title}>
-          <i className="Navbar-icon icon-remove"></i>
+          <i className="Navbar-icon icon-delete"></i>
         </a>
         /* jshint ignore:end */
       );
@@ -151,7 +203,7 @@ var PatientCard = React.createClass({
   },
 
   renderUpload: function(patient) {
-    var uploadClasses = cx({
+    var classes = cx({
       'patientcard-actions-upload': true,
       'patientcard-actions--highlight': this.state.highlight === 'upload'
     });
@@ -159,7 +211,7 @@ var PatientCard = React.createClass({
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
         /* jshint ignore:start */
-        <a className={uploadClasses} onClick={this.stopPropagation} onMouseEnter={this.setHighlight('upload')} onMouseLeave={this.setHighlight('view')} href={this.props.uploadUrl} target='_blank' title="Upload data">Upload</a>
+        <a className={classes} onClick={this.stopPropagation} onMouseEnter={this.setHighlight('upload')} onMouseLeave={this.setHighlight('view')} href={this.props.uploadUrl} target='_blank' title="Upload data">Upload</a>
         /* jshint ignore:end */
       );
     }
@@ -168,18 +220,23 @@ var PatientCard = React.createClass({
   },
 
   renderShare: function(patient) {
-    var shareUrl = patient.link.slice(0,-5);
-
-    var shareClasses = cx({
+    var classes = cx({
       'patientcard-actions-share': true,
-      'patientcard-actions--highlight': this.state.highlight === 'share'
+      'patientcard-actions--highlight': (!this.props.isNavbar && this.state.highlight === 'share')  || this.props.navbarActive === 'share'
     });
 
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
-        /* jshint ignore:start */
-        <a className={shareClasses} onClick={this.stopPropagation} onMouseEnter={this.setHighlight('share')} onMouseLeave={this.setHighlight('view')} href={shareUrl} title="Share data">Share</a>
-        /* jshint ignore:end */
+        <Link
+          to="patient-share"
+          params={{patientId: this.props.patient.userid}}
+          className={classes}
+          onClick={this.stopPropagation}
+          onMouseEnter={this.setHighlight('share')}
+          onMouseLeave={this.setHighlight('view')}
+          title="Share data">
+          Share
+        </Link>
       );
     }
 
@@ -237,7 +294,7 @@ var PatientCard = React.createClass({
   },
 
   onClick: function() {
-    window.location.hash = this.props.href;
+    this.transitionTo('patient-data', {patientId: this.props.patient.userid});
     this.props.onClick();
   }
 });

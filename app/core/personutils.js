@@ -61,14 +61,12 @@ personUtils.isSame = function(first, second) {
   return (first.userid === second.userid);
 };
 
-personUtils.hasPermissions = function(perms, person) {
-  if (!(person && person.permissions)) {
-    return false;
-  }
-  perms = utils.toArray(perms);
-  return _.reduce(perms, function(answer, perm) {
-    return answer && _.has(person.permissions, perm);
-  }, true);
+personUtils.hasEditPermissions = function(person) {
+  return (
+    person &&
+    !_.isEmpty(person.permissions) &&
+    (person.permissions.admin || person.permissions.root)
+  );
 };
 
 module.exports = personUtils;
