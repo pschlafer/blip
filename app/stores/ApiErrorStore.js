@@ -291,6 +291,29 @@ ApiErrorStore.dispatchToken = AppDispatcher.register(function(payload) {
       self.emitChange();
       break;
 
+    case AppConstants.api.FAILED_REQUEST_PASSWORD_RESET:
+      self._state.error = {
+        key: AppConstants.api.FAILED_REQUEST_PASSWORD_RESET,
+        email: payload.email,
+        message: userMessages.ERR_REQUEST_PASSWORD_RESET,
+        original: payload.error
+      };
+      self.emitChange();
+      break;
+
+    case AppConstants.api.FAILED_CONFIRM_PASSWORD_RESET:
+      // Don't handle globally "bad token or email" errors
+      if (payload.error && payload.error.status === 500) {
+        self._state.error = {
+          key: AppConstants.api.FAILED_CONFIRM_PASSWORD_RESET,
+          payload: payload.payload,
+          message: userMessages.ERR_CONFIRM_PASSWORD_RESET,
+          original: payload.error
+        };
+      }
+      self.emitChange();
+      break;
+
     case AppConstants.api.COMPLETED_LOGOUT:
       self.reset();
       break;

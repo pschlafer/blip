@@ -48,6 +48,8 @@ var Patients = require('./pages/patients');
 var PatientEdit = require('./pages/patientedit');
 var Patient = require('./pages/patient');
 var PatientData = require('./pages/patientdata');
+var RequestPasswordReset = require('./pages/passwordreset/request');
+var ConfirmPasswordReset = require('./pages/passwordreset/confirm');
 
 var deferAction = require('./actions/deferAction');
 
@@ -179,6 +181,8 @@ var routes = (
       <Route name="patient-profile" path="patients/:patientId/profile" handler={Patient}/>
       <Route name="patient-share" path="patients/:patientId/share" handler={Patient} shareOnly={true}/>
       <Route name="patient-data" path="patients/:patientId/data" handler={PatientData}/>
+      <Route name="request-password-reset" handler={RequestPasswordReset}/>
+      <Route name="confirm-password-reset" handler={ConfirmPasswordReset}/>
       <Redirect from="/" to="/patients"/>
       <Redirect from="/patients/:patientId" to="/patients/:patientId/data"/>
     </Route>

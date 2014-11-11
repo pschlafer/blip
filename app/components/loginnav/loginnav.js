@@ -25,7 +25,7 @@ var trackMetric = require('../../core/trackMetric');
 var LoginNav = React.createClass({
   propTypes: {
     page: React.PropTypes.string,
-    inviteEmail: React.PropTypes.string
+    hideLinks: React.PropTypes.bool
   },
 
   render: function() {
@@ -66,7 +66,7 @@ var LoginNav = React.createClass({
   },
 
   renderLink: function() {
-    if (this.props.inviteEmail) {
+    if (this.props.hideLinks) {
       return null;
     }
 

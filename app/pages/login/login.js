@@ -24,7 +24,6 @@ var utils = require('../../core/utils');
 var LoginNav = require('../../components/loginnav');
 var LoginLogo = require('../../components/loginlogo');
 var SimpleForm = require('../../components/simpleform');
-var MailTo = require('../../components/mailto');
 
 var UnauthenticatedRoute = require('../../core/UnauthenticatedRoute');
 
@@ -120,7 +119,7 @@ var Login = React.createClass({
 
   render: function() {
     var form = this.renderForm();
-    var forgotPassword = this.renderPasswordMailTo();
+    var forgotPassword = this.renderForgotPassword();
     var inviteIntro = this.renderInviteIntroduction();
 
     /* jshint ignore:start */
@@ -128,13 +127,13 @@ var Login = React.createClass({
       <div className="login">
         <LoginNav
           page="login"
-          inviteEmail={this.state.inviteEmail} />
+          hideLinks={Boolean(this.props.inviteEmail)} />
         <LoginLogo />
         {inviteIntro}
         <div className="container-small-outer login-form">
           <div className="container-small-inner login-form-box">
             <div className="login-simpleform">{form}</div>
-            <div className="login-mailto">{forgotPassword}</div>
+            <div className="login-forgotpassword">{forgotPassword}</div>
           </div>
         </div>
       </div>
@@ -175,19 +174,8 @@ var Login = React.createClass({
     trackMetric('Clicked Forgot Password');
   },
 
-  renderPasswordMailTo: function() {
-
-    var title = 'I forgot my password';
-
-    /* jshint ignore:start */
-    return (
-      <MailTo
-        linkTitle={title}
-        emailAddress={'support@tidepool.org'}
-        emailSubject={title}
-        onLinkClicked={this.logPasswordReset}/>
-    );
-    /* jshint ignore:end */
+  renderForgotPassword: function() {
+    return <a href="#/request-password-reset">{'I forgot my password'}</a>;
   },
 
   handleSubmit: function(formValues) {

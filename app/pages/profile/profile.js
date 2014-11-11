@@ -18,6 +18,8 @@ var React = require('react');
 var _ = require('lodash');
 var Navigation = require('react-router').Navigation;
 
+var config = require('../../config');
+
 var utils = require('../../core/utils');
 var personUtils = require('../../core/personutils');
 var SimpleForm = require('../../components/simpleform');
@@ -194,7 +196,7 @@ var Profile = React.createClass({
     var validationErrors = {};
     var IS_REQUIRED = 'This field is required.';
     var INVALID_EMAIL = 'Invalid email address.';
-    var SHORT_PASSWORD = 'Password must be longer than 5 characters.';
+    var SHORT_PASSWORD = 'Password must be at least ' + config.PASSWORD_MIN_LENGTH + ' characters long.';
 
     if (!formValues.fullName) {
       validationErrors.fullName = IS_REQUIRED;
@@ -220,7 +222,7 @@ var Profile = React.createClass({
       }
     }
 
-    if (formValues.password && formValues.password.length < 6) {
+    if (formValues.password && formValues.password.length < config.PASSWORD_MIN_LENGTH) {
       validationErrors.password = SHORT_PASSWORD;
     }
 

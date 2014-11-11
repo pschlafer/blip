@@ -41,6 +41,8 @@ module.exports = {
   ERR_CANCEL_INVITATION: function(email) { return 'Something went wrong while trying to cancel invitation to ' + email; },
   ERR_REMOVE_MEMBER: function(memberId) { return 'Something went wrong while trying to remove member ' + memberId; },
   ERR_SET_MEMBER_PERMISSIONS: function(memberId) { return 'Something went wrong while trying to set permissions for member ' + memberId; },
+  ERR_REQUEST_PASSWORD_RESET: 'Something went wrong while requesting password reset',
+  ERR_CONFIRM_PASSWORD_RESET: 'Something went wrong while confirming password reset',
 
   ERR_GENERIC : 'Sorry! Something went wrong. It\'s our fault, not yours. We\'re going to go investigate. For the time being, go ahead and ',
   ERR_SERVICE_DOWN : 'Sorry! Something went wrong. It\'s our fault, not yours. We\'re going to go investigate. Please try again in a few moments.',

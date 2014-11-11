@@ -16,8 +16,6 @@
 
 var React = require('react');
 var _ = require('lodash');
-var Router = require('react-router');
-var Navigation = Router.Navigation;
 
 var config = require('../../config');
 
@@ -28,36 +26,24 @@ var SimpleForm = require('../../components/simpleform');
 
 var UnauthenticatedRoute = require('../../core/UnauthenticatedRoute');
 
-var AuthActions = require('../../actions/AuthActions');
-var AuthStore = require('../../stores/AuthStore');
-var trackMetric = require('../../core/trackMetric');
+var PasswordResetActions = require('../../actions/PasswordResetActions');
+var PasswordResetStore = require('../../stores/PasswordResetStore');
 
-var Signup = React.createClass({
-  propTypes: {
-    onSignupSuccess: React.PropTypes.func.isRequired
-  },
-
-  mixins: [UnauthenticatedRoute, Navigation],
+var ConfirmPasswordReset = React.createClass({
+  mixins: [UnauthenticatedRoute],
 
   formInputs: function() {
     return [
-      {name: 'fullName', label: 'Full name', placeholder: 'ex: Mary Smith'},
-      {
-        name: 'username',
-        label: 'Email',
-        type: 'email',
-        placeholder: '',
-        disabled: !!this.state.inviteEmail
-      },
+      {name: 'email', label: 'Email', type: 'email'},
       {
         name: 'password',
-        label: 'Password',
+        label: 'New password',
         type: 'password',
         placeholder: '******'
       },
       {
         name: 'passwordConfirm',
-        label: 'Confirm password',
+        label: 'Confirm new password',
         type: 'password',
         placeholder: '******'
       }
@@ -65,121 +51,95 @@ var Signup = React.createClass({
   },
 
   getInitialState: function() {
-    var formValues = {};
-
-    var inviteEmail = this.getInviteEmail();
-    if (inviteEmail) {
-      formValues.username = inviteEmail;
-    }
-
-    return _.assign({
-      formValues: formValues,
-      validationErrors: {},
-      notification: null,
-      inviteEmail: inviteEmail,
-    }, this.getInitialStateFromStores());
-  },
-
-  getInviteEmail: function() {
-    var inviteEmail = this.props.query.inviteEmail;
-    if (inviteEmail && utils.validateEmail(inviteEmail)) {
-      return inviteEmail;
-    }
-    else {
-      return null;
-    }
-  },
-
-  getInitialStateFromStores: function() {
     return {
-      working: AuthStore.isSigningUp(),
+      working: false,
+      success: false,
+      formValues: {},
+      validationErrors: {},
+      notification: null
     };
   },
 
   getStateFromStores: function() {
-    var state = this.getInitialStateFromStores();
-    var signupError = AuthStore.getSignupError();
-    if (signupError) {
-      var message = 'An error occured while signing up.';
-      if (signupError.status === 400) {
-        message = 'An account already exists for that email.';
-      }
+    return {
+      working: PasswordResetStore.isConfirming(),
+      success: PasswordResetStore.isConfirmSuccessful(),
+      notification: this.getErrorNotification()
+    };
+  },
 
-      state.notification = {
-        type: 'error',
-        message: message
-      };
+  getErrorNotification: function() {
+    var error = PasswordResetStore.getConfirmError();
+    if (!error) {
+      return null;
     }
-    else {
-      state.notification = null;
-    }
-    return state;
+
+    return {
+      type: 'error',
+      message: 'We couldn\'t change your password. You may have mistyped your email, or the reset link may have expired.'
+    };
   },
 
   componentDidMount: function() {
-    AuthStore.addChangeListener(this.handleStoreChange);
+    PasswordResetStore.addChangeListener(this.handleStoreChange);
   },
 
   componentWillUnmount: function() {
-    AuthStore.removeChangeListener(this.handleStoreChange);
+    PasswordResetStore.removeChangeListener(this.handleStoreChange);
   },
 
   handleStoreChange: function() {
     if (!this.isMounted()) {
       return;
     }
-    if (AuthStore.isAuthenticated()) {
-      return this.handleSignupSuccess();
-    }
     this.setState(this.getStateFromStores());
   },
 
-  handleSignupSuccess: function() {
-    this.transitionTo('/patients');
-    trackMetric('Signed Up');
-  },
-
   render: function() {
-    var form = this.renderForm();
-    var inviteIntro = this.renderInviteIntroduction();
-
-    /* jshint ignore:start */
-    return (
-      <div className="signup">
-        <LoginNav
-          page="signup"
-          hideLinks={Boolean(this.state.inviteEmail)} />
-        <LoginLogo />
-        {inviteIntro}
-        <div className="container-small-outer signup-form">
-          <div className="container-small-inner signup-form-box">
-            {form}
+    var content;
+    if (this.state.success) {
+      content = (
+        <div className="PasswordReset-intro">
+          <div className="PasswordReset-title">{'Success!'}</div>
+          <div className="PasswordReset-instructions">
+            <p>{'Your password was changed successfully. You can now log in with your new password.'}</p>
+          </div>
+          <div className="PasswordReset-button">
+            <a className="btn btn-primary" href="#/login">Log in</a>
           </div>
         </div>
-      </div>
-    );
-    /* jshint ignore:end */
-  },
-
-  renderInviteIntroduction: function() {
-    if (!this.state.inviteEmail) {
-      return null;
+      );
+    }
+    else {
+      content = (
+        <div>
+          <div className="PasswordReset-intro">
+            <div className="PasswordReset-title">{'Change your password'}</div>
+          </div>
+          <div className="PasswordReset-form">{this.renderForm()}</div>
+          <div className="PasswordReset-link">
+            <a href="#/login">Cancel</a>
+          </div>
+        </div>
+      );
     }
 
     return (
-      <div className='signup-inviteIntro'>
-        <p>{'You\'ve been invited to Blip.'}</p><p>{'Sign up to view the invitation.'}</p>
+      <div className="PasswordReset">
+        <LoginNav hideLinks={true} />
+        <LoginLogo />
+        <div className="container-small-outer login-form">
+          <div className="container-small-inner login-form-box">
+            {content}
+          </div>
+        </div>
       </div>
     );
   },
 
   renderForm: function() {
-    var submitButtonText = 'Sign up';
-    if (this.state.working) {
-      submitButtonText = 'Signing up...';
-    }
+    var submitButtonText = this.state.working ? 'Saving...' : 'Save';
 
-    /* jshint ignore:start */
     return (
       <SimpleForm
         inputs={this.formInputs()}
@@ -190,7 +150,6 @@ var Signup = React.createClass({
         onSubmit={this.handleSubmit}
         notification={this.state.notification}/>
     );
-    /* jshint ignore:end */
   },
 
   handleSubmit: function(formValues) {
@@ -201,8 +160,6 @@ var Signup = React.createClass({
     }
 
     this.resetFormStateBeforeSubmit(formValues);
-
-    formValues = _.clone(formValues);
 
     var validationErrors = this.validateFormValues(formValues);
     if (!_.isEmpty(validationErrors)) {
@@ -229,16 +186,12 @@ var Signup = React.createClass({
     var INVALID_EMAIL = 'Invalid email address.';
     var SHORT_PASSWORD = 'Password must be at least ' + config.PASSWORD_MIN_LENGTH + ' characters long.';
 
-    if (!formValues.fullName) {
-      validationErrors.fullName = IS_REQUIRED;
+    if (!formValues.email) {
+      validationErrors.email = IS_REQUIRED;
     }
 
-    if (!formValues.username) {
-      validationErrors.username = IS_REQUIRED;
-    }
-
-    if (formValues.username && !utils.validateEmail(formValues.username)) {
-      validationErrors.username = INVALID_EMAIL;
+    if (formValues.email && !utils.validateEmail(formValues.email)) {
+      validationErrors.email = INVALID_EMAIL;
     }
 
     if (!formValues.password) {
@@ -261,11 +214,7 @@ var Signup = React.createClass({
     if (!_.isEmpty(validationErrors)) {
       this.setState({
         working: false,
-        validationErrors: validationErrors,
-        notification: {
-          type: 'error',
-          message:'Some entries are invalid.'
-        }
+        validationErrors: validationErrors
       });
     }
 
@@ -274,18 +223,19 @@ var Signup = React.createClass({
 
   prepareFormValuesForSubmit: function(formValues) {
     return {
-      username: formValues.username,
-      emails: [formValues.username],
-      password: formValues.password,
-      profile: {
-        fullName: formValues.fullName
-      }
+      key: this.getResetKey(),
+      email: formValues.email,
+      password: formValues.password
     };
   },
 
+  getResetKey: function() {
+    return this.props.query.resetKey;
+  },
+
   submitFormValues: function(formValues) {
-    AuthActions.signup(formValues);
+    PasswordResetActions.confirm(formValues);
   }
 });
 
-module.exports = Signup;
+module.exports = ConfirmPasswordReset;
