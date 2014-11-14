@@ -34,7 +34,6 @@ var logoSrc = require('./images/blip-logo-80x80.png');
 
 var Navbar = React.createClass({
   propTypes: {
-    version: React.PropTypes.string,
     patientId: React.PropTypes.string,
     getUploadUrl: React.PropTypes.func
   },
@@ -88,7 +87,6 @@ var Navbar = React.createClass({
     return (
       <div className="Navbar-logoSection">
         {this.renderLogo()}
-        {this.renderVersion()}
       </div>
     );
   },
@@ -106,15 +104,6 @@ var Navbar = React.createClass({
         onClick={handleClick}>
       </a>
     );
-  },
-
-  renderVersion: function() {
-    var version = this.props.version;
-    if (version) {
-      version = 'v' + version;
-      return <div className="Navbar-version" ref="version">{version}</div>;
-    }
-    return null;
   },
 
   getPatientLink: function(patient) {

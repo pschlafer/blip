@@ -261,12 +261,15 @@ function getPatient(patientId, cb) {
     if (!personUtils.isPatient(person)) {
       return cb();
     }
-    //attach the logged in users perms
-    loggedInUsersPermissons(function(err, perms){
+    // Attach the logged-in user's permissions for that patient
+    var userId = tidepool.getUserId();
+    tidepool.getAccessPermissionsForGroup(patientId, userId, function(err, permissions) {
+      if (err) {
+        return cb(err);
+      }
 
-      person.permissions = _.values(perms);
-
-      return cb(err, person);
+      person.permissions = permissions;
+      return cb(null, person);
     });
 
   });
@@ -276,9 +279,8 @@ function updatePatient(patient, cb) {
   var patientId = patient.userid;
   // Hang on to team, we'll add back later
   var team = patient.team || [];
-  // Patient info is contained in the `patient` attribute of the user's profile
-  var patientInfo = personUtils.patientInfo(patient);
-  var profile = {patient: patientInfo};
+
+  var profile = patient.profile;
   tidepool.addOrUpdateProfile(patientId, profile, function(err, profile) {
     if (err) {
       return cb(err);
@@ -290,10 +292,6 @@ function updatePatient(patient, cb) {
     });
     return cb(null, patient);
   });
-}
-
-function loggedInUsersPermissons(cb) {
-  tidepool.getAccessPermissions(cb);
 }
 
 api.patient.get = function(patientId, cb) {

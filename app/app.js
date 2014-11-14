@@ -45,7 +45,7 @@ var Logout = require('./pages/logout');
 var Signup = require('./pages/signup');
 var Profile = require('./pages/profile');
 var Patients = require('./pages/patients');
-var PatientEdit = require('./pages/patientedit');
+var PatientNew = require('./pages/patientnew');
 var Patient = require('./pages/patient');
 var PatientData = require('./pages/patientdata');
 var RequestPasswordReset = require('./pages/passwordreset/request');
@@ -132,7 +132,6 @@ var App = React.createClass({
       return (
         <div className="App-navbar">
           <Navbar
-            version={config.VERSION}
             patientId={this.getActiveParams().patientId}
             getUploadUrl={api.getUploadUrl.bind(api)} />
         </div>
@@ -152,8 +151,18 @@ var App = React.createClass({
             emailSubject={'Feedback on Blip'}
             onLinkClicked={this.logSupportContact} />
         </div>
+        {this.renderVersion()}
       </div>
     );
+  },
+
+  renderVersion: function() {
+    var version = config.VERSION;
+    if (version) {
+      version = 'v' + version;
+      return <div className="Navbar-version" ref="version">{version}</div>;
+    }
+    return null;
   },
 
   logSupportContact: function(){
@@ -177,7 +186,7 @@ var routes = (
       <Route name="signup" handler={Signup}/>
       <Route name="profile" handler={Profile}/>
       <Route name="patients" handler={Patients}/>
-      <Route name="patient-new" path="patients/new" handler={PatientEdit}/>
+      <Route name="patient-new" path="patients/new" handler={PatientNew}/>
       <Route name="patient-profile" path="patients/:patientId/profile" handler={Patient}/>
       <Route name="patient-share" path="patients/:patientId/share" handler={Patient} shareOnly={true}/>
       <Route name="patient-data" path="patients/:patientId/data" handler={PatientData}/>
