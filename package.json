@@ -3,7 +3,7 @@
   "version": "0.5.24",
   "private": true,
   "scripts": {
-    "test": "webpack-dev-server 'mocha!./test/entry.js' --output-file test.js --devtool eval-source-map --cache --colors --progress",
+    "test": "node_modules/.bin/jest",
     "start": "webpack-dev-server --devtool eval-source-map --cache --colors --progress --port 3000",
     "build": "npm run build-app && npm run build-config",
     "build-app": "node buildapp",
@@ -61,8 +61,6 @@
   },
   "jest": {
     "scriptPreprocessor": "app/preprocessor.js",
-    "unmockedModulePathPatterns": [
-      "node_modules/react"
-    ]
+    "unmockedModulePathPatterns": ["node_modules/react"]
   }
 }

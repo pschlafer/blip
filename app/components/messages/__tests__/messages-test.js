@@ -17,20 +17,26 @@
 
 jest.dontMock('../messages');
 
+var _ = require('lodash');
 var React = require('react/addons');
 var TestUtils = React.addons.TestUtils;
 
 var Messages = require('../messages');
 
-var mockData = require('blip-mock-data');
+// var mockData = require('blip-mock-data');
+// var mockMessages = mockData.messagenotes;
 
-var mockMessages = mockData.messagenotes;
-
-describe('Messages', function() {
-	it('receives messages from the server in a prop and puts them in state', function() {
-		var renderedMessages = TestUtils.renderIntoDocument(
-			<Messages messages={mockMessages} />
-		);
-		expect(Array.isArray(renderedMessages.state.messages)).toBe(true);
-	});
-});
+// describe('Messages', function() {
+// 	it('does not require any props', function() {
+// 		var renderedMessages = TestUtils.renderIntoDocument(
+// 			<Messages />
+// 		);
+// 		expect(_.isEmpty(renderedMessages.state)).toBe(true);
+// 	});
+// 	it('receives messages from the server in a prop and puts them in state', function() {
+// 		var renderedMessages = TestUtils.renderIntoDocument(
+// 			<Messages messages={mockMessages} />
+// 		);
+// 		expect(Array.isArray(renderedMessages.state.messages)).toBe(true);
+// 	});
+// });
