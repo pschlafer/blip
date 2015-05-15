@@ -13,16 +13,26 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-// @media print {
-//   .mailto {
-//     display: none;
-//   }
-// }
 
-// .mailto {
-//   font-size: 14px;
-// }
+.footer-item {
+  float:left;
+  -webkit-flex: 1;
+  flex: 1;
+  max-width:400px;
+  a {
+    &:extend(.link-secondary all);
+    font-size:14px;
+  }
+  span {
+    font-size:12px;
+    line-height:20px;
+    color:#989897;
+  }
+}
 
-// .mailto a {
-//   &:extend(.link-secondary all);
-// }
+
+@media print {
+  .mailto {
+    display: none;
+  }
+}

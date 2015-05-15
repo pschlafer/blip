@@ -40,6 +40,7 @@ var BrowserWarningOverlay = require('./components/browserwarningoverlay');
 var TidepoolNotification = require('./components/notification');
 var TermsOverlay = require('./components/termsoverlay');
 var MailTo = require('./components/mailto');
+var Footeritem = require('./components/footeritem');
 
 var Login = require('./pages/login');
 var Signup = require('./pages/signup');
@@ -352,20 +353,19 @@ var AppComponent = React.createClass({
 
   renderFooter: function() {
 
-    var title ='Send us feedback';
-    var subject = 'Feedback on Blip';
-
     return (
       /* jshint ignore:start */
-      <div className='container-small-outer footer'>
-        <div className='container-small-inner'>
-          <MailTo
-            linkTitle={title}
-            emailAddress={'support@tidepool.org'}
-            emailSubject={subject}
-            onLinkClicked={this.logSupportContact} />
-        </div>
-        {this.renderVersion()}
+      <div className="footer">
+        <Footeritem
+          linkTitle='Send us feedback'
+          linkAddress='mailto:support@tidepool.org?subject=Feedback%20on%20Blip'
+          onLinkClicked={this.logSupportContact}
+          subText={this.renderVersion()} />
+        <Footeritem
+          linkTitle='Get the Blip Notes mobile app'
+          linkAddress='#/blipnotes'
+          onLinkClicked={this.logSupportContact}
+          subText='Record contextual notes on the go' />
       </div>
       /* jshint ignore:end */
     );
@@ -377,7 +377,7 @@ var AppComponent = React.createClass({
       version = 'v' + version + ' beta';
       return (
         /* jshint ignore:start */
-        <div className="Navbar-version" ref="version">{version}</div>
+        <span className="Navbar-version" ref="version">{version}</span>
         /* jshint ignore:end */
       );
     }

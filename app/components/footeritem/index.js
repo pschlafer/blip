@@ -13,16 +13,4 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-// @media print {
-//   .mailto {
-//     display: none;
-//   }
-// }
-
-// .mailto {
-//   font-size: 14px;
-// }
-
-// .mailto a {
-//   &:extend(.link-secondary all);
-// }
+module.exports = require('./footeritem');
