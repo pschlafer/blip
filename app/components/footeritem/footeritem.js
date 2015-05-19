@@ -15,6 +15,8 @@
  */
 
 var React = require('react');
+var ModalOverlay = require('../modaloverlay');
+
 
 var Footeritem = React.createClass({
   propTypes: {
@@ -23,6 +25,13 @@ var Footeritem = React.createClass({
     onLinkClicked: React.PropTypes.func.isRequired,
     subText: React.PropTypes.string.isRequired
   },
+  
+  getInitialState: function() {
+    return {
+      showModalOverlay: false
+    };
+  },
+
 
   render: function() {
 
@@ -36,7 +45,7 @@ var Footeritem = React.createClass({
       
       return (
         /* jshint ignore:start */
-          <div className={'container-small-inner footer-item'}>
+          <div className='footer-item'>
             <div className='mailto'>
               <a href={this.props.linkAddress} onClick={this.props.onLinkClicked} target="mailto">{this.props.linkTitle}</a>
               <iframe name="mailto" src="about:blank" style={{display: 'none'}}></iframe>
@@ -50,9 +59,9 @@ var Footeritem = React.createClass({
 
       return (
         /* jshint ignore:start */
-        <div className={'container-small-inner footer-item'}>
+        <div className='footer-item'>
           <div>
-            <a href={this.props.linkAddress} onClick={this.props.onLinkClicked}>{this.props.linkTitle}</a>
+            <a onClick={this.props.onLinkClicked}>{this.props.linkTitle}</a>
           </div>
           {this.props.subText}
         </div>

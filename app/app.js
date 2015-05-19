@@ -377,7 +377,7 @@ var AppComponent = React.createClass({
       version = 'v' + version + ' beta';
       return (
         /* jshint ignore:start */
-        <span className="Navbar-version" ref="version">{version}</span>
+        <div className="Navbar-version" ref="version">{version}</div>
         /* jshint ignore:end */
       );
     }
